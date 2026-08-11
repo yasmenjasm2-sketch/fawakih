@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع الشحن</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #218838; }
+        #result { margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>شحن رصيد / خدمات</h2>
+    <form id="chargeForm">
+        <label>رقم اللاعب (ID):</label>
+        <input type="text" id="playerId" required placeholder="أدخل الـ ID هنا">
+
+        <label>اختر الخدمة:</label>
+        <select id="serviceId">
+            <!-- هذه القيم يجب أن تتطابق مع الـ IDs الموجودة في توثيق المبرمج -->
+            <option value="1">شحن 100 مجوهرة</option>
+            <option value="2">شحن 500 مجوهرة</option>
+        </select>
+
+        <button type="submit">إرسال الطلب</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script>
+    document.getElementById('chargeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const playerId = document.getElementById('playerId').value;
+        const serviceId = document.getElementById('serviceId').value;
+        const resultDiv = document.getElementById('result');
+        
+        resultDiv.innerHTML = "جاري تنفيذ الطلب، يرجى الانتظار...";
+        resultDiv.style.color = "blue";
+
+        try {
+            // إرسال البيانات إلى ملف PHP الخاص بك وليس للـ API مباشرة
+            const response = await fetch('charge.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    player_id: playerId,
+                    service_id: serviceId
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                resultDiv.innerHTML = "تم الشحن بنجاح!";
+                resultDiv.style.color = "green";
+                console.log(data); // عرض استجابة السيرفر في الكونسول
+            } else {
+                resultDiv.innerHTML = "حدث خطأ: " + (data.message || "فشل الطلب");
+                resultDiv.style.color = "red";
+            }
+        } catch (error) {
+            resultDiv.innerHTML = "خطأ في الاتصال بالسيرفر.";
+            resultDiv.style.color = "red";
+            console.error(error);
+        }
+    });
+</script>
+
+</body>
+</html>
