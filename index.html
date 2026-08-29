@@ -7,10 +7,6 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <!-- QR Code Generator -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- QR Code Scanner -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -200,30 +196,37 @@
             transform: translateY(1px);
         }
 
-        /* QR Display Box */
-        .qr-card {
-            background: #ffffff;
-            padding: 16px;
+        /* Info Display Box */
+        .info-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--accent-purple);
+            padding: 20px;
             border-radius: 18px;
-            display: inline-block;
             margin: 15px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-
-        #qrcode img {
-            margin: 0 auto;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
         .code-display {
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px dashed var(--accent-purple);
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px dashed var(--accent-glow);
             padding: 14px;
             border-radius: 14px;
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 6px;
+            color: var(--success-color);
+            margin: 10px 0;
+            user-select: all;
+        }
+        
+        .id-display {
+            font-family: monospace;
             color: var(--accent-glow);
-            margin: 15px 0;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
             user-select: all;
         }
 
@@ -237,15 +240,6 @@
             padding: 6px 14px;
             border-radius: 20px;
             margin-top: 5px;
-        }
-
-        #reader {
-            width: 100%;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid var(--accent-purple);
-            margin-bottom: 15px;
-            background: #000;
         }
 
         /* Alert Box */
@@ -296,7 +290,7 @@
     <div class="header">
         <div class="logo-icon">🍇</div>
         <h1>فواكه AI - نقل الاشتراك</h1>
-        <p class="subtitle">نظام التشفير الآمن لنقل اشتراكك بين الأجهزة بنقرة واحدة</p>
+        <p class="subtitle">نظام التشفير الآمن لنقل اشتراكك بين الأجهزة</p>
     </div>
 
     <div class="nav-tabs">
@@ -304,7 +298,7 @@
             <i class="fa-solid fa-paper-plane"></i> إرسال (جهازك الحالي)
         </button>
         <button class="tab-btn" onclick="switchTab('receive')">
-            <i class="fa-solid fa-qrcode"></i> استلام (جهازك الجديد)
+            <i class="fa-solid fa-mobile-screen"></i> استلام (جهازك الجديد)
         </button>
     </div>
 
@@ -316,26 +310,27 @@
         </div>
 
         <button class="btn-action" id="btnGenerate" onclick="generateTransferCode()">
-            <i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق
+            <i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل
         </button>
 
         <div id="sendResult" style="display: none; margin-top: 20px;">
             <div id="qrAndCodeContainer">
-                <p style="font-size: 13px; color: var(--text-muted);">امسح الباركود من الهاتف الجديد لمصادقة الجهاز (الخطوة الأولى):</p>
+                <p style="font-size: 13px; color: var(--text-muted);">أدخل هذه البيانات في الجهاز الجديد لمصادقة النقل:</p>
                 
-                <div class="qr-card">
-                    <div id="qrcode"></div>
+                <div class="info-card">
+                    <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">1. معرف الجهاز القديم (انسخه للجهاز الجديد):</p>
+                    <div class="id-display" id="displayOldId"></div>
+                    
+                    <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">2. رمز التحقق للمصادقة:</p>
+                    <div class="code-display" id="otpDisplay">------</div>
                 </div>
-
-                <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">رمز التحقق للمصادقة (الخطوة الثانية):</p>
-                <div class="code-display" id="otpDisplay">------</div>
                 
                 <div class="timer-badge">
                     <i class="fa-regular fa-clock"></i> ينتهي الأمان خلال: <span id="timer">01:00</span>
                 </div>
 
                 <div class="alert alert-info" style="display: block; margin-top: 15px;">
-                    <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار استلام الهاتف الجديد للترخيص...
+                    <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار إدخال هذه البيانات في الهاتف الجديد...
                 </div>
             </div>
             
@@ -348,25 +343,17 @@
     <div id="tab-receive" class="tab-content">
         <div class="input-group">
             <label><i class="fa-solid fa-mobile-screen-button"></i> معرف جهازك الجديد (Target Device ID):</label>
-            <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً...">
+            <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً..." readonly>
         </div>
 
-        <!-- الخطوة الأولى: مسح الباركود السري (لمصادقة الهاتف) -->
-        <div id="scannerContainer">
-            <div id="reader"></div>
-            <div style="margin: 15px 0; font-size: 12px; color: var(--text-muted); text-align: center;">
-                قم بمسح الباركود من الهاتف القديم لمصادقة الجهاز
-            </div>
-        </div>
-
-        <!-- الخطوة الثانية: إدخال رمز الأمان -->
-        <div id="securityStepContainer" style="display: none;">
-            <div style="margin: 15px 0; font-size: 13px; color: var(--success-color); text-align: center; font-weight: bold;">
-                <i class="fa-solid fa-circle-check"></i> تمت مصادقة الهاتف بنجاح
+        <div id="securityStepContainer">
+            <div class="input-group">
+                <label><i class="fa-solid fa-mobile-screen"></i> معرف الجهاز القديم (Source Device ID):</label>
+                <input type="text" id="sourceDeviceIdInput" class="input-field" placeholder="أدخل معرف الجهاز القديم هنا">
             </div>
 
             <div class="input-group">
-                <label><i class="fa-solid fa-shield-halved"></i> أدخل رمز التحقق للمصادقة (المعروض في الهاتف القديم):</label>
+                <label><i class="fa-solid fa-shield-halved"></i> رمز التحقق (المعروض في الهاتف القديم):</label>
                 <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 20px; letter-spacing: 4px;">
             </div>
 
@@ -400,11 +387,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let qrCodeObj = null;
-    let html5QrcodeScanner = null;
     let timerInterval = null;
     let activeTransferRef = null;
-    let scannedSourceId = null; // متغير لحفظ معرف الجهاز (لمصادقة الهاتف) الممسوح من الباركود
 
     // Auto detect Device ID from URL parameters if passed from Android WebView
     window.onload = function() {
@@ -429,25 +413,18 @@
         if(tab === 'send') {
             document.querySelectorAll('.tab-btn')[0].classList.add('active');
             document.getElementById('tab-send').classList.add('active');
-            if(html5QrcodeScanner) {
-                html5QrcodeScanner.clear();
-            }
         } else {
             document.querySelectorAll('.tab-btn')[1].classList.add('active');
             document.getElementById('tab-receive').classList.add('active');
             
             // تهيئة واجهة الاستلام مجددا
-            scannedSourceId = null;
-            document.getElementById('scannerContainer').style.display = 'block';
-            document.getElementById('securityStepContainer').style.display = 'none';
+            document.getElementById('sourceDeviceIdInput').value = '';
             document.getElementById('transferCodeInput').value = '';
-            
-            startCameraScanner();
         }
         hideAlert();
     }
 
-    // Generate Verification Code and Device QR (Phone Auth)
+    // Generate Verification Code and Display Data
     function generateTransferCode() {
         const sourceId = document.getElementById('sourceDeviceId').value.trim();
         if(!sourceId) {
@@ -469,8 +446,7 @@
                 return;
             }
 
-            // Generate ONLY the Security Code (for User Input verification)
-            // الباركود سيحتوي على sourceId بدلاً من رمز عشوائي لمصادقة الهاتف
+            // Generate Security Code
             const securityCode = Math.floor(100000 + Math.random() * 900000).toString();
             const expiresAt = Date.now() + (60 * 1000); // 1 minute validity
 
@@ -482,36 +458,25 @@
                 createdAt: Date.now()
             };
 
-            // Save using sourceId as the node key so the app can find it immediately
             const requestRef = db.ref('transfer_requests/' + sourceId);
             requestRef.set(transferData).then(() => {
                 btn.style.display = 'none';
                 
-                // Show QR section and reset success message
+                // Show info section and reset success message
                 document.getElementById('sendResult').style.display = 'block';
                 document.getElementById('qrAndCodeContainer').style.display = 'block';
                 document.getElementById('successTransferMessage').style.display = 'none';
                 
-                // Display only the security verification code
+                // Display the ID and the security verification code
+                document.getElementById('displayOldId').innerText = sourceId;
                 document.getElementById('otpDisplay').innerText = securityCode;
-
-                document.getElementById('qrcode').innerHTML = '';
-                // The QR code contains the Device ID for phone authentication
-                qrCodeObj = new QRCode(document.getElementById("qrcode"), {
-                    text: sourceId,
-                    width: 170,
-                    height: 170,
-                    colorDark : "#1A0B2E",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
 
                 startTimer(60); // 60 Seconds Timer
                 listenForCompletion(sourceId);
 
             }).catch(err => {
                 showAlert('حدث خطأ في الاتصال بالقاعدة: ' + err.message, 'danger');
-                btn.innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق';
+                btn.innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل';
                 btn.disabled = false;
             });
         });
@@ -535,7 +500,7 @@
                 showAlert('انتهت صلاحية الجلسة ورمز الأمان! يرجى إنشاء طلب جديد.', 'danger');
                 document.getElementById('sendResult').style.display = 'none';
                 document.getElementById('btnGenerate').style.display = 'flex';
-                document.getElementById('btnGenerate').innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق';
+                document.getElementById('btnGenerate').innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل';
                 document.getElementById('btnGenerate').disabled = false;
             }
         }, 1000);
@@ -549,7 +514,7 @@
             if(data && data.status === 'SUCCESS') {
                 clearInterval(timerInterval);
                 
-                // Hide the QR Code and the temporary code securely
+                // Hide the info container
                 document.getElementById('qrAndCodeContainer').style.display = 'none';
                 
                 const newDeviceId = data.targetDeviceId || 'غير متوفر';
@@ -561,7 +526,7 @@
                     <div class="alert alert-success" style="display:block; text-align:center; padding: 25px 15px;">
                         <i class="fa-solid fa-circle-check" style="font-size:40px; margin-bottom:15px; color: var(--success-color);"></i><br>
                         <strong style="font-size:18px;">تم نقل الاشتراك بنجاح!</strong><br><br>
-                        تم إلغاء تفعيل هذا الجهاز وإغلاق شاشة الباركود والرمز.<br>
+                        تم إلغاء تفعيل هذا الجهاز وإخراجه من الاشتراك بشكل كامل.<br>
                         <div style="margin-top:15px; font-size: 12px; color: var(--text-light);">
                             تم نقل الترخيص إلى الجهاز الجديد بالمعرف:
                             <br>
@@ -577,36 +542,14 @@
         });
     }
 
-    // Start Camera Scanner
-    function startCameraScanner() {
-        if(html5QrcodeScanner) return;
-
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: {width: 220, height: 220} }
-        );
-
-        html5QrcodeScanner.render((decodedText) => {
-            if(decodedText && decodedText.trim() !== '') {
-                // حفظ معرف الجهاز (Source ID) من الباركود للانتقال لخطوة الأمان
-                scannedSourceId = decodedText.trim();
-                html5QrcodeScanner.clear();
-                
-                document.getElementById('scannerContainer').style.display = 'none';
-                document.getElementById('securityStepContainer').style.display = 'block';
-                hideAlert();
-            }
-        }, (error) => {
-            // quiet scan error
-        });
-    }
-
-    // Confirm Transfer using scanned Source ID and manually entered security code
+    // Confirm Transfer using manual entered Source ID and security code
     function confirmTransferByPIN() {
+        const inputSourceId = document.getElementById('sourceDeviceIdInput').value.trim();
         const securityInput = document.getElementById('transferCodeInput').value.trim();
         const targetDeviceId = document.getElementById('targetDeviceId').value.trim();
 
-        if(!scannedSourceId) {
-            showAlert('يرجى مسح الباركود أولاً لمصادقة الهاتف', 'danger');
+        if(!inputSourceId) {
+            showAlert('يرجى إدخال معرف الجهاز القديم أولاً', 'danger');
             return;
         }
 
@@ -616,7 +559,7 @@
         }
 
         if(!targetDeviceId) {
-            showAlert('يرجى تحديد معرف الجهاز الجديد الاستلام عليه', 'danger');
+            showAlert('لم يتم التعرف على معرف جهازك الجديد', 'danger');
             return;
         }
 
@@ -624,12 +567,12 @@
         btn.innerHTML = '<span class="spinner"></span> جاري المصادقة ونقل البيانات...';
         btn.disabled = true;
 
-        // Fetch Transfer Request using the Source Device ID scanned from QR
-        db.ref('transfer_requests/' + scannedSourceId).once('value').then(snapshot => {
+        // Fetch Transfer Request using the Source Device ID entered manually
+        db.ref('transfer_requests/' + inputSourceId).once('value').then(snapshot => {
             const reqData = snapshot.val();
 
             if(!reqData) {
-                showAlert('فشل التحقق الأولي. الباركود غير صالح أو منتهي.', 'danger');
+                showAlert('لم يتم العثور على طلب نقل لهذا الجهاز، تأكد من معرف الجهاز القديم!', 'danger');
                 resetBtn();
                 return;
             }
@@ -648,7 +591,7 @@
 
             // التحقق من رمز المصادقة المدخل
             if(reqData.securityCode !== securityInput) {
-                showAlert('رمز التحقق غير صحيح! يرجى التأكد من الرقم المعروض في الهاتف القديم.', 'danger');
+                showAlert('رمز التحقق غير صحيح! يرجى التأكد من الرقم.', 'danger');
                 resetBtn();
                 return;
             }
@@ -676,23 +619,23 @@
 
                 const updates = {};
                 
-                // 1. Write the fully updated subscription data to the new target device
+                // 1. نقل وتفعيل البيانات إلى الجهاز الجديد
                 updates['Users/' + targetDeviceId] = subscriptionData;
                 updates['active_sessions/' + targetDeviceId] = {
                     last_active: Date.now(),
                     transferred_from: sourceDeviceId
                 };
 
-                // 2. Safely and permanently completely remove the source device from BOTH tables
+                // 2. حذف وإخراج الجهاز القديم بشكل كامل واحترافي من مساري البيانات
                 updates['Users/' + sourceDeviceId] = null;
                 updates['active_sessions/' + sourceDeviceId] = null;
 
-                // 3. Update status of request and save target ID for the sender to see
-                updates['transfer_requests/' + scannedSourceId + '/status'] = 'SUCCESS';
-                updates['transfer_requests/' + scannedSourceId + '/targetDeviceId'] = targetDeviceId;
+                // 3. تحديث حالة الطلب ليعلم الجهاز القديم بنجاح النقل
+                updates['transfer_requests/' + inputSourceId + '/status'] = 'SUCCESS';
+                updates['transfer_requests/' + inputSourceId + '/targetDeviceId'] = targetDeviceId;
 
                 db.ref().update(updates).then(() => {
-                    showAlert('🎉 تمت المصادقة! تم نقل الاشتراك و الأيام الفاضلة إلى هذا الجهاز بنجاح!', 'success');
+                    showAlert('🎉 تمت المصادقة! تم نقل الاشتراك إلى هذا الجهاز بنجاح وتم تسجيل خروج الجهاز القديم.', 'success');
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
                 }).catch(err => {
                     showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
