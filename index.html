@@ -3,131 +3,674 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة شحن الألعاب والخدمات</title>
+    <title>فواكه AI - نظام نقل الاشتراك الآمن</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card { background: #1e293b; width: 100%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
-        .title { text-align: center; margin-bottom: 24px; color: #38bdf8; font-size: 24px; font-weight: bold; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
-        input, select { width: 100%; padding: 12px 16px; background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 15px; outline: none; transition: border-color 0.2s; }
-        input:focus, select:focus { border-color: #38bdf8; }
-        button { width: 100%; padding: 14px; background-color: #0284c7; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; margin-top: 10px; }
-        button:hover { background-color: #0369a1; }
-        button:disabled { background-color: #475569; cursor: not-allowed; }
-        #result { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; text-align: center; display: none; }
-        .success { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid #22c55e; }
-        .error { background-color: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #ef4444; }
-        .info { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8; }
+        :root {
+            --bg-primary: #1A0B2E;
+            --bg-secondary: #29104A;
+            --accent-purple: #9D4EDD;
+            --accent-glow: #C77DFF;
+            --success-color: #00E676;
+            --danger-color: #FF5252;
+            --text-light: #FFFFFF;
+            --text-muted: #B3A0D0;
+            --card-bg: rgba(41, 16, 74, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 0%, #3c1361 0%, #1A0B2E 70%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 24px;
+            padding: 28px 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(157, 78, 221, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7B2CBF, #C77DFF, #7B2CBF);
+        }
+
+        .header {
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(199, 125, 255, 0.5));
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        p.subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #7B2CBF, #9D4EDD);
+            color: white;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1.5px solid rgba(157, 78, 221, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            direction: ltr;
+            text-align: center;
+            letter-spacing: 1px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-glow);
+            box-shadow: 0 0 12px rgba(199, 125, 255, 0.3);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #7B2CBF 0%, #9D4EDD 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(123, 44, 191, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.6);
+        }
+
+        .btn-action:active {
+            transform: translateY(1px);
+        }
+
+        /* QR Display Box */
+        .qr-card {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 18px;
+            display: inline-block;
+            margin: 15px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        #qrcode img {
+            margin: 0 auto;
+        }
+
+        .code-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px dashed var(--accent-purple);
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: var(--accent-glow);
+            margin: 15px 0;
+            user-select: all;
+        }
+
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #FFD166;
+            background: rgba(255, 209, 102, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--accent-purple);
+            margin-bottom: 15px;
+            background: #000;
+        }
+
+        /* Alert Box */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+            text-align: right;
+            line-height: 1.4;
+        }
+        .alert-danger { background: rgba(255, 82, 82, 0.15); color: #FF8A8A; border: 1px solid var(--danger-color); }
+        .alert-success { background: rgba(0, 230, 118, 0.15); color: #69F0AE; border: 1px solid var(--success-color); }
+        .alert-info { background: rgba(157, 78, 221, 0.15); color: var(--accent-glow); border: 1px solid var(--accent-purple); }
+
+        .security-footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 15px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="title">شحن خدمات الألعاب</div>
-    <form id="chargeForm">
-        <div class="form-group">
-            <label for="playerId">رقم المعرف / الحساب (ID):</label>
-            <input type="text" id="playerId" required placeholder="أدخل رقم الـ ID أو اسم الحساب">
+<div class="container">
+    <div class="header">
+        <div class="logo-icon">🍇</div>
+        <h1>فواكه AI - نقل الاشتراك</h1>
+        <p class="subtitle">نظام التشفير الآمن لنقل اشتراكك بين الأجهزة بنقرة واحدة</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('send')">
+            <i class="fa-solid fa-paper-plane"></i> إرسال (جهازك الحالي)
+        </button>
+        <button class="tab-btn" onclick="switchTab('receive')">
+            <i class="fa-solid fa-qrcode"></i> استلام (جهازك الجديد)
+        </button>
+    </div>
+
+    <!-- TAB 1: SEND SUBSCRIPTION (Source Device) -->
+    <div id="tab-send" class="tab-content active">
+        <div class="input-group">
+            <label><i class="fa-solid fa-mobile-screen"></i> معرف جهازك الحالي (Source Device ID):</label>
+            <input type="text" id="sourceDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً..." readonly>
         </div>
 
-        <div class="form-group">
-            <label for="serviceId">اختر الخدمة:</label>
-            <select id="serviceId" required>
-                <option value="">جاري تحميل الخدمات...</option>
-            </select>
+        <button class="btn-action" id="btnGenerate" onclick="generateTransferCode()">
+            <i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق
+        </button>
+
+        <div id="sendResult" style="display: none; margin-top: 20px;">
+            <p style="font-size: 13px; color: var(--text-muted);">امسح الكود من الهاتف الجديد أو أدخل الرمز المؤقت:</p>
+            
+            <div class="qr-card">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="code-display" id="otpDisplay">------</div>
+            
+            <div class="timer-badge">
+                <i class="fa-regular fa-clock"></i> ينتهي الكود خلال: <span id="timer">05:00</span>
+            </div>
+
+            <div class="alert alert-info" style="display: block; margin-top: 15px;">
+                <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار استلام الهاتف الجديد للترخيص...
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: RECEIVE SUBSCRIPTION (Target Device) -->
+    <div id="tab-receive" class="tab-content">
+        <div class="input-group">
+            <label><i class="fa-solid fa-mobile-screen-button"></i> معرف جهازك الجديد (Target Device ID):</label>
+            <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً...">
         </div>
 
-        <button type="submit" id="submitBtn">إرسال طلب الشحن</button>
-    </form>
-    <div id="result"></div>
+        <div id="reader"></div>
+
+        <div style="margin: 15px 0; font-size: 12px; color: var(--text-muted); position: relative;">
+            <span style="background: var(--bg-primary); padding: 0 10px; position: relative; z-index: 1;">أو أدخل كود التحقق المكون من 6 أرقام</span>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: -8px;">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 20px; letter-spacing: 4px;">
+        </div>
+
+        <button class="btn-action" id="btnConfirmTransfer" onclick="confirmTransferByPIN()">
+            <i class="fa-solid fa-right-left"></i> تأكيد نقل الاشتراك الآن
+        </button>
+    </div>
+
+    <div id="globalAlert" class="alert"></div>
+
+    <div class="security-footer">
+        <i class="fa-solid fa-shield-halved" style="color: var(--success-color);"></i>
+        مؤمن عبر Firebase TLS 1.3 & Encrypted Device Handshake
+    </div>
 </div>
 
 <script>
-    const form = document.getElementById('chargeForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const resultDiv = document.getElementById('result');
-    const serviceSelect = document.getElementById('serviceId');
+    // 1. Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBWJJZHzUhbrl-dh1wowh-u0n0T9i5n0uU",
+        authDomain: "hamzazed34567.firebaseapp.com",
+        databaseURL: "https://hamzazed34567-default-rtdb.firebaseio.com",
+        projectId: "hamzazed34567",
+        storageBucket: "hamzazed34567.firebasestorage.app",
+        messagingSenderId: "734054414157",
+        appId: "1:734054414157:android:a8f76007ce00d4488e2904"
+    };
 
-    // جلب قائمة الخدمات المتاحة فور تحميل الصفحة
-    async function fetchServices() {
-        try {
-            const res = await fetch('api_handler.php?action=get_services');
-            const data = await res.json();
-            
-            if (data.status && Array.isArray(data.services)) {
-                serviceSelect.innerHTML = '<option value="">-- اختر الخدمة --</option>';
-                data.services.forEach(service => {
-                    const option = document.createElement('option');
-                    option.value = service.id;
-                    option.textContent = `${service.name} - ${service.price || ''}`;
-                    serviceSelect.appendChild(option);
-                });
-            } else {
-                // خيارات افتراضية في حال عدم استجابة الـ API
-                serviceSelect.innerHTML = `
-                    <option value="">-- اختر الخدمة --</option>
-                    <option value="1">ببجي 60 شدة</option>
-                    <option value="2">ببجي 325 شدة</option>
-                    <option value="3">فراي فاير 100 مجوهرة</option>
-                `;
-            }
-        } catch (e) {
-            serviceSelect.innerHTML = `
-                <option value="">-- اختر الخدمة --</option>
-                <option value="1">ببجي 60 شدة</option>
-                <option value="2">ببجي 325 شدة</option>
-            `;
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let qrCodeObj = null;
+    let html5QrcodeScanner = null;
+    let timerInterval = null;
+    let activeTransferRef = null;
+
+    // Auto detect Device ID from URL parameters if passed from Android WebView
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const deviceIdParam = urlParams.get('device_id');
+        
+        if (deviceIdParam) {
+            document.getElementById('sourceDeviceId').value = deviceIdParam;
+            document.getElementById('targetDeviceId').value = deviceIdParam;
+        } else {
+            // Generate temporary unique ID for web testing if empty
+            const randomId = 'web_' + Math.random().toString(36).substring(2, 12);
+            document.getElementById('sourceDeviceId').value = randomId;
+            document.getElementById('targetDeviceId').value = randomId;
         }
+    };
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        if(tab === 'send') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('tab-send').classList.add('active');
+            if(html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('tab-receive').classList.add('active');
+            startCameraScanner();
+        }
+        hideAlert();
     }
 
-    fetchServices();
-
-    // إرسال الطلب
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const playerId = document.getElementById('playerId').value.trim();
-        const serviceId = serviceSelect.value;
-        
-        if (!serviceId) {
-            showResult("يرجى اختيار الخدمة أولاً", "error");
+    // Generate 6 Digit Code and QR Code
+    function generateTransferCode() {
+        const sourceId = document.getElementById('sourceDeviceId').value.trim();
+        if(!sourceId) {
+            showAlert('يرجى التأكد من معرف الجهاز الحالي', 'danger');
             return;
         }
 
-        submitBtn.disabled = true;
-        showResult("جاري معالجة الطلب والإرسال للسيرفر...", "info");
+        // Verify if source device actually has an active subscription in Firebase
+        const btn = document.getElementById('btnGenerate');
+        btn.innerHTML = '<span class="spinner"></span> جاري التحقق من الاشتراك...';
+        btn.disabled = true;
 
-        try {
-            const response = await fetch('api_handler.php?action=create_order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    player_id: playerId,
-                    service_id: serviceId
-                })
+        db.ref('Users/' + sourceId).once('value').then(snapshot => {
+            const userData = snapshot.val();
+            
+            // Allow test transfer or verify subscription state
+            if (!userData) {
+                showAlert('لم يتم العثور على اشتراك مرتبط برقم هذا الجهاز في القاعدة!', 'danger');
+                btn.innerHTML = '<i class="fa-solid fa-key"></i> إعادة المحاولة';
+                btn.disabled = false;
+                return;
+            }
+
+            // Generate PIN
+            const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes validity
+
+            const transferData = {
+                sourceDeviceId: sourceId,
+                pinCode: pinCode,
+                status: 'PENDING',
+                expiresAt: expiresAt,
+                createdAt: Date.now()
+            };
+
+            // Save to Firebase RTDB under /transfer_requests/
+            const requestRef = db.ref('transfer_requests/' + pinCode);
+            requestRef.set(transferData).then(() => {
+                btn.style.display = 'none';
+                document.getElementById('sendResult').style.display = 'block';
+                document.getElementById('otpDisplay').innerText = pinCode;
+
+                // QR Code Payload
+                const qrPayload = JSON.stringify({
+                    pin: pinCode,
+                    source: sourceId
+                });
+
+                // Render QR
+                document.getElementById('qrcode').innerHTML = '';
+                qrCodeObj = new QRCode(document.getElementById("qrcode"), {
+                    text: qrPayload,
+                    width: 170,
+                    height: 170,
+                    colorDark : "#1A0B2E",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+
+                // Start Timer
+                startTimer(5 * 60);
+
+                // Listen for completion in realtime
+                listenForCompletion(pinCode, sourceId);
+
+            }).catch(err => {
+                showAlert('حدث خطأ في الاتصال بالقاعدة: ' + err.message, 'danger');
+                btn.innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق';
+                btn.disabled = false;
+            });
+        });
+    }
+
+    function startTimer(duration) {
+        let timer = duration, minutes, seconds;
+        clearInterval(timerInterval);
+        
+        timerInterval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById('timer').textContent = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                showAlert('انتهت صلاحية رمز التحقق! يرجى إنشاء رمز جديد.', 'danger');
+                document.getElementById('sendResult').style.display = 'none';
+                document.getElementById('btnGenerate').style.display = 'flex';
+                document.getElementById('btnGenerate').disabled = false;
+            }
+        }, 1000);
+    }
+
+    function listenForCompletion(pinCode, sourceId) {
+        activeTransferRef = db.ref('transfer_requests/' + pinCode);
+        activeTransferRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data && data.status === 'SUCCESS') {
+                clearInterval(timerInterval);
+                document.getElementById('sendResult').innerHTML = `
+                    <div class="alert alert-success" style="display:block; text-align:center;">
+                        <i class="fa-solid fa-circle-check" style="font-size:30px; margin-bottom:10px;"></i><br>
+                        <strong>تم نقل الاشتراك بنجاح!</strong><br>
+                        تم إلغاء تفعيل الاشتراك على هذا الجهاز ونقله للجهاز الجديد.
+                    </div>
+                `;
+                // Detach listener
+                activeTransferRef.off();
+            }
+        });
+    }
+
+    // Start Camera Scanner
+    function startCameraScanner() {
+        if(html5QrcodeScanner) return;
+
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 220, height: 220} }
+        );
+
+        html5QrcodeScanner.render((decodedText) => {
+            try {
+                const parsed = JSON.parse(decodedText);
+                if(parsed && parsed.pin) {
+                    document.getElementById('transferCodeInput').value = parsed.pin;
+                    html5QrcodeScanner.clear();
+                    confirmTransferByPIN();
+                }
+            } catch(e) {
+                // If scanned plain PIN code string
+                document.getElementById('transferCodeInput').value = decodedText;
+                html5QrcodeScanner.clear();
+                confirmTransferByPIN();
+            }
+        }, (error) => {
+            // quiet scan error
+        });
+    }
+
+    // Confirm Transfer on Target Device
+    function confirmTransferByPIN() {
+        const pin = document.getElementById('transferCodeInput').value.trim();
+        const targetDeviceId = document.getElementById('targetDeviceId').value.trim();
+
+        if(!pin || pin.length !== 6) {
+            showAlert('يرجى أدخال كود التحقق المكون من 6 أرقام بشكل صحيح', 'danger');
+            return;
+        }
+
+        if(!targetDeviceId) {
+            showAlert('يرجى تحديد معرف الجهاز الجديد الاستلام عليه', 'danger');
+            return;
+        }
+
+        const btn = document.getElementById('btnConfirmTransfer');
+        btn.innerHTML = '<span class="spinner"></span> جاري معالجة وتأكيد النقل...';
+        btn.disabled = true;
+
+        // Fetch Transfer Request
+        db.ref('transfer_requests/' + pin).once('value').then(snapshot => {
+            const reqData = snapshot.val();
+
+            if(!reqData) {
+                showAlert('رمز التحقق غير صحيح أو غير موجود!', 'danger');
+                resetBtn();
+                return;
+            }
+
+            if(reqData.status !== 'PENDING') {
+                showAlert('تم استخدام رمز التحقق هذا من قبل!', 'danger');
+                resetBtn();
+                return;
+            }
+
+            if(Date.now() > reqData.expiresAt) {
+                showAlert('انتهت صلاحية رمز التحقق هذا!', 'danger');
+                resetBtn();
+                return;
+            }
+
+            const sourceDeviceId = reqData.sourceDeviceId;
+
+            if(sourceDeviceId === targetDeviceId) {
+                showAlert('لا يمكنك نقل الاشتراك إلى نفس الجهاز الحالي!', 'danger');
+                resetBtn();
+                return;
+            }
+
+            // ATOMIC SUBSCRIPTION TRANSFER IN FIREBASE
+            db.ref('Users/' + sourceDeviceId).once('value').then(userSnap => {
+                const subscriptionData = userSnap.val();
+
+                if(!subscriptionData) {
+                    showAlert('تعذر جلب بيانات الاشتراك المصدر!', 'danger');
+                    resetBtn();
+                    return;
+                }
+
+                // 1. Write subscription data to target device
+                const updates = {};
+                updates['Users/' + targetDeviceId] = subscriptionData;
+                updates['active_sessions/' + targetDeviceId] = {
+                    last_active: Date.now(),
+                    transferred_from: sourceDeviceId
+                };
+
+                // 2. Remove/Disable subscription on source device safely
+                updates['Users/' + sourceDeviceId] = null; // or set { isSubscribed: false }
+                updates['active_sessions/' + sourceDeviceId] = null;
+
+                // 3. Update status of request
+                updates['transfer_requests/' + pin + '/status'] = 'SUCCESS';
+                updates['transfer_requests/' + pin + '/targetDeviceId'] = targetDeviceId;
+
+                db.ref().update(updates).then(() => {
+                    showAlert('🎉 تم نقل الاشتراك إلى هذا الجهاز بنجاح! يمكنك إغلاق الصفحة والتمتع بالتطبيق.', 'success');
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
+                }).catch(err => {
+                    showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
+                    resetBtn();
+                });
             });
 
-            const data = await response.json();
+        }).catch(err => {
+            showAlert('خطأ أثناء الوصول للقاعدة: ' + err.message, 'danger');
+            resetBtn();
+        });
 
-            if (response.ok && data.status) {
-                showResult(`تم تنفيذ الطلب بنجاح! رقم الطلب: ${data.order_id || 'مكتمل'}`, "success");
-                form.reset();
-            } else {
-                showResult(`خطأ: ${data.message || 'فشل في تنفيذ الطلب'}`, "error");
-            }
-        } catch (error) {
-            showResult("حدث خطأ في الاتصال بالسيرفر المحلي.", "error");
-        } finally {
-            submitBtn.disabled = false;
+        function resetBtn() {
+            btn.innerHTML = '<i class="fa-solid fa-right-left"></i> تأكيد نقل الاشتراك الآن';
+            btn.disabled = false;
         }
-    });
+    }
 
-    function showResult(msg, type) {
-        resultDiv.style.display = "block";
-        resultDiv.className = type;
-        resultDiv.innerText = msg;
+    function showAlert(msg, type) {
+        const el = document.getElementById('globalAlert');
+        el.className = 'alert alert-' + type;
+        el.innerHTML = msg;
+        el.style.display = 'block';
+    }
+
+    function hideAlert() {
+        document.getElementById('globalAlert').style.display = 'none';
     }
 </script>
 
