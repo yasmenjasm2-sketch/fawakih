@@ -320,21 +320,26 @@
         </button>
 
         <div id="sendResult" style="display: none; margin-top: 20px;">
-            <p style="font-size: 13px; color: var(--text-muted);">امسح الكود من الهاتف الجديد أو أدخل الرمز المؤقت:</p>
-            
-            <div class="qr-card">
-                <div id="qrcode"></div>
-            </div>
+            <div id="qrAndCodeContainer">
+                <p style="font-size: 13px; color: var(--text-muted);">امسح الكود من الهاتف الجديد أو أدخل الرمز المؤقت:</p>
+                
+                <div class="qr-card">
+                    <div id="qrcode"></div>
+                </div>
 
-            <div class="code-display" id="otpDisplay">------</div>
-            
-            <div class="timer-badge">
-                <i class="fa-regular fa-clock"></i> ينتهي الكود خلال: <span id="timer">05:00</span>
-            </div>
+                <div class="code-display" id="otpDisplay">------</div>
+                
+                <div class="timer-badge">
+                    <i class="fa-regular fa-clock"></i> ينتهي الكود خلال: <span id="timer">05:00</span>
+                </div>
 
-            <div class="alert alert-info" style="display: block; margin-top: 15px;">
-                <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار استلام الهاتف الجديد للترخيص...
+                <div class="alert alert-info" style="display: block; margin-top: 15px;">
+                    <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار استلام الهاتف الجديد للترخيص...
+                </div>
             </div>
+            
+            <!-- Message container for successful transfer -->
+            <div id="successTransferMessage" style="display: none;"></div>
         </div>
     </div>
 
@@ -432,7 +437,6 @@
             return;
         }
 
-        // Verify if source device actually has an active subscription in Firebase
         const btn = document.getElementById('btnGenerate');
         btn.innerHTML = '<span class="spinner"></span> جاري التحقق من الاشتراك...';
         btn.disabled = true;
@@ -440,7 +444,6 @@
         db.ref('Users/' + sourceId).once('value').then(snapshot => {
             const userData = snapshot.val();
             
-            // Allow test transfer or verify subscription state
             if (!userData) {
                 showAlert('لم يتم العثور على اشتراك مرتبط برقم هذا الجهاز في القاعدة!', 'danger');
                 btn.innerHTML = '<i class="fa-solid fa-key"></i> إعادة المحاولة';
@@ -460,23 +463,20 @@
                 createdAt: Date.now()
             };
 
-            // Save to Firebase RTDB under /transfer_requests/
             const requestRef = db.ref('transfer_requests/' + pinCode);
             requestRef.set(transferData).then(() => {
                 btn.style.display = 'none';
+                
+                // Show QR section and reset success message
                 document.getElementById('sendResult').style.display = 'block';
+                document.getElementById('qrAndCodeContainer').style.display = 'block';
+                document.getElementById('successTransferMessage').style.display = 'none';
+                
                 document.getElementById('otpDisplay').innerText = pinCode;
 
-                // QR Code Payload
-                const qrPayload = JSON.stringify({
-                    pin: pinCode,
-                    source: sourceId
-                });
-
-                // Render QR
                 document.getElementById('qrcode').innerHTML = '';
                 qrCodeObj = new QRCode(document.getElementById("qrcode"), {
-                    text: qrPayload,
+                    text: JSON.stringify({ pin: pinCode, source: sourceId }),
                     width: 170,
                     height: 170,
                     colorDark : "#1A0B2E",
@@ -484,10 +484,7 @@
                     correctLevel : QRCode.CorrectLevel.H
                 });
 
-                // Start Timer
                 startTimer(5 * 60);
-
-                // Listen for completion in realtime
                 listenForCompletion(pinCode, sourceId);
 
             }).catch(err => {
@@ -525,13 +522,30 @@
         activeTransferRef = db.ref('transfer_requests/' + pinCode);
         activeTransferRef.on('value', (snapshot) => {
             const data = snapshot.val();
+            // Check if status is SUCCESS
             if(data && data.status === 'SUCCESS') {
                 clearInterval(timerInterval);
-                document.getElementById('sendResult').innerHTML = `
-                    <div class="alert alert-success" style="display:block; text-align:center;">
-                        <i class="fa-solid fa-circle-check" style="font-size:30px; margin-bottom:10px;"></i><br>
-                        <strong>تم نقل الاشتراك بنجاح!</strong><br>
-                        تم إلغاء تفعيل الاشتراك على هذا الجهاز ونقله للجهاز الجديد.
+                
+                // Hide the QR Code and the temporary PIN securely
+                document.getElementById('qrAndCodeContainer').style.display = 'none';
+                
+                const newDeviceId = data.targetDeviceId || 'غير متوفر';
+                
+                // Show completion info with the new device ID
+                const successMsgBox = document.getElementById('successTransferMessage');
+                successMsgBox.style.display = 'block';
+                successMsgBox.innerHTML = `
+                    <div class="alert alert-success" style="display:block; text-align:center; padding: 25px 15px;">
+                        <i class="fa-solid fa-circle-check" style="font-size:40px; margin-bottom:15px; color: var(--success-color);"></i><br>
+                        <strong style="font-size:18px;">تم نقل الاشتراك بنجاح!</strong><br><br>
+                        تم إلغاء تفعيل هذا الجهاز وإغلاق شاشة الباركود والرمز.<br>
+                        <div style="margin-top:15px; font-size: 12px; color: var(--text-light);">
+                            تم نقل الترخيص إلى الجهاز الجديد بالمعرف:
+                            <br>
+                            <span style="display:inline-block; margin-top:8px; padding:8px 15px; background:rgba(0,0,0,0.5); border: 1px solid var(--success-color); border-radius:10px; font-family:monospace; letter-spacing:1px; color: #fff;">
+                                ${newDeviceId}
+                            </span>
+                        </div>
                     </div>
                 `;
                 // Detach listener
@@ -557,7 +571,6 @@
                     confirmTransferByPIN();
                 }
             } catch(e) {
-                // If scanned plain PIN code string
                 document.getElementById('transferCodeInput').value = decodedText;
                 html5QrcodeScanner.clear();
                 confirmTransferByPIN();
@@ -626,24 +639,28 @@
                     return;
                 }
 
-                // 1. Write subscription data to target device
+                // Update internal device_id inside the subscription node to match the target device
+                subscriptionData.device_id = targetDeviceId;
+
                 const updates = {};
+                
+                // 1. Write the fully updated subscription data to the new target device
                 updates['Users/' + targetDeviceId] = subscriptionData;
                 updates['active_sessions/' + targetDeviceId] = {
                     last_active: Date.now(),
                     transferred_from: sourceDeviceId
                 };
 
-                // 2. Remove/Disable subscription on source device safely
-                updates['Users/' + sourceDeviceId] = null; // or set { isSubscribed: false }
+                // 2. Safely and permanently completely remove the source device from BOTH tables
+                updates['Users/' + sourceDeviceId] = null;
                 updates['active_sessions/' + sourceDeviceId] = null;
 
-                // 3. Update status of request
+                // 3. Update status of request and save target ID for the sender to see
                 updates['transfer_requests/' + pin + '/status'] = 'SUCCESS';
                 updates['transfer_requests/' + pin + '/targetDeviceId'] = targetDeviceId;
 
                 db.ref().update(updates).then(() => {
-                    showAlert('🎉 تم نقل الاشتراك إلى هذا الجهاز بنجاح! يمكنك إغلاق الصفحة والتمتع بالتطبيق.', 'success');
+                    showAlert('🎉 تم نقل الاشتراك و الأيام الفاضلة إلى هذا الجهاز بنجاح!', 'success');
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
                 }).catch(err => {
                     showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
