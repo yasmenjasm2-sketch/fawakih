@@ -563,6 +563,11 @@
             return;
         }
 
+        if(inputSourceId === targetDeviceId) {
+            showAlert('لا يمكنك نقل الاشتراك إلى نفس الجهاز الحالي!', 'danger');
+            return;
+        }
+
         const btn = document.getElementById('btnConfirmTransfer');
         btn.innerHTML = '<span class="spinner"></span> جاري المصادقة ونقل البيانات...';
         btn.disabled = true;
@@ -598,48 +603,55 @@
 
             const sourceDeviceId = reqData.sourceDeviceId;
 
-            if(sourceDeviceId === targetDeviceId) {
-                showAlert('لا يمكنك نقل الاشتراك إلى نفس الجهاز الحالي!', 'danger');
-                resetBtn();
-                return;
-            }
-
-            // ATOMIC SUBSCRIPTION TRANSFER IN FIREBASE
+            // ATOMIC SUBSCRIPTION TRANSFER IN FIREBASE WITH FULL SESSION & USER SYNC
             db.ref('Users/' + sourceDeviceId).once('value').then(userSnap => {
-                const subscriptionData = userSnap.val();
+                db.ref('active_sessions/' + sourceDeviceId).once('value').then(sessionSnap => {
+                    const subscriptionData = userSnap.val();
+                    const sessionData = sessionSnap.val();
 
-                if(!subscriptionData) {
-                    showAlert('تعذر جلب بيانات الاشتراك المصدر!', 'danger');
-                    resetBtn();
-                    return;
-                }
+                    if(!subscriptionData) {
+                        showAlert('تعذر جلب بيانات الاشتراك المصدر!', 'danger');
+                        resetBtn();
+                        return;
+                    }
 
-                // Update internal device_id inside the subscription node to match the target device
-                subscriptionData.device_id = targetDeviceId;
+                    // Update internal device_id inside the subscription node to match the target device
+                    subscriptionData.device_id = targetDeviceId;
 
-                const updates = {};
-                
-                // 1. نقل وتفعيل البيانات إلى الجهاز الجديد
-                updates['Users/' + targetDeviceId] = subscriptionData;
-                updates['active_sessions/' + targetDeviceId] = {
-                    last_active: Date.now(),
-                    transferred_from: sourceDeviceId
-                };
+                    // Ensure active_sessions transfers correctly without missing properties
+                    let newSessionData = sessionData || {};
+                    newSessionData.deviceId = targetDeviceId;
+                    newSessionData.type = "Transferred";
+                    newSessionData.activatedCode = "TRANSFER";
+                    newSessionData.transferred_from = sourceDeviceId;
+                    newSessionData.lastUpdated = new Date().toISOString();
+                    
+                    // Fallback to fetch expiry from User if session somehow lacks it
+                    if(!newSessionData.expireAt && subscriptionData.expiry_time) {
+                        newSessionData.expireAt = new Date(subscriptionData.expiry_time).toISOString();
+                    }
 
-                // 2. حذف وإخراج الجهاز القديم بشكل كامل واحترافي من مساري البيانات
-                updates['Users/' + sourceDeviceId] = null;
-                updates['active_sessions/' + sourceDeviceId] = null;
+                    const updates = {};
+                    
+                    // 1. نقل وتفعيل البيانات إلى الجهاز الجديد شاملة الجلسات واليوزرز
+                    updates['Users/' + targetDeviceId] = subscriptionData;
+                    updates['active_sessions/' + targetDeviceId] = newSessionData;
 
-                // 3. تحديث حالة الطلب ليعلم الجهاز القديم بنجاح النقل
-                updates['transfer_requests/' + inputSourceId + '/status'] = 'SUCCESS';
-                updates['transfer_requests/' + inputSourceId + '/targetDeviceId'] = targetDeviceId;
+                    // 2. حذف وإخراج الجهاز القديم بشكل كامل واحترافي من مساري البيانات
+                    updates['Users/' + sourceDeviceId] = null;
+                    updates['active_sessions/' + sourceDeviceId] = null;
 
-                db.ref().update(updates).then(() => {
-                    showAlert('🎉 تمت المصادقة! تم نقل الاشتراك إلى هذا الجهاز بنجاح وتم تسجيل خروج الجهاز القديم.', 'success');
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
-                }).catch(err => {
-                    showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
-                    resetBtn();
+                    // 3. تحديث حالة الطلب ليعلم الجهاز القديم بنجاح النقل
+                    updates['transfer_requests/' + inputSourceId + '/status'] = 'SUCCESS';
+                    updates['transfer_requests/' + inputSourceId + '/targetDeviceId'] = targetDeviceId;
+
+                    db.ref().update(updates).then(() => {
+                        showAlert('🎉 تمت المصادقة! تم نقل الاشتراك إلى هذا الجهاز بنجاح وتم تسجيل خروج الجهاز القديم.', 'success');
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
+                    }).catch(err => {
+                        showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
+                        resetBtn();
+                    });
                 });
             });
 
