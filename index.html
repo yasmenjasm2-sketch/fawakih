@@ -321,16 +321,17 @@
 
         <div id="sendResult" style="display: none; margin-top: 20px;">
             <div id="qrAndCodeContainer">
-                <p style="font-size: 13px; color: var(--text-muted);">امسح الكود من الهاتف الجديد أو أدخل الرمز المؤقت:</p>
+                <p style="font-size: 13px; color: var(--text-muted);">امسح الباركود من الهاتف الجديد لإكمال الخطوة الأولى:</p>
                 
                 <div class="qr-card">
                     <div id="qrcode"></div>
                 </div>
 
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">رمز الأمان (الخطوة الثانية):</p>
                 <div class="code-display" id="otpDisplay">------</div>
                 
                 <div class="timer-badge">
-                    <i class="fa-regular fa-clock"></i> ينتهي الكود خلال: <span id="timer">05:00</span>
+                    <i class="fa-regular fa-clock"></i> ينتهي الأمان خلال: <span id="timer">01:00</span>
                 </div>
 
                 <div class="alert alert-info" style="display: block; margin-top: 15px;">
@@ -350,20 +351,29 @@
             <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً...">
         </div>
 
-        <div id="reader"></div>
-
-        <div style="margin: 15px 0; font-size: 12px; color: var(--text-muted); position: relative;">
-            <span style="background: var(--bg-primary); padding: 0 10px; position: relative; z-index: 1;">أو أدخل كود التحقق المكون من 6 أرقام</span>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: -8px;">
+        <!-- الخطوة الأولى: مسح الباركود السري -->
+        <div id="scannerContainer">
+            <div id="reader"></div>
+            <div style="margin: 15px 0; font-size: 12px; color: var(--text-muted); text-align: center;">
+                قم بمسح الباركود من الهاتف القديم للتحقق الأولي
+            </div>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 20px; letter-spacing: 4px;">
-        </div>
+        <!-- الخطوة الثانية: إدخال رمز الأمان -->
+        <div id="securityStepContainer" style="display: none;">
+            <div style="margin: 15px 0; font-size: 13px; color: var(--success-color); text-align: center; font-weight: bold;">
+                <i class="fa-solid fa-circle-check"></i> تمت قراءة الباركود بنجاح
+            </div>
 
-        <button class="btn-action" id="btnConfirmTransfer" onclick="confirmTransferByPIN()">
-            <i class="fa-solid fa-right-left"></i> تأكيد نقل الاشتراك الآن
-        </button>
+            <div class="input-group">
+                <label><i class="fa-solid fa-shield-halved"></i> أدخل رمز الأمان (المعروض في الهاتف القديم):</label>
+                <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 20px; letter-spacing: 4px;">
+            </div>
+
+            <button class="btn-action" id="btnConfirmTransfer" onclick="confirmTransferByPIN()">
+                <i class="fa-solid fa-right-left"></i> تأكيد النقل والمصادقة
+            </button>
+        </div>
     </div>
 
     <div id="globalAlert" class="alert"></div>
@@ -394,6 +404,7 @@
     let html5QrcodeScanner = null;
     let timerInterval = null;
     let activeTransferRef = null;
+    let scannedPin = null; // متغير لحفظ الرمز السري من الباركود
 
     // Auto detect Device ID from URL parameters if passed from Android WebView
     window.onload = function() {
@@ -424,12 +435,19 @@
         } else {
             document.querySelectorAll('.tab-btn')[1].classList.add('active');
             document.getElementById('tab-receive').classList.add('active');
+            
+            // تهيئة واجهة الاستلام مجددا
+            scannedPin = null;
+            document.getElementById('scannerContainer').style.display = 'block';
+            document.getElementById('securityStepContainer').style.display = 'none';
+            document.getElementById('transferCodeInput').value = '';
+            
             startCameraScanner();
         }
         hideAlert();
     }
 
-    // Generate 6 Digit Code and QR Code
+    // Generate Verification Code (Hidden in QR) and Security Code (Displayed)
     function generateTransferCode() {
         const sourceId = document.getElementById('sourceDeviceId').value.trim();
         if(!sourceId) {
@@ -451,18 +469,20 @@
                 return;
             }
 
-            // Generate PIN
+            // Generate PIN (for QR Code) and Security Code (for User Input)
             const pinCode = Math.floor(100000 + Math.random() * 900000).toString();
-            const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes validity
+            const securityCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = Date.now() + (60 * 1000); // 1 minute validity
 
             const transferData = {
                 sourceDeviceId: sourceId,
-                pinCode: pinCode,
+                securityCode: securityCode,
                 status: 'PENDING',
                 expiresAt: expiresAt,
                 createdAt: Date.now()
             };
 
+            // Save in same path using pinCode as the node key
             const requestRef = db.ref('transfer_requests/' + pinCode);
             requestRef.set(transferData).then(() => {
                 btn.style.display = 'none';
@@ -472,11 +492,13 @@
                 document.getElementById('qrAndCodeContainer').style.display = 'block';
                 document.getElementById('successTransferMessage').style.display = 'none';
                 
-                document.getElementById('otpDisplay').innerText = pinCode;
+                // Display only the security code for 1 minute
+                document.getElementById('otpDisplay').innerText = securityCode;
 
                 document.getElementById('qrcode').innerHTML = '';
+                // The QR code contains ONLY the pinCode string, keeping the user unaware of its nature
                 qrCodeObj = new QRCode(document.getElementById("qrcode"), {
-                    text: JSON.stringify({ pin: pinCode, source: sourceId }),
+                    text: pinCode,
                     width: 170,
                     height: 170,
                     colorDark : "#1A0B2E",
@@ -484,7 +506,7 @@
                     correctLevel : QRCode.CorrectLevel.H
                 });
 
-                startTimer(5 * 60);
+                startTimer(60); // 60 Seconds Timer
                 listenForCompletion(pinCode, sourceId);
 
             }).catch(err => {
@@ -510,9 +532,10 @@
 
             if (--timer < 0) {
                 clearInterval(timerInterval);
-                showAlert('انتهت صلاحية رمز التحقق! يرجى إنشاء رمز جديد.', 'danger');
+                showAlert('انتهت صلاحية الجلسة ورمز الأمان! يرجى إنشاء طلب جديد.', 'danger');
                 document.getElementById('sendResult').style.display = 'none';
                 document.getElementById('btnGenerate').style.display = 'flex';
+                document.getElementById('btnGenerate').innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز الباركود والتحقق';
                 document.getElementById('btnGenerate').disabled = false;
             }
         }, 1000);
@@ -526,7 +549,7 @@
             if(data && data.status === 'SUCCESS') {
                 clearInterval(timerInterval);
                 
-                // Hide the QR Code and the temporary PIN securely
+                // Hide the QR Code and the temporary code securely
                 document.getElementById('qrAndCodeContainer').style.display = 'none';
                 
                 const newDeviceId = data.targetDeviceId || 'غير متوفر';
@@ -563,30 +586,32 @@
         );
 
         html5QrcodeScanner.render((decodedText) => {
-            try {
-                const parsed = JSON.parse(decodedText);
-                if(parsed && parsed.pin) {
-                    document.getElementById('transferCodeInput').value = parsed.pin;
-                    html5QrcodeScanner.clear();
-                    confirmTransferByPIN();
-                }
-            } catch(e) {
-                document.getElementById('transferCodeInput').value = decodedText;
+            if(decodedText && decodedText.trim() !== '') {
+                // حفظ الرمز المخفي من الباركود للانتقال لخطوة الأمان
+                scannedPin = decodedText.trim();
                 html5QrcodeScanner.clear();
-                confirmTransferByPIN();
+                
+                document.getElementById('scannerContainer').style.display = 'none';
+                document.getElementById('securityStepContainer').style.display = 'block';
+                hideAlert();
             }
         }, (error) => {
             // quiet scan error
         });
     }
 
-    // Confirm Transfer on Target Device
+    // Confirm Transfer using scanned pin and manually entered security code
     function confirmTransferByPIN() {
-        const pin = document.getElementById('transferCodeInput').value.trim();
+        const securityInput = document.getElementById('transferCodeInput').value.trim();
         const targetDeviceId = document.getElementById('targetDeviceId').value.trim();
 
-        if(!pin || pin.length !== 6) {
-            showAlert('يرجى أدخال كود التحقق المكون من 6 أرقام بشكل صحيح', 'danger');
+        if(!scannedPin) {
+            showAlert('يرجى مسح الباركود أولاً للتحقق', 'danger');
+            return;
+        }
+
+        if(!securityInput || securityInput.length !== 6) {
+            showAlert('يرجى إدخال رمز الأمان المكون من 6 أرقام بشكل صحيح', 'danger');
             return;
         }
 
@@ -596,27 +621,34 @@
         }
 
         const btn = document.getElementById('btnConfirmTransfer');
-        btn.innerHTML = '<span class="spinner"></span> جاري معالجة وتأكيد النقل...';
+        btn.innerHTML = '<span class="spinner"></span> جاري المصادقة ونقل البيانات...';
         btn.disabled = true;
 
-        // Fetch Transfer Request
-        db.ref('transfer_requests/' + pin).once('value').then(snapshot => {
+        // Fetch Transfer Request using the hidden scanned PIN
+        db.ref('transfer_requests/' + scannedPin).once('value').then(snapshot => {
             const reqData = snapshot.val();
 
             if(!reqData) {
-                showAlert('رمز التحقق غير صحيح أو غير موجود!', 'danger');
+                showAlert('فشل التحقق الأولي. الباركود غير صالح أو منتهي.', 'danger');
                 resetBtn();
                 return;
             }
 
             if(reqData.status !== 'PENDING') {
-                showAlert('تم استخدام رمز التحقق هذا من قبل!', 'danger');
+                showAlert('تم استخدام هذا الطلب من قبل!', 'danger');
                 resetBtn();
                 return;
             }
 
             if(Date.now() > reqData.expiresAt) {
-                showAlert('انتهت صلاحية رمز التحقق هذا!', 'danger');
+                showAlert('انتهت صلاحية رمز الأمان (دقيقة واحدة)!', 'danger');
+                resetBtn();
+                return;
+            }
+
+            // التحقق من رمز الأمان المدخل
+            if(reqData.securityCode !== securityInput) {
+                showAlert('رمز الأمان غير صحيح! يرجى التأكد من الرقم المعروض في الهاتف القديم.', 'danger');
                 resetBtn();
                 return;
             }
@@ -656,11 +688,11 @@
                 updates['active_sessions/' + sourceDeviceId] = null;
 
                 // 3. Update status of request and save target ID for the sender to see
-                updates['transfer_requests/' + pin + '/status'] = 'SUCCESS';
-                updates['transfer_requests/' + pin + '/targetDeviceId'] = targetDeviceId;
+                updates['transfer_requests/' + scannedPin + '/status'] = 'SUCCESS';
+                updates['transfer_requests/' + scannedPin + '/targetDeviceId'] = targetDeviceId;
 
                 db.ref().update(updates).then(() => {
-                    showAlert('🎉 تم نقل الاشتراك و الأيام الفاضلة إلى هذا الجهاز بنجاح!', 'success');
+                    showAlert('🎉 تمت المصادقة! تم نقل الاشتراك و الأيام الفاضلة إلى هذا الجهاز بنجاح!', 'success');
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
                 }).catch(err => {
                     showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
@@ -674,7 +706,7 @@
         });
 
         function resetBtn() {
-            btn.innerHTML = '<i class="fa-solid fa-right-left"></i> تأكيد نقل الاشتراك الآن';
+            btn.innerHTML = '<i class="fa-solid fa-right-left"></i> تأكيد النقل والمصادقة';
             btn.disabled = false;
         }
     }
