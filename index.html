@@ -3,31 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <فهمت الفكرة تماماً بناءً على شرحك والصور المرفقة. المشكلة في النسخة السابقة كانت أن الباركود يولد رقماً عشوائياً (pinCode) كمسار لقاعدة البيانات، بينما تطبيق الأندرويد الخاص بك يتوقع أن يكون الباركود هو **"معرف الهاتف" (Device ID)** للمصادقة المباشرة، مما أدى لظهور خطأ "الرمز غير صحيح" وتعارض في قراءة البيانات.
-
-لقد قمت بتعديل الهيكلة البرمجية في الملف ليطابق ما برمجته في تطبيقك:
-1. **الباركود (مصادقة الهاتف):** أصبح يحتوي حصراً على `sourceDeviceId` ليتعرف التطبيق الجديد على الجهاز القديم فور مسحه.
-2. **رمز التحقق (المصادقة النهائية):** كود الأمان ذو الـ 6 أرقام معروض بشكل مستقل كطبقة أمان ثانية لإدخاله يدوياً.
-3. **قاعدة البيانات:** تم تغيير المفتاح (Node) في Firebase ليصبح برقم الـ Device ID الخاص بالهاتف المصدر بدلاً من الرقم العشوائي.
-
-إليك الملف كامل مكمل دون أي تغيير على التصميم، فقط تعديل الجذور البرمجية لتعمل بسلاسة مع تطبيقك:
-
-```html
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فواكه AI - نظام نقل الاشتراك الآمن</title>
     <!-- Firebase SDKs -->
-    <script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
-    <script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js)"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <!-- QR Code Generator -->
-    <script src="[https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js](https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js)"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- QR Code Scanner -->
-    <script src="[https://unpkg.com/html5-qrcode](https://unpkg.com/html5-qrcode)"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
@@ -403,7 +388,7 @@
     const firebaseConfig = {
         apiKey: "AIzaSyBWJJZHzUhbrl-dh1wowh-u0n0T9i5n0uU",
         authDomain: "hamzazed34567.firebaseapp.com",
-        databaseURL: "[https://hamzazed34567-default-rtdb.firebaseio.com](https://hamzazed34567-default-rtdb.firebaseio.com)",
+        databaseURL: "https://hamzazed34567-default-rtdb.firebaseio.com",
         projectId: "hamzazed34567",
         storageBucket: "hamzazed34567.firebasestorage.app",
         messagingSenderId: "734054414157",
@@ -418,7 +403,7 @@
     let html5QrcodeScanner = null;
     let timerInterval = null;
     let activeTransferRef = null;
-    let scannedPhoneAuth = null; // متغير لحفظ معرف الهاتف من الباركود
+    let scannedPhoneAuth = null;
 
     // Auto detect Device ID from URL parameters if passed from Android WebView
     window.onload = function() {
@@ -480,9 +465,8 @@
                 return;
             }
 
-            // تم حذف توليد الـ pinCode العشوائي ليكون الباركود حصرياً لمصادقة الهاتف
             const securityCode = Math.floor(100000 + Math.random() * 900000).toString();
-            const expiresAt = Date.now() + (60 * 1000); // صلاحية دقيقة
+            const expiresAt = Date.now() + (60 * 1000);
 
             const transferData = {
                 sourceDeviceId: sourceId,
@@ -492,7 +476,6 @@
                 createdAt: Date.now()
             };
 
-            // حفظ الطلب في القاعدة باستخدام معرف الهاتف مباشرة ليتوافق مع قراءة التطبيق
             const requestRef = db.ref('transfer_requests/' + sourceId);
             requestRef.set(transferData).then(() => {
                 btn.style.display = 'none';
@@ -504,7 +487,6 @@
                 document.getElementById('otpDisplay').innerText = securityCode;
 
                 document.getElementById('qrcode').innerHTML = '';
-                // الباركود الآن يضم معرف الهاتف مباشرة للمصادقة كما طلبت
                 qrCodeObj = new QRCode(document.getElementById("qrcode"), {
                     text: sourceId,
                     width: 170,
@@ -581,7 +563,6 @@
         });
     }
 
-    // Start Camera Scanner
     function startCameraScanner() {
         if(html5QrcodeScanner) return;
 
@@ -591,7 +572,6 @@
 
         html5QrcodeScanner.render((decodedText) => {
             if(decodedText && decodedText.trim() !== '') {
-                // حفظ معرف الهاتف الذي تمت قراءته من الباركود للانتقال لخطوة الأمان
                 scannedPhoneAuth = decodedText.trim();
                 html5QrcodeScanner.clear();
                 
@@ -626,7 +606,6 @@
         btn.innerHTML = '<span class="spinner"></span> جاري المصادقة ونقل البيانات...';
         btn.disabled = true;
 
-        // البحث في القاعدة باستخدام معرف الهاتف المصدر الذي تمت قراءته من الباركود
         db.ref('transfer_requests/' + scannedPhoneAuth).once('value').then(snapshot => {
             const reqData = snapshot.val();
 
@@ -648,7 +627,6 @@
                 return;
             }
 
-            // التحقق من أن الكود المدخل في التطبيق يطابق رمز التحقق المحفوظ
             if(reqData.securityCode !== securityInput) {
                 showAlert('رمز التحقق غير صحيح أو تم استخدامه مسبقاً!', 'danger');
                 resetBtn();
@@ -663,7 +641,6 @@
                 return;
             }
 
-            // ATOMIC SUBSCRIPTION TRANSFER IN FIREBASE
             db.ref('Users/' + sourceDeviceId).once('value').then(userSnap => {
                 const subscriptionData = userSnap.val();
 
