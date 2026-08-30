@@ -71,10 +71,9 @@
         }
 
         .logo-icon {
-            font-size: 42px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(199, 125, 255, 0.5));
+            filter: drop-shadow(0 0 10px rgba(199, 125, 255, 0.4));
         }
 
         h1 {
@@ -88,6 +87,49 @@
             font-size: 13px;
             color: var(--text-muted);
             line-height: 1.5;
+        }
+
+        /* Instructions Card CSS */
+        .instructions-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            text-align: right;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+        }
+        
+        .instructions-card h3 {
+            color: var(--accent-glow);
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instructions-card p {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .instructions-card ul {
+            padding-right: 20px;
+            color: var(--text-light);
+            font-size: 12px;
+            line-height: 1.7;
+            margin: 0;
+        }
+        
+        .instructions-card ul li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions-card ul li strong {
+            color: var(--accent-glow);
         }
 
         .nav-tabs {
@@ -288,9 +330,24 @@
 
 <div class="container">
     <div class="header">
-        <div class="logo-icon">🍇</div>
+        <div class="logo-icon">
+            <i class="fa-solid fa-mobile-screen" style="color: var(--text-muted); font-size: 32px;"></i>
+            <i class="fa-solid fa-arrow-right-arrow-left" style="color: var(--accent-glow); font-size: 20px; margin: 0 12px; vertical-align: middle;"></i>
+            <i class="fa-solid fa-mobile-screen" style="color: var(--success-color); font-size: 32px;"></i>
+        </div>
         <h1>فواكه AI - نقل الاشتراك</h1>
         <p class="subtitle">نظام التشفير الآمن لنقل اشتراكك بين الأجهزة</p>
+    </div>
+
+    <!-- Instructions Card -->
+    <div class="instructions-card">
+        <h3><i class="fa-solid fa-microchip"></i> آلية النقل الآمن للاشتراك</h3>
+        <p>تتم عملية ترحيل الاشتراك بنظام التشفير عبر الخطوات التالية:</p>
+        <ul>
+            <li><strong>الخطوة 1 (جهازك القديم):</strong> اختر "إرسال" لإنشاء رمز مصادقة مؤقت خاص بنقل البيانات.</li>
+            <li><strong>الخطوة 2 (جهازك الجديد):</strong> اختر "استلام" ثم أدخل معرف الجهاز القديم ورمز المصادقة.</li>
+            <li><strong>الخطوة 3 (التأكيد):</strong> سيتم تفعيل اشتراكك تلقائياً على الجهاز الجديد وإلغاء تنشيط الجهاز القديم فوراً.</li>
+        </ul>
     </div>
 
     <div class="nav-tabs">
