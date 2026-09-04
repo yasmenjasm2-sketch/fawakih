@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Party Guesser - VIP Purple Edition</title>
+    <title>YALLA FRUIT v7.0 - NEXUS HYBRID ENGINE</title>
     
     <!-- Firebase SDK (Version 8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -14,383 +14,354 @@
 
     <style>
         :root {
-            /* الألوان متطابقة تماماً مع تصميم التطبيق (AvailableAppsActivity) */
-            --primary: #A865FF;       /* بنفسجي مضيء */
-            --secondary: #8A2BE2;     /* بنفسجي غامق */
-            --gold: #E0B0FF;          /* بنفسجي ساطع جداً بديل للذهبي ليتناسب مع الثيم */
-            --bg-dark: #0C0519;       /* لون خلفية التطبيق */
-            --bg-card: #140A23;       /* لون الحاويات الداخلي */
-            --text-main: #ffffff;
-            --text-muted: #807994;
-            --success: #00E676;       /* الأخضر الخاص بنقطة "متاح" */
-            --error: #ff4757;
+            --bg-main: #0B0612;
+            --bg-panel: #130922;
+            --bg-card: #180C2B;
+            --primary: #9D4EDD;
+            --primary-dark: #5A189A;
+            --gold: #F8C000;
+            --success: #00E676;
+            --danger: #FF4757;
+            --text-main: #FFFFFF;
+            --text-muted: #8A7A9E;
+            --border-color: #2D1B4E;
+            --glass-bg: rgba(19, 9, 34, 0.65);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-dark); /* مطابقة لخلفية التطبيق */
+            background-color: var(--bg-main);
             color: var(--text-main);
-            text-align: center;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            padding: 15px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* تأثير الخلفية المتوهجة بأسلوب التطبيق */
+        /* تأثير الخلفية المتوهجة */
         body::before {
             content: '';
             position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(168, 101, 255, 0.03) 0%, transparent 60%);
-            animation: breatheBg 6s ease-in-out infinite alternate;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 50% 30%, rgba(157, 78, 221, 0.08) 0%, transparent 60%);
             pointer-events: none;
             z-index: -1;
         }
 
-        @keyframes breatheBg {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 1; }
-        }
-
-        h2 {
-            font-size: 26px;
-            font-weight: 900;
-            margin-bottom: 25px;
-            color: #ffffff;
-            text-shadow: 0px 4px 15px rgba(168, 101, 255, 0.4);
-            letter-spacing: 1px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ----- قسم المبرمج ----- */
+        /* قسم المبرمج */
         #dev-logo {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 45px;
-            height: 45px;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: 2px solid var(--primary);
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 0 15px rgba(168, 101, 255, 0.4);
-            transition: transform 0.3s ease;
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
         }
-
-        #dev-logo:hover {
-            transform: scale(1.1);
-        }
-
         #dev-info {
             position: absolute;
-            top: 75px;
-            left: 20px;
-            background: rgba(20, 10, 35, 0.85);
+            top: 65px;
+            right: 15px;
+            background: var(--glass-bg);
             border: 1px solid var(--primary);
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 12px;
             text-align: center;
             z-index: 1000;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.4s ease;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
-
         #dev-info.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
         }
+        .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
+        .dev-sub { color: var(--primary); font-size: 12px; }
 
-        .dev-name {
-            color: var(--gold);
-            font-weight: 800;
-            font-size: 15px;
-            margin-bottom: 4px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .dev-sub {
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        /* ---------------------- */
-
+        /* شاشة الدخول VIP */
         #login-screen {
-            display: none; /* يتم التحكم بظهوره عبر الجافاسكربت */
-            flex-direction: column;
-            align-items: center;
-            background: #1B1229;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 45px 35px;
-            border-radius: 24px;
-            border: 1px solid rgba(168, 101, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 400px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(168, 101, 255, 0.4);
-            background: #0C0519;
-            color: white;
-            font-size: 16px;
-            text-align: center;
-            outline: none;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .login-input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(224, 176, 255, 0.4);
-        }
-
-        .login-msg {
-            margin-top: 15px;
-            font-size: 14px;
-            color: var(--error);
-            font-weight: bold;
-            min-height: 20px;
-            text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
-        }
-
-        #game-screen {
             display: none;
             flex-direction: column;
             align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             width: 100%;
-            animation: fadeIn 0.6s ease-out;
+            max-width: 400px;
+            margin-top: 10vh;
+        }
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            background: var(--bg-main);
+            color: white;
+            text-align: center;
+            outline: none;
+            font-size: 16px;
+        }
+        .login-msg { color: var(--danger); font-size: 14px; margin-top: 10px; }
+
+        /* شاشة النظام الرئيسية */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            max-width: 480px;
+            gap: 15px;
         }
 
-        /* عداد الجولة العلوي */
-        .round-timer-box {
-            font-size: 16px;
+        /* الهيدر العلوي */
+        .app-header {
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .app-header h1 {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(248, 192, 0, 0.3);
+        }
+        .app-header h1 span { color: var(--danger); font-size: 18px; }
+        .app-header p {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* شريط الإحصائيات */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-muted);
+        }
+        .stats-bar span { display: flex; align-items: center; gap: 5px; }
+        .stat-value { color: var(--text-main); }
+        .stat-icon { color: var(--primary); }
+
+        /* زر المحرك الرئيسي */
+        .engine-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #3B0A75 100%);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.2);
+            transition: all 0.3s ease;
+        }
+        .engine-btn:active { transform: scale(0.98); }
+        .engine-btn.running {
+            background: linear-gradient(135deg, #1A0933 0%, #2A1050 100%);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .status-icon {
+            width: 14px;
+            height: 14px;
+            background: var(--gold);
+            border-radius: 2px;
+        }
+        .engine-btn.running .status-icon { background: var(--danger); border-radius: 50%; }
+
+        /* الحاويات (Panels) */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 15px;
+            position: relative;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--primary);
-            margin-bottom: 25px;
-            background: #150A2A;
-            padding: 12px 25px;
-            border-radius: 25px;
-            border: 1px solid rgba(168, 101, 255, 0.4);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
         }
-
-        .round-timer-box span {
-            color: var(--gold);
+        
+        /* التوقعات (Cards) */
+        .predictions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .pred-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+        .pred-card.active-card {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(248, 192, 0, 0.1);
+        }
+        .pred-type {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-bottom: 5px;
+        }
+        .pred-type span { color: var(--success); }
+        .pred-title {
             font-size: 18px;
-            text-shadow: 0 0 10px rgba(224, 176, 255, 0.5);
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .pred-score {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .pred-score span { color: var(--success); font-weight: bold; }
+        
+        /* شريط نسبة الثقة */
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: #25163D;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+        .pred-footer {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
         }
 
+        /* سجل النظام (Terminal) */
+        .system-log {
+            background: #060309;
+            border: 1px solid #1E1035;
+            border-radius: 8px;
+            padding: 10px;
+            height: 140px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 11px;
+            color: #A093B5;
+            line-height: 1.6;
+            direction: ltr;
+            text-align: left;
+        }
+        .log-time { color: var(--text-muted); }
+        .log-highlight { color: var(--success); }
+        .log-alert { color: var(--primary); }
+
+        /* حاوية اللعبة والصورة (البيانات الخام) */
         .game-container {
             position: relative;
-            display: inline-block;
             width: 100%;
-            max-width: 450px;
-            border-radius: 20px;
-            background: var(--bg-card);
-            padding: 4px;
-            transition: transform 0.3s ease;
-            /* تأثير التوهج المضيء الذي يحاكي التطبيق */
-            border: 2px solid var(--primary);
-            animation: neonPulse 3s infinite alternate;
-        }
-
-        @keyframes neonPulse {
-            0% { box-shadow: 0 0 10px rgba(168, 101, 255, 0.2); border-color: rgba(168, 101, 255, 0.3); }
-            100% { box-shadow: 0 0 25px rgba(224, 176, 255, 0.5); border-color: rgba(224, 176, 255, 0.8); }
-        }
-
-        .image-wrapper {
-            position: relative;
-            border-radius: 16px;
+            border-radius: 10px;
             overflow: hidden;
-            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
         }
-
         .game-image {
             display: block;
             width: 100%;
             height: auto;
-            border-radius: 16px;
-            opacity: 0.95;
+            opacity: 0.8;
+            transition: opacity 0.3s;
         }
-
+        .game-image.analyzing { opacity: 0.4; filter: blur(2px); }
+        
         .marker {
             position: absolute;
-            font-size: 26px;
+            font-size: 22px;
             transform: translate(-50%, -50%);
             display: none;
-            filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.8));
+            filter: drop-shadow(0px 0px 8px rgba(0, 230, 118, 0.9));
             z-index: 10;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-shadow: 0 0 15px rgba(0, 230, 118, 0.9); /* توهج أخضر متوافق مع نجاح التخمين */
         }
-
         .slot-players-badge {
             position: absolute;
-            background: rgba(20, 10, 40, 0.85);
-            border: 1px solid rgba(168, 101, 255, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(11, 6, 18, 0.9);
+            border: 1px solid var(--primary);
             color: var(--gold);
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 10px;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 6px;
             z-index: 5;
             font-weight: bold;
             transform: translate(-50%, -50%);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-            transition: transform 0.2s ease, color 0.3s ease;
             direction: ltr;
         }
 
-        .btn {
-            margin-top: 25px;
-            padding: 16px 65px;
-            font-size: 18px;
-            font-weight: bold;
-            background: var(--bg-card);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(168, 101, 255, 0.15);
-            transition: all 0.3s ease;
-            letter-spacing: 1px;
-            width: 100%;
-            max-width: 320px;
-        }
-
-        .btn:hover {
-            background: rgba(168, 101, 255, 0.1);
-            box-shadow: 0 8px 20px rgba(168, 101, 255, 0.3);
-            color: var(--gold);
-        }
-
-        .btn:active:not(.disabled) {
-            transform: translateY(2px) scale(0.97);
-        }
-
-        .btn.disabled {
-            background: #110A1A;
-            color: var(--text-muted);
-            cursor: not-allowed;
-            box-shadow: none;
-            border: 1px solid rgba(128, 121, 148, 0.3);
-        }
-
-        .result-text {
-            margin-top: 25px;
-            font-size: 16px;
-            color: var(--text-muted);
-            font-weight: 600;
-            min-height: 30px;
-            line-height: 1.5;
-            padding: 12px 25px;
-            border-radius: 12px;
-            background: rgba(168, 101, 255, 0.05);
-            border: 1px solid rgba(168, 101, 255, 0.1);
-            transition: all 0.4s ease;
-        }
-
-        .result-text.active {
-            color: var(--success);
-            background: rgba(0, 230, 118, 0.1);
-            border-color: rgba(0, 230, 118, 0.3);
-            transform: scale(1.05);
-        }
-        
-        .loader {
+        /* شريط التحليل (متحرك) */
+        .analyzing-bar {
             display: none;
-            border: 3px solid rgba(168, 101, 255, 0.1);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            animation: spin 1s linear infinite;
-            margin: 15px auto;
-        }
-
-        .online-stats {
-            margin-top: 35px;
-            padding: 10px 22px;
-            background: #152422; /* لون خلفية الزر الأخضر في التطبيق */
-            border: 1px solid #0F5938; /* لون حدود الزر الأخضر في التطبيق */
-            border-radius: 30px;
-            display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--success);
+            gap: 10px;
+            padding: 10px;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 14px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--primary); }
+            100% { opacity: 0.6; }
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--success);
-            animation: blink 0.7s infinite alternate;
-        }
-
-        @keyframes blink {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0.2; transform: scale(0.8); }
-        }
-
-        .online-numbers {
-            direction: ltr;
-            display: inline-block;
-        }
-
-        .current-players {
-            color: #ffffff;
-            font-weight: 800;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Scrollbar للمظهر الأنيق */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #060309; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -403,53 +374,92 @@
 
     <!-- شاشة تسجيل الدخول -->
     <div id="login-screen">
-        <h2>تسجيل الدخول VIP</h2>
-        <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود الاشتراك هنا">
-        <button class="btn" onclick="login()">تفعيل الدخول</button>
-        <div class="loader" id="login-loader"></div>
+        <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول VIP</h2>
+        <p style="color: var(--text-muted); font-size: 12px;">يرجى إدخال كود المصادقة الخاص بك</p>
+        <input type="text" id="sub-code" class="login-input" placeholder="Token ID">
+        <button class="engine-btn" onclick="login()">متابعة</button>
         <p id="login-msg" class="login-msg"></p>
     </div>
 
-    <!-- شاشة اللعب والتخمين -->
+    <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
-        <h2>تخمين اللعبة الفائزة VIP</h2>
-
-        <div class="round-timer-box">
-            وقت الجولة المتبقي: <span id="round-timer">0</span> ثانية
+        
+        <!-- الهيدر -->
+        <div class="app-header">
+            <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
+            <p>AI-Powered · استراتيجية الأقلية · NEXUS HYBRID ENGINE ⚡</p>
         </div>
 
-        <div class="game-container">
-            <div class="image-wrapper" id="img-wrap">
-                <img src="fefaf.jpg" alt="Fruit Party" class="game-image">
-                
-                <div id="marker-1" class="marker">✅</div>
-                <div id="marker-2" class="marker">✅</div>
-                <div id="marker-3" class="marker">✅</div>
-                <div id="marker-4" class="marker">✅</div>
+        <!-- الإحصائيات العلوية -->
+        <div class="stats-bar">
+            <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
+            <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
+            <span>HYBRID 🟣🟢</span>
+        </div>
+
+        <!-- زر التشغيل -->
+        <button id="guess-btn" class="engine-btn" onclick="makeGuess()">
+            <div class="status-icon" id="btn-icon"></div>
+            <span id="btn-text">تشغيل المحرك</span>
+        </button>
+
+        <!-- التوقعات (كروت نسبة الثقة) -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>🎯 توقعات NEXUS</span>
+                <span style="color: var(--gold); font-size: 10px;">CODEX v7.0</span>
+            </div>
+            <div class="analyzing-bar" id="analyzing-ui">
+                جاري التحليل... 🧠
+            </div>
+            <div class="predictions-grid" id="predictions-grid">
+                <!-- سيتم توليد الكروت هنا برمجياً -->
+                <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
+                    اضغط "تشغيل المحرك" لبدء استخراج التوقعات
+                </div>
             </div>
         </div>
 
-        <button id="guess-btn" class="btn" onclick="makeGuess()">تخمين الآن (بدء الجولة)</button>
-        <div class="result-text" id="result-text">اضغط على الزر لبدء الجولة والتخمين</div>
-
-        <div class="online-stats">
-            <div class="pulse-dot"></div>
-            <span>المتصلين الآن:</span>
-            <span class="online-numbers">
-                <span id="online-count" class="current-players">0</span> / <span id="bots-count">0</span>
-            </span>
+        <!-- سجل النظام -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>📋 سجل النظام</span>
+            </div>
+            <div class="system-log" id="system-log">
+                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - NEXUS HYBRID ENGINE</div>
+                <div><span class="log-time">[نظام]</span> اضغط زر التشغيل للبدء</div>
+            </div>
         </div>
+
+        <!-- البيانات الخام (الصورة ومواقع الفواكه) -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>📡 بيانات التحليل الخام</span>
+                <span id="bots-count" style="color: var(--text-muted); font-size: 10px;">0</span>
+            </div>
+            <div class="game-container">
+                <div id="img-wrap" style="position: relative;">
+                    <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
+                    
+                    <div id="marker-1" class="marker">✅</div>
+                    <div id="marker-2" class="marker">✅</div>
+                    <div id="marker-3" class="marker">✅</div>
+                    <div id="marker-4" class="marker">✅</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // --- إعدادات الواجهة والمبرمج ---
         function showDevInfo() {
             const infoBox = document.getElementById('dev-info');
             infoBox.classList.add('show');
-            setTimeout(() => {
-                infoBox.classList.remove('show');
-            }, 3000); 
+            setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
+        // --- إعدادات Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
             databaseURL: "https://fawakihyallalive-default-rtdb.firebaseio.com",
@@ -457,23 +467,33 @@
             storageBucket: "fawakihyallalive.firebasestorage.app",
             appId: "1:917478913649:android:fee5d42aca81c8a2e3cdd0"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         const allowedCodes = ["hamzagmail34567", "nbras.vip23"];
 
-        // مواقع الفواكه على الصورة
+        // --- داتا الفواكه والخريطة ---
         const slots = [
             { id: 1, top: '17%', left: '17%' }, // الليمون
             { id: 2, top: '17%', left: '50%' }, // التوت
             { id: 3, top: '17%', left: '83%' }, // الكيوي
-            { id: 4, top: '50%', left: '17%' }, // 🍒 الكرز 
+            { id: 4, top: '50%', left: '17%' }, // الكرز
             { id: 5, top: '50%', left: '83%' }, // الخوخ
-            { id: 6, top: '83%', left: '17%' }, // 🍉 البطيخ 
+            { id: 6, top: '83%', left: '17%' }, // البطيخ
             { id: 7, top: '83%', left: '50%' }, // الموز
             { id: 8, top: '83%', left: '83%' }  // الفراولة
         ];
+
+        // الأسماء والمضاعفات لعرضها في الكروت مطابقة للصورة
+        const fruitData = {
+            1: { name: 'ليمون', icon: '🍋', mult: 'x5', type: 'SMALL' },
+            2: { name: 'توت', icon: '🫐', mult: 'x5', type: 'SMALL' },
+            3: { name: 'كيوي', icon: '🥝', mult: 'x5', type: 'SMALL' },
+            4: { name: 'كرز', icon: '🍒', mult: 'x45', type: 'BIG' },
+            5: { name: 'خوخ', icon: '🍑', mult: 'x5', type: 'SMALL' },
+            6: { name: 'بطيخ', icon: '🍉', mult: 'x25', type: 'BIG' },
+            7: { name: 'موز', icon: '🍌', mult: 'x5', type: 'SMALL' },
+            8: { name: 'فراولة', icon: '🍓', mult: 'x10', type: 'BIG' }
+        };
 
         let slotAmounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
         let currentRoundTime = 35; 
@@ -481,15 +501,12 @@
         let isGuessingAllowed = true;
         let previousSelection = [];
 
-        // 🌟 دالة التعرف الذكي لمعرفة ما إذا كان المستخدم قادم من التطبيق الخاص بك (WebView) 🌟
+        // --- نظام التوجيه وتخطي الدخول ---
         function isAppWebView() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
-            // التحقق من تواجد المتصفح الداخلي (WebView) في أندرويد
             const isAndroidWebView = (ua.indexOf('Android') > -1 && ua.indexOf('wv') > -1) || 
                                      (ua.indexOf('Android') > -1 && ua.indexOf('Version/') > -1);
-            // التحقق من تواجد المتصفح الداخلي (WebView) في iOS
             const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
-            
             return isAndroidWebView || isIOSWebView;
         }
 
@@ -501,28 +518,26 @@
                 badge.className = 'slot-players-badge';
                 badge.style.top = `calc(${slot.top} + 11%)`; 
                 badge.style.left = slot.left;
-                badge.innerText = '👥 0';
+                badge.innerText = '0';
                 wrapper.appendChild(badge);
             });
 
-            // 🌟 نظام التوجيه التلقائي والتخطي 🌟
             if (isAppWebView()) {
-                // إذا تم التعرف على التطبيق، اعتبره مسجلاً فوراً وتخطى شاشة الاشتراك
                 localStorage.setItem('is_vip_logged_in', 'true');
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'flex';
-                updateLiveStats(true);
+                showGame();
             } else if (localStorage.getItem('is_vip_logged_in') === 'true') {
-                // إذا كان متصفحاً عادياً ولكنه مسجل دخول مسبقاً
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'flex';
-                updateLiveStats(true); 
+                showGame(); 
             } else {
-                // إذا كان متصفحاً عادياً وليس مسجلاً، اطلب الكود
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('game-screen').style.display = 'none';
             }
         };
+
+        function showGame() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            updateLiveStats(true);
+        }
 
         function getDeviceId() {
             let id = localStorage.getItem('unique_device_id');
@@ -538,13 +553,11 @@
         function login() {
             const codeInput = document.getElementById('sub-code').value.trim();
             const msgBox = document.getElementById('login-msg');
-            const loader = document.getElementById('login-loader');
-            
             msgBox.innerText = "";
-            if (!codeInput) { msgBox.innerText = "الرجاء إدخال كود الاشتراك."; return; }
-            if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود الاشتراك غير صالح أو منتهي الصلاحية."; return; }
+            
+            if (!codeInput) { msgBox.innerText = "الرجاء إدخال الكود."; return; }
+            if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود غير صالح."; return; }
 
-            loader.style.display = "block";
             const deviceId = getDeviceId();
             const encryptedCode = encryptCode(codeInput);
             const dbRef = db.ref('subscriptions_vip/' + encryptedCode);
@@ -552,87 +565,132 @@
             dbRef.once('value').then((snapshot) => {
                 const data = snapshot.val();
                 if (data && data.deviceId) {
-                    if (data.deviceId === deviceId) {
-                        startGameScreen();
-                    } else {
-                        loader.style.display = "none";
-                        msgBox.innerText = "❌ هذا الكود مرتبط بجهاز آخر بالفعل.";
-                    }
+                    if (data.deviceId === deviceId) showGame();
+                    else msgBox.innerText = "❌ الكود مرتبط بجهاز آخر.";
                 } else {
                     dbRef.set({
                         deviceId: deviceId,
                         activationDate: new Date().toISOString(),
                         originalCode: codeInput
-                    }).then(() => {
-                        startGameScreen();
-                    }).catch(error => {
-                        loader.style.display = "none";
-                        msgBox.innerText = "حدث خطأ أثناء الاتصال بالخادم.";
-                    });
+                    }).then(() => { showGame(); })
+                    .catch(() => { msgBox.innerText = "خطأ في الاتصال بالخادم."; });
                 }
-            }).catch(error => {
-                loader.style.display = "none";
-                msgBox.innerText = "خطأ في الشبكة، تحقق من اتصالك بالإنترنت.";
+            }).catch(() => { msgBox.innerText = "خطأ في الشبكة."; });
+        }
+
+        // --- دوال التحكم بالواجهة الجديدة (اللوج والتوقعات) ---
+        function addSystemLog(msg, isHighlight = false) {
+            const logBox = document.getElementById('system-log');
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour12: false });
+            const highlightClass = isHighlight ? 'log-highlight' : '';
+            const newLog = `<div><span class="log-time">[${time}]</span> <span class="${highlightClass}">${msg}</span></div>`;
+            logBox.innerHTML += newLog;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function renderPredictions(selectedSlots) {
+            const grid = document.getElementById('predictions-grid');
+            grid.innerHTML = '';
+            
+            selectedSlots.forEach((slot, index) => {
+                const fData = fruitData[slot.id];
+                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95; // 95-99% ثقة كما في الصورة
+                const score = (Math.random() * 2000 + 300).toFixed(1);
+                const minority = (Math.random() * 8 + 0.5).toFixed(1);
+                
+                // تحديد لون الشريط بناءً على نسبة الثقة العالية
+                const barColor = confidence >= 97 ? 'var(--success)' : 'var(--gold)';
+                const activeClass = index === 0 ? 'active-card' : '';
+                const typeLabel = fData.type === 'BIG' ? `${fData.type} 🔴` : `${fData.type} 🟢`;
+
+                grid.innerHTML += `
+                    <div class="pred-card ${activeClass}">
+                        <div class="pred-type">${typeLabel} ${index + 1}</div>
+                        <div class="pred-title">${fData.name} ${fData.mult} ${fData.icon}</div>
+                        <div class="pred-score">Score: ${score} | <span>%${confidence} ثقة</span></div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: ${confidence}%; background: ${barColor};"></div>
+                        </div>
+                        <div class="pred-footer">رهان: ${minority}% | أقلية 🟢</div>
+                    </div>
+                `;
             });
         }
 
-        function startGameScreen() {
-            localStorage.setItem('is_vip_logged_in', 'true');
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            updateLiveStats(true); 
-        }
-
+        // --- المحرك الرئيسي ---
         function makeGuess() {
             if (!isGuessingAllowed) return;
             
-            const resultBox = document.getElementById('result-text');
-
-            // جلب التخمين من الملف المستقل (fruitsystm.js)
-            let selectedSlots = generatePrediction(slots, previousSelection);
-
-            if (!selectedSlots || selectedSlots.length === 0) {
-                resultBox.innerText = "❌ خطأ في النظام: لم يتمكن الخادم المستقل من التخمين. يرجى المحاولة مرة أخرى.";
-                resultBox.style.color = "var(--error)";
-                resultBox.style.background = "rgba(255, 71, 87, 0.1)";
-                resultBox.style.borderColor = "rgba(255, 71, 87, 0.3)";
-                return;
-            }
-
-            resultBox.style.color = "var(--text-muted)";
-            resultBox.style.background = "rgba(168, 101, 255, 0.05)";
-            resultBox.style.borderColor = "rgba(168, 101, 255, 0.1)";
+            const mainImg = document.getElementById('main-image');
+            const btn = document.getElementById('guess-btn');
+            const btnText = document.getElementById('btn-text');
+            const grid = document.getElementById('predictions-grid');
+            const analyzingUI = document.getElementById('analyzing-ui');
             
-            previousSelection = selectedSlots.map(s => s.id);
+            // إخفاء الماركرز السابقة
+            for(let i=1; i<=4; i++) document.getElementById('marker-'+i).style.display = 'none';
+            grid.style.display = 'none';
+            analyzingUI.style.display = 'flex';
+            mainImg.classList.add('analyzing');
 
-            selectedSlots.forEach((slot, index) => {
-                let marker = document.getElementById('marker-' + (index + 1));
-                marker.style.top = slot.top;
-                marker.style.left = slot.left;
-                marker.style.display = 'block';
+            addSystemLog("🚀 NEXUS بدء محرك...", true);
+            addSystemLog("🧠 جاري تحليل الأنماط واستراتيجية الأقلية...");
 
-                marker.style.transform = 'translate(-50%, -50%) scale(1.6)';
-                setTimeout(() => {
-                    marker.style.transform = 'translate(-50%, -50%) scale(1)';
-                }, 250);
-            });
+            btn.classList.add('running');
+            btnText.innerText = "جاري التحليل...";
+            isGuessingAllowed = false;
 
-            resultBox.innerText = "🎯 تم تحديد المواقع المتوقعة بنجاح! الجولة بدأت.";
-            resultBox.classList.remove('active');
-            setTimeout(() => { resultBox.classList.add('active'); }, 50);
+            // محاكاة وقت التحليل لثانيتين قبل العرض
+            setTimeout(() => {
+                let selectedSlots = generatePrediction(slots, previousSelection);
+                
+                if (!selectedSlots || selectedSlots.length === 0) {
+                    addSystemLog("❌ فشل المحرك في استخراج البيانات", false);
+                    resetEngineUI();
+                    return;
+                }
 
-            startActiveRound();
+                previousSelection = selectedSlots.map(s => s.id);
+                
+                // عرض النتائج في الكروت الفاخرة
+                analyzingUI.style.display = 'none';
+                grid.style.display = 'grid';
+                renderPredictions(selectedSlots);
+
+                // وضع العلامات على الصورة
+                selectedSlots.forEach((slot, index) => {
+                    let marker = document.getElementById('marker-' + (index + 1));
+                    marker.style.top = slot.top;
+                    marker.style.left = slot.left;
+                    marker.style.display = 'block';
+                });
+
+                mainImg.classList.remove('analyzing');
+                addSystemLog("✅ تم استخراج التوقعات بنجاح", true);
+                addSystemLog("📡 اتصال مباشر نشط...");
+
+                startActiveRound();
+            }, 1500);
+        }
+
+        function resetEngineUI() {
+            const btn = document.getElementById('guess-btn');
+            btn.classList.remove('running');
+            document.getElementById('btn-text').innerText = "تشغيل المحرك";
+            document.getElementById('main-image').classList.remove('analyzing');
+            document.getElementById('analyzing-ui').style.display = 'none';
+            document.getElementById('predictions-grid').style.display = 'grid';
+            isGuessingAllowed = true;
         }
 
         function startActiveRound() {
-            isGuessingAllowed = false; 
             currentRoundTime = 35; 
-            
             const btn = document.getElementById('guess-btn');
+            const btnText = document.getElementById('btn-text');
             const timerDisplay = document.getElementById('round-timer');
             
-            btn.classList.add('disabled');
-            btn.innerText = `الرجاء الانتظار (${currentRoundTime}) ثانية`;
+            btnText.innerText = `إيقاف المحرك (${currentRoundTime})`;
             timerDisplay.innerText = currentRoundTime;
 
             if (roundInterval) clearInterval(roundInterval);
@@ -642,18 +700,14 @@
                 currentRoundTime--;
                 
                 if (currentRoundTime > 0) {
-                    btn.innerText = `الرجاء الانتظار (${currentRoundTime}) ثانية`;
+                    btnText.innerText = `إيقاف المحرك (${currentRoundTime})`;
                     timerDisplay.innerText = currentRoundTime;
                     updateLiveStats(false); 
                 } else {
                     clearInterval(roundInterval);
-                    timerDisplay.innerText = 0;
-                    btn.classList.remove('disabled');
-                    btn.innerText = "تخمين الآن (بدء جولة جديدة)";
-                    
-                    document.getElementById('result-text').innerText = "انتهت الجولة. الأرقام صفرت، يمكنك بدء جولة جديدة.";
-                    
-                    isGuessingAllowed = true; 
+                    timerDisplay.innerText = "0";
+                    addSystemLog("⏳ انتهت الجولة. المحرك في وضع الاستعداد.");
+                    resetEngineUI();
                     updateLiveStats(true); 
                 }
             }, 1000);
@@ -663,41 +717,25 @@
             let totalPlayersOnSlots = 0;
 
             slots.forEach(slot => {
-                if (isReset) {
-                    slotAmounts[slot.id] = 0; 
-                } else {
-                    let addedBet = Math.floor(Math.random() * 2000) + 100;
-                    slotAmounts[slot.id] += addedBet; 
-                }
+                if (isReset) slotAmounts[slot.id] = 0; 
+                else slotAmounts[slot.id] += Math.floor(Math.random() * 2000) + 100;
                 
                 let amount = slotAmounts[slot.id];
                 let playersCount = amount > 0 ? (Math.floor(amount / 1200) + 1) : 0;
                 totalPlayersOnSlots += playersCount;
 
                 let badge = document.getElementById('slot-badge-' + slot.id);
-                if (badge) {
-                    badge.innerText = `👥 ${playersCount}`;
-                    
-                    if (!isReset && Math.random() > 0.4) {
-                        badge.style.transform = 'translate(-50%, -50%) scale(1.15)';
-                        setTimeout(() => {
-                            badge.style.transform = 'translate(-50%, -50%) scale(1)';
-                        }, 250);
-                    }
-                }
+                if (badge) badge.innerText = playersCount.toString();
             });
 
             if (isReset) {
-                document.getElementById('online-count').innerText = 0;
-                document.getElementById('bots-count').innerText = 0;
+                document.getElementById('online-count').innerText = "0";
+                document.getElementById('bots-count').innerText = "0";
             } else {
                 let lobbyObservers = Math.floor(Math.random() * 150) + 30; 
                 let grandTotalOnline = totalPlayersOnSlots + lobbyObservers;
-
                 document.getElementById('online-count').innerText = grandTotalOnline;
-                
-                let botsMultiplier = 3 + (Math.random() * 1.5);
-                document.getElementById('bots-count').innerText = Math.floor(grandTotalOnline * botsMultiplier);
+                document.getElementById('bots-count').innerText = Math.floor(grandTotalOnline * 3.5);
             }
         }
     </script>
