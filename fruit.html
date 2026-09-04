@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Party Guesser - VIP Purple Edition</title>
+    
+    <!-- Firebase SDK (Version 8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- استدعاء العقل الرئيسي (الخوارزمية) من الملف المستقل -->
+    <script src="fruitsystm.js"></script>
+
+    <style>
+        :root {
+            /* الألوان متطابقة تماماً مع تصميم التطبيق (AvailableAppsActivity) */
+            --primary: #A865FF;       /* بنفسجي مضيء */
+            --secondary: #8A2BE2;     /* بنفسجي غامق */
+            --gold: #E0B0FF;          /* بنفسجي ساطع جداً بديل للذهبي ليتناسب مع الثيم */
+            --bg-dark: #0C0519;       /* لون خلفية التطبيق */
+            --bg-card: #140A23;       /* لون الحاويات الداخلي */
+            --text-main: #ffffff;
+            --text-muted: #807994;
+            --success: #00E676;       /* الأخضر الخاص بنقطة "متاح" */
+            --error: #ff4757;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark); /* مطابقة لخلفية التطبيق */
+            color: var(--text-main);
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* تأثير الخلفية المتوهجة بأسلوب التطبيق */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(168, 101, 255, 0.03) 0%, transparent 60%);
+            animation: breatheBg 6s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes breatheBg {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            color: #ffffff;
+            text-shadow: 0px 4px 15px rgba(168, 101, 255, 0.4);
+            letter-spacing: 1px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ----- قسم المبرمج ----- */
+        #dev-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 0 15px rgba(168, 101, 255, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        #dev-logo:hover {
+            transform: scale(1.1);
+        }
+
+        #dev-info {
+            position: absolute;
+            top: 75px;
+            left: 20px;
+            background: rgba(20, 10, 35, 0.85);
+            border: 1px solid var(--primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        }
+
+        #dev-info.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dev-name {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .dev-sub {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* ---------------------- */
+
+        #login-screen {
+            display: none; /* يتم التحكم بظهوره عبر الجافاسكربت */
+            flex-direction: column;
+            align-items: center;
+            background: #1B1229;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 45px 35px;
+            border-radius: 24px;
+            border: 1px solid rgba(168, 101, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(168, 101, 255, 0.4);
+            background: #0C0519;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .login-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(224, 176, 255, 0.4);
+        }
+
+        .login-msg {
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--error);
+            font-weight: bold;
+            min-height: 20px;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* عداد الجولة العلوي */
+        .round-timer-box {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 25px;
+            background: #150A2A;
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 1px solid rgba(168, 101, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        .round-timer-box span {
+            color: var(--gold);
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(224, 176, 255, 0.5);
+        }
+
+        .game-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            padding: 4px;
+            transition: transform 0.3s ease;
+            /* تأثير التوهج المضيء الذي يحاكي التطبيق */
+            border: 2px solid var(--primary);
+            animation: neonPulse 3s infinite alternate;
+        }
+
+        @keyframes neonPulse {
+            0% { box-shadow: 0 0 10px rgba(168, 101, 255, 0.2); border-color: rgba(168, 101, 255, 0.3); }
+            100% { box-shadow: 0 0 25px rgba(224, 176, 255, 0.5); border-color: rgba(224, 176, 255, 0.8); }
+        }
+
+        .image-wrapper {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+        }
+
+        .game-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            opacity: 0.95;
+        }
+
+        .marker {
+            position: absolute;
+            font-size: 26px;
+            transform: translate(-50%, -50%);
+            display: none;
+            filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.8));
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 0 15px rgba(0, 230, 118, 0.9); /* توهج أخضر متوافق مع نجاح التخمين */
+        }
+
+        .slot-players-badge {
+            position: absolute;
+            background: rgba(20, 10, 40, 0.85);
+            border: 1px solid rgba(168, 101, 255, 0.5);
+            backdrop-filter: blur(4px);
+            color: var(--gold);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 5;
+            font-weight: bold;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s ease, color 0.3s ease;
+            direction: ltr;
+        }
+
+        .btn {
+            margin-top: 25px;
+            padding: 16px 65px;
+            font-size: 18px;
+            font-weight: bold;
+            background: var(--bg-card);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(168, 101, 255, 0.15);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .btn:hover {
+            background: rgba(168, 101, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(168, 101, 255, 0.3);
+            color: var(--gold);
+        }
+
+        .btn:active:not(.disabled) {
+            transform: translateY(2px) scale(0.97);
+        }
+
+        .btn.disabled {
+            background: #110A1A;
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+            border: 1px solid rgba(128, 121, 148, 0.3);
+        }
+
+        .result-text {
+            margin-top: 25px;
+            font-size: 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            min-height: 30px;
+            line-height: 1.5;
+            padding: 12px 25px;
+            border-radius: 12px;
+            background: rgba(168, 101, 255, 0.05);
+            border: 1px solid rgba(168, 101, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .result-text.active {
+            color: var(--success);
+            background: rgba(0, 230, 118, 0.1);
+            border-color: rgba(0, 230, 118, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .loader {
+            display: none;
+            border: 3px solid rgba(168, 101, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+
+        .online-stats {
+            margin-top: 35px;
+            padding: 10px 22px;
+            background: #152422; /* لون خلفية الزر الأخضر في التطبيق */
+            border: 1px solid #0F5938; /* لون حدود الزر الأخضر في التطبيق */
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: blink 0.7s infinite alternate;
+        }
+
+        @keyframes blink {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.2; transform: scale(0.8); }
+        }
+
+        .online-numbers {
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .current-players {
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
+    <div id="dev-info">
+        <div class="dev-name">hamza elhumada</div>
+        <div class="dev-sub">nbras</div>
+    </div>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="login-screen">
+        <h2>تسجيل الدخول VIP</h2>
+        <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود الاشتراك هنا">
+        <button class="btn" onclick="login()">تفعيل الدخول</button>
+        <div class="loader" id="login-loader"></div>
+        <p id="login-msg" class="login-msg"></p>
+    </div>
+
+    <!-- شاشة اللعب والتخمين -->
+    <div id="game-screen">
+        <h2>تخمين اللعبة الفائزة VIP</h2>
+
+        <div class="round-timer-box">
+            وقت الجولة المتبقي: <span id="round-timer">0</span> ثانية
+        </div>
+
+        <div class="game-container">
+            <div class="image-wrapper" id="img-wrap">
+                <img src="fefaf.jpg" alt="Fruit Party" class="game-image">
+                
+                <div id="marker-1" class="marker">✅</div>
+                <div id="marker-2" class="marker">✅</div>
+                <div id="marker-3" class="marker">✅</div>
+                <div id="marker-4" class="marker">✅</div>
+            </div>
+        </div>
+
+        <button id="guess-btn" class="btn" onclick="makeGuess()">تخمين الآن (بدء الجولة)</button>
+        <div class="result-text" id="result-text">اضغط على الزر لبدء الجولة والتخمين</div>
+
+        <div class="online-stats">
+            <div class="pulse-dot"></div>
+            <span>المتصلين الآن:</span>
+            <span class="online-numbers">
+                <span id="online-count" class="current-players">0</span> / <span id="bots-count">0</span>
+            </span>
+        </div>
+    </div>
+
+    <script>
+        function showDevInfo() {
+            const infoBox = document.getElementById('dev-info');
+            infoBox.classList.add('show');
+            setTimeout(() => {
+                infoBox.classList.remove('show');
+            }, 3000); 
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
+            databaseURL: "https://fawakihyallalive-default-rtdb.firebaseio.com",
+            projectId: "fawakihyallalive",
+            storageBucket: "fawakihyallalive.firebasestorage.app",
+            appId: "1:917478913649:android:fee5d42aca81c8a2e3cdd0"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const allowedCodes = ["hamzagmail34567", "nbras.vip23"];
+
+        // مواقع الفواكه على الصورة
+        const slots = [
+            { id: 1, top: '17%', left: '17%' }, // الليمون
+            { id: 2, top: '17%', left: '50%' }, // التوت
+            { id: 3, top: '17%', left: '83%' }, // الكيوي
+            { id: 4, top: '50%', left: '17%' }, // 🍒 الكرز 
+            { id: 5, top: '50%', left: '83%' }, // الخوخ
+            { id: 6, top: '83%', left: '17%' }, // 🍉 البطيخ 
+            { id: 7, top: '83%', left: '50%' }, // الموز
+            { id: 8, top: '83%', left: '83%' }  // الفراولة
+        ];
+
+        let slotAmounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
+        let currentRoundTime = 35; 
+        let roundInterval;
+        let isGuessingAllowed = true;
+        let previousSelection = [];
+
+        // 🌟 دالة التعرف الذكي لمعرفة ما إذا كان المستخدم قادم من التطبيق الخاص بك (WebView) 🌟
+        function isAppWebView() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            // التحقق من تواجد المتصفح الداخلي (WebView) في أندرويد
+            const isAndroidWebView = (ua.indexOf('Android') > -1 && ua.indexOf('wv') > -1) || 
+                                     (ua.indexOf('Android') > -1 && ua.indexOf('Version/') > -1);
+            // التحقق من تواجد المتصفح الداخلي (WebView) في iOS
+            const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
+            
+            return isAndroidWebView || isIOSWebView;
+        }
+
+        window.onload = function() {
+            const wrapper = document.getElementById('img-wrap');
+            slots.forEach(slot => {
+                let badge = document.createElement('div');
+                badge.id = 'slot-badge-' + slot.id;
+                badge.className = 'slot-players-badge';
+                badge.style.top = `calc(${slot.top} + 11%)`; 
+                badge.style.left = slot.left;
+                badge.innerText = '👥 0';
+                wrapper.appendChild(badge);
+            });
+
+            // 🌟 نظام التوجيه التلقائي والتخطي 🌟
+            if (isAppWebView()) {
+                // إذا تم التعرف على التطبيق، اعتبره مسجلاً فوراً وتخطى شاشة الاشتراك
+                localStorage.setItem('is_vip_logged_in', 'true');
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'flex';
+                updateLiveStats(true);
+            } else if (localStorage.getItem('is_vip_logged_in') === 'true') {
+                // إذا كان متصفحاً عادياً ولكنه مسجل دخول مسبقاً
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'flex';
+                updateLiveStats(true); 
+            } else {
+                // إذا كان متصفحاً عادياً وليس مسجلاً، اطلب الكود
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('game-screen').style.display = 'none';
+            }
+        };
+
+        function getDeviceId() {
+            let id = localStorage.getItem('unique_device_id');
+            if (!id) {
+                id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                localStorage.setItem('unique_device_id', id);
+            }
+            return id;
+        }
+
+        function encryptCode(code) { return btoa(code); }
+
+        function login() {
+            const codeInput = document.getElementById('sub-code').value.trim();
+            const msgBox = document.getElementById('login-msg');
+            const loader = document.getElementById('login-loader');
+            
+            msgBox.innerText = "";
+            if (!codeInput) { msgBox.innerText = "الرجاء إدخال كود الاشتراك."; return; }
+            if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود الاشتراك غير صالح أو منتهي الصلاحية."; return; }
+
+            loader.style.display = "block";
+            const deviceId = getDeviceId();
+            const encryptedCode = encryptCode(codeInput);
+            const dbRef = db.ref('subscriptions_vip/' + encryptedCode);
+
+            dbRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data && data.deviceId) {
+                    if (data.deviceId === deviceId) {
+                        startGameScreen();
+                    } else {
+                        loader.style.display = "none";
+                        msgBox.innerText = "❌ هذا الكود مرتبط بجهاز آخر بالفعل.";
+                    }
+                } else {
+                    dbRef.set({
+                        deviceId: deviceId,
+                        activationDate: new Date().toISOString(),
+                        originalCode: codeInput
+                    }).then(() => {
+                        startGameScreen();
+                    }).catch(error => {
+                        loader.style.display = "none";
+                        msgBox.innerText = "حدث خطأ أثناء الاتصال بالخادم.";
+                    });
+                }
+            }).catch(error => {
+                loader.style.display = "none";
+                msgBox.innerText = "خطأ في الشبكة، تحقق من اتصالك بالإنترنت.";
+            });
+        }
+
+        function startGameScreen() {
+            localStorage.setItem('is_vip_logged_in', 'true');
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            updateLiveStats(true); 
+        }
+
+        function makeGuess() {
+            if (!isGuessingAllowed) return;
+            
+            const resultBox = document.getElementById('result-text');
+
+            // جلب التخمين من الملف المستقل (fruitsystm.js)
+            let selectedSlots = generatePrediction(slots, previousSelection);
+
+            if (!selectedSlots || selectedSlots.length === 0) {
+                resultBox.innerText = "❌ خطأ في النظام: لم يتمكن الخادم المستقل من التخمين. يرجى المحاولة مرة أخرى.";
+                resultBox.style.color = "var(--error)";
+                resultBox.style.background = "rgba(255, 71, 87, 0.1)";
+                resultBox.style.borderColor = "rgba(255, 71, 87, 0.3)";
+                return;
+            }
+
+            resultBox.style.color = "var(--text-muted)";
+            resultBox.style.background = "rgba(168, 101, 255, 0.05)";
+            resultBox.style.borderColor = "rgba(168, 101, 255, 0.1)";
+            
+            previousSelection = selectedSlots.map(s => s.id);
+
+            selectedSlots.forEach((slot, index) => {
+                let marker = document.getElementById('marker-' + (index + 1));
+                marker.style.top = slot.top;
+                marker.style.left = slot.left;
+                marker.style.display = 'block';
+
+                marker.style.transform = 'translate(-50%, -50%) scale(1.6)';
+                setTimeout(() => {
+                    marker.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 250);
+            });
+
+            resultBox.innerText = "🎯 تم تحديد المواقع المتوقعة بنجاح! الجولة بدأت.";
+            resultBox.classList.remove('active');
+            setTimeout(() => { resultBox.classList.add('active'); }, 50);
+
+            startActiveRound();
+        }
+
+        function startActiveRound() {
+            isGuessingAllowed = false; 
+            currentRoundTime = 35; 
+            
+            const btn = document.getElementById('guess-btn');
+            const timerDisplay = document.getElementById('round-timer');
+            
+            btn.classList.add('disabled');
+            btn.innerText = `الرجاء الانتظار (${currentRoundTime}) ثانية`;
+            timerDisplay.innerText = currentRoundTime;
+
+            if (roundInterval) clearInterval(roundInterval);
+            updateLiveStats(true); 
+
+            roundInterval = setInterval(() => {
+                currentRoundTime--;
+                
+                if (currentRoundTime > 0) {
+                    btn.innerText = `الرجاء الانتظار (${currentRoundTime}) ثانية`;
+                    timerDisplay.innerText = currentRoundTime;
+                    updateLiveStats(false); 
+                } else {
+                    clearInterval(roundInterval);
+                    timerDisplay.innerText = 0;
+                    btn.classList.remove('disabled');
+                    btn.innerText = "تخمين الآن (بدء جولة جديدة)";
+                    
+                    document.getElementById('result-text').innerText = "انتهت الجولة. الأرقام صفرت، يمكنك بدء جولة جديدة.";
+                    
+                    isGuessingAllowed = true; 
+                    updateLiveStats(true); 
+                }
+            }, 1000);
+        }
+
+        function updateLiveStats(isReset) {
+            let totalPlayersOnSlots = 0;
+
+            slots.forEach(slot => {
+                if (isReset) {
+                    slotAmounts[slot.id] = 0; 
+                } else {
+                    let addedBet = Math.floor(Math.random() * 2000) + 100;
+                    slotAmounts[slot.id] += addedBet; 
+                }
+                
+                let amount = slotAmounts[slot.id];
+                let playersCount = amount > 0 ? (Math.floor(amount / 1200) + 1) : 0;
+                totalPlayersOnSlots += playersCount;
+
+                let badge = document.getElementById('slot-badge-' + slot.id);
+                if (badge) {
+                    badge.innerText = `👥 ${playersCount}`;
+                    
+                    if (!isReset && Math.random() > 0.4) {
+                        badge.style.transform = 'translate(-50%, -50%) scale(1.15)';
+                        setTimeout(() => {
+                            badge.style.transform = 'translate(-50%, -50%) scale(1)';
+                        }, 250);
+                    }
+                }
+            });
+
+            if (isReset) {
+                document.getElementById('online-count').innerText = 0;
+                document.getElementById('bots-count').innerText = 0;
+            } else {
+                let lobbyObservers = Math.floor(Math.random() * 150) + 30; 
+                let grandTotalOnline = totalPlayersOnSlots + lobbyObservers;
+
+                document.getElementById('online-count').innerText = grandTotalOnline;
+                
+                let botsMultiplier = 3 + (Math.random() * 1.5);
+                document.getElementById('bots-count').innerText = Math.floor(grandTotalOnline * botsMultiplier);
+            }
+        }
+    </script>
+</body>
+</html>
