@@ -2,32 +2,32 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> نقل اشتراك في تطبيق FawakihAI الا جهاز اخر</title>
-    <!-- Firebase SDKs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نقل اشتراك FawakihAI</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
         :root {
-            --bg-primary: #1A0B2E;
-            --bg-secondary: #29104A;
+            --bg-primary: #0B0514;
+            --bg-secondary: #1A0B2E;
             --accent-purple: #9D4EDD;
             --accent-glow: #C77DFF;
-            --success-color: #00E676;
-            --danger-color: #FF5252;
+            --success-color: #00F5D4;
+            --danger-color: #FF206E;
             --text-light: #FFFFFF;
-            --text-muted: #B3A0D0;
-            --card-bg: rgba(41, 16, 74, 0.6);
+            --text-muted: #A393EB;
+            --card-bg: rgba(26, 11, 46, 0.45);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Cairo', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -39,93 +39,125 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            background-image: radial-gradient(circle at 50% 0%, #3c1361 0%, #1A0B2E 70%);
+            padding: 15px;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(157, 78, 221, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 245, 212, 0.1), transparent 25%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Access Denied Overlay */
+        #security-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #0B0514;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .security-icon {
+            font-size: 70px;
+            color: var(--danger-color);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 32, 110, 0.4));
+            animation: pulse 2s infinite;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 420px;
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(157, 78, 221, 0.3);
-            border-radius: 24px;
-            padding: 28px 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(157, 78, 221, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            border-radius: 30px;
+            padding: 30px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
             text-align: center;
             position: relative;
-            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #7B2CBF, #C77DFF, #7B2CBF);
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
 
         .header {
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
 
         .logo-icon {
-            margin-bottom: 12px;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(199, 125, 255, 0.4));
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(157, 78, 221, 0.1);
+            padding: 15px 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(157, 78, 221, 0.2);
         }
 
         h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-light);
-            margin-bottom: 6px;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFF, var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
 
         p.subtitle {
             font-size: 13px;
             color: var(--text-muted);
-            line-height: 1.5;
+            font-weight: 600;
         }
 
-        /* Instructions Card CSS */
         .instructions-card {
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(157, 78, 221, 0.3);
-            border-radius: 14px;
-            padding: 18px 20px;
-            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(157, 78, 221, 0.15);
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 25px;
             text-align: right;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
         }
         
         .instructions-card h3 {
             color: var(--accent-glow);
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 15px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        
-        .instructions-card p {
-            color: var(--text-muted);
-            font-size: 12px;
-            line-height: 1.6;
-            margin-bottom: 10px;
         }
         
         .instructions-card ul {
             padding-right: 20px;
             color: var(--text-light);
             font-size: 12px;
-            line-height: 1.7;
+            line-height: 1.8;
             margin: 0;
-        }
-        
-        .instructions-card ul li {
-            margin-bottom: 8px;
         }
         
         .instructions-card ul li strong {
@@ -134,39 +166,41 @@
 
         .nav-tabs {
             display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 14px;
-            padding: 4px;
-            margin-bottom: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 5px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .tab-btn {
             flex: 1;
-            padding: 12px 10px;
+            padding: 12px;
             border: none;
             background: transparent;
             color: var(--text-muted);
             font-size: 14px;
-            font-weight: 600;
-            border-radius: 10px;
+            font-weight: 700;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, #7B2CBF, #9D4EDD);
+            background: var(--accent-purple);
             color: white;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
         }
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.4s ease-in-out;
+            animation: fadeIn 0.4s ease-out;
         }
 
         .tab-content.active {
@@ -174,55 +208,57 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .input-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             text-align: right;
         }
 
         .input-group label {
             display: block;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .input-field {
             width: 100%;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.35);
-            border: 1.5px solid rgba(157, 78, 221, 0.3);
-            border-radius: 12px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(157, 78, 221, 0.2);
+            border-radius: 16px;
             color: #fff;
-            font-size: 15px;
+            font-size: 14px;
             direction: ltr;
             text-align: center;
-            letter-spacing: 1px;
-            transition: border-color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .input-field:focus {
             outline: none;
             border-color: var(--accent-glow);
-            box-shadow: 0 0 12px rgba(199, 125, 255, 0.3);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(199, 125, 255, 0.2);
         }
 
         .btn-action {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #7B2CBF 0%, #9D4EDD 100%);
+            padding: 16px;
+            background: linear-gradient(45deg, #7B2CBF, #9D4EDD);
+            background-size: 200% auto;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             color: white;
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(123, 44, 191, 0.4);
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 20px rgba(123, 44, 191, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -230,192 +266,186 @@
         }
 
         .btn-action:hover {
+            background-position: right center;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.6);
+            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.6);
         }
 
-        .btn-action:active {
-            transform: translateY(1px);
-        }
-
-        /* Info Display Box */
         .info-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--accent-purple);
+            background: linear-gradient(180deg, rgba(157, 78, 221, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
+            border: 1px solid rgba(157, 78, 221, 0.3);
             padding: 20px;
-            border-radius: 18px;
-            margin: 15px 0;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            border-radius: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
         }
 
         .code-display {
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px dashed var(--accent-glow);
-            padding: 14px;
-            border-radius: 14px;
-            font-size: 28px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px dashed var(--success-color);
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: 6px;
+            letter-spacing: 8px;
             color: var(--success-color);
-            margin: 10px 0;
-            user-select: all;
+            margin: 15px 0;
+            text-shadow: 0 0 15px rgba(0, 245, 212, 0.4);
         }
         
         .id-display {
             font-family: monospace;
             color: var(--accent-glow);
-            font-size: 16px;
+            font-size: 15px;
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 12px;
             background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            user-select: all;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .timer-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
             color: #FFD166;
-            background: rgba(255, 209, 102, 0.1);
-            padding: 6px 14px;
+            background: rgba(255, 209, 102, 0.15);
+            padding: 8px 16px;
             border-radius: 20px;
-            margin-top: 5px;
         }
 
-        /* Alert Box */
         .alert {
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 14px;
             font-size: 13px;
-            margin-top: 15px;
+            font-weight: 600;
+            margin-top: 20px;
             display: none;
             text-align: right;
-            line-height: 1.4;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
         }
-        .alert-danger { background: rgba(255, 82, 82, 0.15); color: #FF8A8A; border: 1px solid var(--danger-color); }
-        .alert-success { background: rgba(0, 230, 118, 0.15); color: #69F0AE; border: 1px solid var(--success-color); }
+        .alert-danger { background: rgba(255, 32, 110, 0.15); color: #FFB3C6; border: 1px solid var(--danger-color); }
+        .alert-success { background: rgba(0, 245, 212, 0.15); color: #A8F0E3; border: 1px solid var(--success-color); }
         .alert-info { background: rgba(157, 78, 221, 0.15); color: var(--accent-glow); border: 1px solid var(--accent-purple); }
 
         .security-footer {
-            margin-top: 25px;
-            font-size: 11px;
+            margin-top: 30px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding-top: 15px;
+            gap: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
         }
 
         .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255,255,255,0.1);
             border-radius: 50%;
             border-top: 3px solid #ffffff;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
-            display: inline-block;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="security-overlay">
+    <i class="fa-solid fa-shield-halved security-icon"></i>
+    <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 10px; color: #fff;">الوصول مقيد لأغراض أمنية</h2>
+    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; max-width: 300px;">
+        تم حظر الوصول من المتصفح الخارجي. يرجى فتح هذه الشاشة حصراً من خلال تطبيق <strong style="color: var(--accent-glow);">FawakihAI</strong> لضمان النقل الآمن للاشتراك.
+    </p>
+</div>
+
+<div class="container" id="main-content" style="display: none;">
     <div class="header">
         <div class="logo-icon">
-            <i class="fa-solid fa-mobile-screen" style="color: var(--text-muted); font-size: 32px;"></i>
-            <i class="fa-solid fa-arrow-right-arrow-left" style="color: var(--accent-glow); font-size: 20px; margin: 0 12px; vertical-align: middle;"></i>
-            <i class="fa-solid fa-mobile-screen" style="color: var(--success-color); font-size: 32px;"></i>
+            <i class="fa-solid fa-mobile-button" style="color: var(--text-muted); font-size: 28px;"></i>
+            <i class="fa-solid fa-arrow-right-arrow-left" style="color: var(--accent-glow); font-size: 18px;"></i>
+            <i class="fa-solid fa-mobile-button" style="color: var(--success-color); font-size: 28px;"></i>
         </div>
         <h1>فواكه AI - نقل الاشتراك</h1>
-        <p class="subtitle">نظام التشفير الآمن لنقل اشتراكك بين الأجهزة</p>
+        <p class="subtitle">النظام المتقدم لترحيل التراخيص بين الأجهزة</p>
     </div>
 
-    <!-- Instructions Card -->
     <div class="instructions-card">
-        <h3><i class="fa-solid fa-microchip"></i> آلية النقل الآمن للاشتراك</h3>
-        <p>تتم عملية ترحيل الاشتراك بنظام التشفير عبر الخطوات التالية:</p>
+        <h3><i class="fa-solid fa-microchip"></i> آلية التشفير والنقل</h3>
         <ul>
-            <li><strong>الخطوة 1 (جهازك القديم):</strong> اختر "إرسال" لإنشاء رمز مصادقة مؤقت خاص بنقل البيانات.</li>
-            <li><strong>الخطوة 2 (جهازك الجديد):</strong> اختر "استلام" ثم أدخل معرف الجهاز القديم ورمز المصادقة.</li>
-            <li><strong>الخطوة 3 (التأكيد):</strong> سيتم تفعيل اشتراكك تلقائياً على الجهاز الجديد وإلغاء تنشيط الجهاز القديم فوراً.</li>
+            <li><strong>الخطوة 1 (جهازك القديم):</strong> اختر "إرسال" لإنشاء رمز مصادقة.</li>
+            <li><strong>الخطوة 2 (جهازك الجديد):</strong> اختر "استلام" وأدخل معرف الجهاز القديم ورمز المصادقة.</li>
+            <li><strong>الخطوة 3:</strong> سيتم التفعيل تلقائياً وتسجيل الخروج من الهاتف القديم بلمح البصر.</li>
         </ul>
     </div>
 
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="switchTab('send')">
-            <i class="fa-solid fa-paper-plane"></i> إرسال (جهازك الحالي)
+            <i class="fa-solid fa-upload"></i> إرسال (القديم)
         </button>
         <button class="tab-btn" onclick="switchTab('receive')">
-            <i class="fa-solid fa-mobile-screen"></i> استلام (جهازك الجديد)
+            <i class="fa-solid fa-download"></i> استلام (الجديد)
         </button>
     </div>
 
-    <!-- TAB 1: SEND SUBSCRIPTION (Source Device) -->
     <div id="tab-send" class="tab-content active">
         <div class="input-group">
-            <label><i class="fa-solid fa-mobile-screen"></i> معرف جهازك الحالي (Source Device ID):</label>
-            <input type="text" id="sourceDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً..." readonly>
+            <label><i class="fa-solid fa-fingerprint"></i> المعرف الحالي (Source ID):</label>
+            <input type="text" id="sourceDeviceId" class="input-field" placeholder="جاري الجلب..." readonly>
         </div>
 
         <button class="btn-action" id="btnGenerate" onclick="generateTransferCode()">
-            <i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل
+            <i class="fa-solid fa-key"></i> توليد مفتاح النقل الآمن
         </button>
 
         <div id="sendResult" style="display: none; margin-top: 20px;">
             <div id="qrAndCodeContainer">
-                <p style="font-size: 13px; color: var(--text-muted);">أدخل هذه البيانات في الجهاز الجديد لمصادقة النقل:</p>
+                <p style="font-size: 13px; color: var(--text-muted); font-weight: 600;">يرجى إدخال البيانات التالية في الجهاز الجديد:</p>
                 
                 <div class="info-card">
-                    <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">1. معرف الجهاز القديم (انسخه للجهاز الجديد):</p>
+                    <p style="color: #fff; font-size: 12px; margin-bottom: 8px;">1. معرف الجهاز (انقله كما هو):</p>
                     <div class="id-display" id="displayOldId"></div>
                     
-                    <p style="color: #fff; font-size: 13px; margin-bottom: 5px;">2. رمز التحقق للمصادقة:</p>
+                    <p style="color: #fff; font-size: 12px; margin-bottom: 8px;">2. رمز المصادقة السري:</p>
                     <div class="code-display" id="otpDisplay">------</div>
                 </div>
                 
                 <div class="timer-badge">
-                    <i class="fa-regular fa-clock"></i> ينتهي الأمان خلال: <span id="timer">01:00</span>
-                </div>
-
-                <div class="alert alert-info" style="display: block; margin-top: 15px;">
-                    <i class="fa-solid fa-circle-info"></i> اتصل بالإنترنت بانتظار إدخال هذه البيانات في الهاتف الجديد...
+                    <i class="fa-regular fa-clock"></i> ينتهي التشفير خلال: <span id="timer">01:00</span>
                 </div>
             </div>
             
-            <!-- Message container for successful transfer -->
             <div id="successTransferMessage" style="display: none;"></div>
         </div>
     </div>
 
-    <!-- TAB 2: RECEIVE SUBSCRIPTION (Target Device) -->
     <div id="tab-receive" class="tab-content">
         <div class="input-group">
-            <label><i class="fa-solid fa-mobile-screen-button"></i> معرف جهازك الجديد (Target Device ID):</label>
-            <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب تلقائياً..." readonly>
+            <label><i class="fa-solid fa-fingerprint"></i> معرف هذا الجهاز (Target ID):</label>
+            <input type="text" id="targetDeviceId" class="input-field" placeholder="جاري الجلب..." readonly>
         </div>
 
         <div id="securityStepContainer">
             <div class="input-group">
-                <label><i class="fa-solid fa-mobile-screen"></i> معرف الجهاز القديم (Source Device ID):</label>
-                <input type="text" id="sourceDeviceIdInput" class="input-field" placeholder="أدخل معرف الجهاز القديم هنا">
+                <label><i class="fa-solid fa-mobile-screen"></i> معرف الجهاز القديم (Source ID):</label>
+                <input type="text" id="sourceDeviceIdInput" class="input-field" placeholder="قم بلصق معرف الجهاز القديم">
             </div>
 
             <div class="input-group">
-                <label><i class="fa-solid fa-shield-halved"></i> رمز التحقق (المعروض في الهاتف القديم):</label>
-                <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 20px; letter-spacing: 4px;">
+                <label><i class="fa-solid fa-shield-halved"></i> رمز المصادقة (6 أرقام):</label>
+                <input type="text" id="transferCodeInput" class="input-field" maxlength="6" placeholder="مثال: 849201" style="font-size: 22px; letter-spacing: 6px;">
             </div>
 
             <button class="btn-action" id="btnConfirmTransfer" onclick="confirmTransferByPIN()">
-                <i class="fa-solid fa-right-left"></i> تأكيد النقل والمصادقة
+                <i class="fa-solid fa-bolt"></i> تأكيد الهوية ونقل الاشتراك
             </button>
         </div>
     </div>
@@ -423,12 +453,34 @@
     <div id="globalAlert" class="alert"></div>
 
     <div class="security-footer">
-        <i class="fa-solid fa-shield-halved" style="color: var(--success-color);"></i>
-        مؤمن عبر  TLS 1.3 & FawakihAI Device Handshake
+        <i class="fa-solid fa-lock" style="color: var(--success-color);"></i>
+        مؤمن ببروتوكولات TLS 1.3 المتطورة
     </div>
 </div>
 
 <script>
+    // ----------------------------------------------------
+    // نظام الفحص الأمني (WebView Security Enforcer)
+    // ----------------------------------------------------
+    (function checkSecurity() {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        // الكشف عن بيئة Android WebView أو iOS WebView
+        const isAndroidWebView = /wv|android.*applewebkit.*version/i.test(ua);
+        const isIosWebView = /iPhone|iPod|iPad/.test(ua) && !/Safari/i.test(ua);
+        const isAppEnvironment = isAndroidWebView || isIosWebView || (window.android !== undefined); // دعم الحقن البرمجي
+
+        // للسماح بالبرمجة والتطوير، إذا أردت تعطيل الحماية أزل علامة التعجب (!) من الشرط مؤقتاً
+        if (!isAppEnvironment) {
+            // إبقاء شاشة الرفض ظاهرة
+            document.getElementById('security-overlay').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+        } else {
+            // السماح بالدخول إذا كان التطبيق WebView
+            document.getElementById('security-overlay').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+    })();
+
     // 1. Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBWJJZHzUhbrl-dh1wowh-u0n0T9i5n0uU",
@@ -440,26 +492,28 @@
         appId: "1:734054414157:android:a8f76007ce00d4488e2904"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let timerInterval = null;
     let activeTransferRef = null;
 
-    // Auto detect Device ID from URL parameters if passed from Android WebView
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const deviceIdParam = urlParams.get('device_id');
+        let deviceIdParam = urlParams.get('device_id');
         
+        // حقن المعرف من واجهة أندرويد إن وجدت كاحتياطي
+        if (!deviceIdParam && typeof Android !== "undefined" && Android.getDeviceId) {
+            deviceIdParam = Android.getDeviceId();
+        }
+
         if (deviceIdParam) {
             document.getElementById('sourceDeviceId').value = deviceIdParam;
             document.getElementById('targetDeviceId').value = deviceIdParam;
         } else {
-            // Generate temporary unique ID for web testing if empty
-            const randomId = 'web_' + Math.random().toString(36).substring(2, 12);
-            document.getElementById('sourceDeviceId').value = randomId;
-            document.getElementById('targetDeviceId').value = randomId;
+            // للبيئات التي لم تمرر المعرف
+            document.getElementById('sourceDeviceId').value = "يرجى تمرير المعرف من التطبيق";
+            document.getElementById('targetDeviceId').value = "يرجى تمرير المعرف من التطبيق";
         }
     };
 
@@ -474,38 +528,35 @@
             document.querySelectorAll('.tab-btn')[1].classList.add('active');
             document.getElementById('tab-receive').classList.add('active');
             
-            // تهيئة واجهة الاستلام مجددا
             document.getElementById('sourceDeviceIdInput').value = '';
             document.getElementById('transferCodeInput').value = '';
         }
         hideAlert();
     }
 
-    // Generate Verification Code and Display Data
     function generateTransferCode() {
         const sourceId = document.getElementById('sourceDeviceId').value.trim();
-        if(!sourceId) {
-            showAlert('يرجى التأكد من معرف الجهاز الحالي', 'danger');
+        if(!sourceId || sourceId === "يرجى تمرير المعرف من التطبيق") {
+            showAlert('يرجى التأكد من أن التطبيق قام بتمرير معرف الجهاز بشكل صحيح', 'danger');
             return;
         }
 
         const btn = document.getElementById('btnGenerate');
-        btn.innerHTML = '<span class="spinner"></span> جاري التحقق من الاشتراك...';
+        btn.innerHTML = '<span class="spinner"></span> جاري التحقق الآمن...';
         btn.disabled = true;
 
         db.ref('Users/' + sourceId).once('value').then(snapshot => {
             const userData = snapshot.val();
             
             if (!userData) {
-                showAlert('لم يتم العثور على اشتراك مرتبط برقم هذا الجهاز في القاعدة!', 'danger');
+                showAlert('لم يتم العثور على اشتراك نشط مرتبط بهذا الجهاز!', 'danger');
                 btn.innerHTML = '<i class="fa-solid fa-key"></i> إعادة المحاولة';
                 btn.disabled = false;
                 return;
             }
 
-            // Generate Security Code
             const securityCode = Math.floor(100000 + Math.random() * 900000).toString();
-            const expiresAt = Date.now() + (60 * 1000); // 1 minute validity
+            const expiresAt = Date.now() + (60 * 1000); 
 
             const transferData = {
                 sourceDeviceId: sourceId,
@@ -519,21 +570,19 @@
             requestRef.set(transferData).then(() => {
                 btn.style.display = 'none';
                 
-                // Show info section and reset success message
                 document.getElementById('sendResult').style.display = 'block';
                 document.getElementById('qrAndCodeContainer').style.display = 'block';
                 document.getElementById('successTransferMessage').style.display = 'none';
                 
-                // Display the ID and the security verification code
                 document.getElementById('displayOldId').innerText = sourceId;
                 document.getElementById('otpDisplay').innerText = securityCode;
 
-                startTimer(60); // 60 Seconds Timer
+                startTimer(60); 
                 listenForCompletion(sourceId);
 
             }).catch(err => {
-                showAlert('حدث خطأ في الاتصال بالقاعدة: ' + err.message, 'danger');
-                btn.innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل';
+                showAlert('فشل الاتصال بالخادم السحابي.', 'danger');
+                btn.innerHTML = '<i class="fa-solid fa-key"></i> توليد مفتاح النقل الآمن';
                 btn.disabled = false;
             });
         });
@@ -554,10 +603,10 @@
 
             if (--timer < 0) {
                 clearInterval(timerInterval);
-                showAlert('انتهت صلاحية الجلسة ورمز الأمان! يرجى إنشاء طلب جديد.', 'danger');
+                showAlert('انتهت صلاحية الجلسة لدواعي أمنية! قم بإنشاء طلب جديد.', 'danger');
                 document.getElementById('sendResult').style.display = 'none';
                 document.getElementById('btnGenerate').style.display = 'flex';
-                document.getElementById('btnGenerate').innerHTML = '<i class="fa-solid fa-key"></i> إنشاء رمز التحقق للنقل';
+                document.getElementById('btnGenerate').innerHTML = '<i class="fa-solid fa-key"></i> توليد مفتاح النقل الآمن';
                 document.getElementById('btnGenerate').disabled = false;
             }
         }, 1000);
@@ -567,39 +616,34 @@
         activeTransferRef = db.ref('transfer_requests/' + sourceId);
         activeTransferRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            // Check if status is SUCCESS
             if(data && data.status === 'SUCCESS') {
                 clearInterval(timerInterval);
                 
-                // Hide the info container
                 document.getElementById('qrAndCodeContainer').style.display = 'none';
                 
                 const newDeviceId = data.targetDeviceId || 'غير متوفر';
                 
-                // Show completion info with the new device ID
                 const successMsgBox = document.getElementById('successTransferMessage');
                 successMsgBox.style.display = 'block';
                 successMsgBox.innerHTML = `
-                    <div class="alert alert-success" style="display:block; text-align:center; padding: 25px 15px;">
-                        <i class="fa-solid fa-circle-check" style="font-size:40px; margin-bottom:15px; color: var(--success-color);"></i><br>
-                        <strong style="font-size:18px;">تم نقل الاشتراك بنجاح!</strong><br><br>
-                        تم إلغاء تفعيل هذا الجهاز وإخراجه من الاشتراك بشكل كامل.<br>
-                        <div style="margin-top:15px; font-size: 12px; color: var(--text-light);">
-                            تم نقل الترخيص إلى الجهاز الجديد بالمعرف:
+                    <div style="background: rgba(0, 245, 212, 0.1); border: 1px solid var(--success-color); border-radius: 18px; padding: 25px 15px; text-align: center; animation: fadeIn 0.5s ease;">
+                        <i class="fa-solid fa-circle-check" style="font-size:45px; margin-bottom:15px; color: var(--success-color); filter: drop-shadow(0 0 10px rgba(0,245,212,0.4));"></i><br>
+                        <strong style="font-size:18px; color: #fff;">تم ترحيل الترخيص بنجاح!</strong><br><br>
+                        <span style="font-size:13px; color: var(--text-muted);">تم مسح بيانات الاشتراك من هذا الجهاز وإلغاء تفعيله.</span><br>
+                        <div style="margin-top:20px; font-size: 12px; color: var(--text-light);">
+                            الترخيص الآن يعمل على الجهاز:
                             <br>
-                            <span style="display:inline-block; margin-top:8px; padding:8px 15px; background:rgba(0,0,0,0.5); border: 1px solid var(--success-color); border-radius:10px; font-family:monospace; letter-spacing:1px; color: #fff;">
+                            <span style="display:inline-block; margin-top:10px; padding:10px 15px; background:rgba(0,0,0,0.6); border-radius:12px; font-family:monospace; color: var(--success-color);">
                                 ${newDeviceId}
                             </span>
                         </div>
                     </div>
                 `;
-                // Detach listener
                 activeTransferRef.off();
             }
         });
     }
 
-    // Confirm Transfer using manual entered Source ID and security code
     function confirmTransferByPIN() {
         const inputSourceId = document.getElementById('sourceDeviceIdInput').value.trim();
         const securityInput = document.getElementById('transferCodeInput').value.trim();
@@ -611,71 +655,66 @@
         }
 
         if(!securityInput || securityInput.length !== 6) {
-            showAlert('يرجى إدخال رمز التحقق المكون من 6 أرقام بشكل صحيح', 'danger');
+            showAlert('يرجى التأكد من إدخال 6 أرقام بشكل صحيح', 'danger');
             return;
         }
 
-        if(!targetDeviceId) {
-            showAlert('لم يتم التعرف على معرف جهازك الجديد', 'danger');
+        if(!targetDeviceId || targetDeviceId === "يرجى تمرير المعرف من التطبيق") {
+            showAlert('المعرف الخاص بجهازك الجديد غير صالح', 'danger');
             return;
         }
 
         if(inputSourceId === targetDeviceId) {
-            showAlert('لا يمكنك نقل الاشتراك إلى نفس الجهاز الحالي!', 'danger');
+            showAlert('عملية غير منطقية: محاولة النقل لنفس الجهاز!', 'danger');
             return;
         }
 
         const btn = document.getElementById('btnConfirmTransfer');
-        btn.innerHTML = '<span class="spinner"></span> جاري المصادقة ونقل البيانات...';
+        btn.innerHTML = '<span class="spinner"></span> جاري المزامنة...';
         btn.disabled = true;
 
-        // Fetch Transfer Request using the Source Device ID entered manually
         db.ref('transfer_requests/' + inputSourceId).once('value').then(snapshot => {
             const reqData = snapshot.val();
 
             if(!reqData) {
-                showAlert('لم يتم العثور على طلب نقل لهذا الجهاز، تأكد من معرف الجهاز القديم!', 'danger');
+                showAlert('الطلب غير موجود! تأكد من إدخال معرف الجهاز القديم بشكل دقيق.', 'danger');
                 resetBtn();
                 return;
             }
 
             if(reqData.status !== 'PENDING') {
-                showAlert('تم استخدام هذا الطلب من قبل!', 'danger');
+                showAlert('هذا الطلب تم استخدامه مسبقاً!', 'danger');
                 resetBtn();
                 return;
             }
 
             if(Date.now() > reqData.expiresAt) {
-                showAlert('انتهت صلاحية رمز الأمان (دقيقة واحدة)!', 'danger');
+                showAlert('انتهت صلاحية الجلسة! اطلب رمزاً جديداً من الجهاز القديم.', 'danger');
                 resetBtn();
                 return;
             }
 
-            // التحقق من رمز المصادقة المدخل
             if(reqData.securityCode !== securityInput) {
-                showAlert('رمز التحقق غير صحيح! يرجى التأكد من الرقم.', 'danger');
+                showAlert('الرمز السري خاطئ! الرجاء المحاولة مرة أخرى.', 'danger');
                 resetBtn();
                 return;
             }
 
             const sourceDeviceId = reqData.sourceDeviceId;
 
-            // ATOMIC SUBSCRIPTION TRANSFER IN FIREBASE WITH FULL SESSION & USER SYNC
             db.ref('Users/' + sourceDeviceId).once('value').then(userSnap => {
                 db.ref('active_sessions/' + sourceDeviceId).once('value').then(sessionSnap => {
                     const subscriptionData = userSnap.val();
                     const sessionData = sessionSnap.val();
 
                     if(!subscriptionData) {
-                        showAlert('تعذر جلب بيانات الاشتراك المصدر!', 'danger');
+                        showAlert('تعذر جلب بيانات الاشتراك من المصدر!', 'danger');
                         resetBtn();
                         return;
                     }
 
-                    // Update internal device_id inside the subscription node to match the target device
                     subscriptionData.device_id = targetDeviceId;
 
-                    // Ensure active_sessions transfers correctly without missing properties
                     let newSessionData = sessionData || {};
                     newSessionData.deviceId = targetDeviceId;
                     newSessionData.type = "Transferred";
@@ -683,42 +722,38 @@
                     newSessionData.transferred_from = sourceDeviceId;
                     newSessionData.lastUpdated = new Date().toISOString();
                     
-                    // Fallback to fetch expiry from User if session somehow lacks it
                     if(!newSessionData.expireAt && subscriptionData.expiry_time) {
                         newSessionData.expireAt = new Date(subscriptionData.expiry_time).toISOString();
                     }
 
                     const updates = {};
                     
-                    // 1. نقل وتفعيل البيانات إلى الجهاز الجديد شاملة الجلسات واليوزرز
                     updates['Users/' + targetDeviceId] = subscriptionData;
                     updates['active_sessions/' + targetDeviceId] = newSessionData;
 
-                    // 2. حذف وإخراج الجهاز القديم بشكل كامل واحترافي من مساري البيانات
                     updates['Users/' + sourceDeviceId] = null;
                     updates['active_sessions/' + sourceDeviceId] = null;
 
-                    // 3. تحديث حالة الطلب ليعلم الجهاز القديم بنجاح النقل
                     updates['transfer_requests/' + inputSourceId + '/status'] = 'SUCCESS';
                     updates['transfer_requests/' + inputSourceId + '/targetDeviceId'] = targetDeviceId;
 
                     db.ref().update(updates).then(() => {
-                        showAlert('🎉 تمت المصادقة! تم نقل الاشتراك إلى هذا الجهاز بنجاح وتم تسجيل خروج الجهاز القديم.', 'success');
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل النقل بنجاح';
+                        showAlert('<i class="fa-solid fa-shield-check"></i> تمت المصادقة! تم نقل الاشتراك لجهازك بنجاح.', 'success');
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> اكتمل التفعيل';
                     }).catch(err => {
-                        showAlert('فشل في نقل البيانات: ' + err.message, 'danger');
+                        showAlert('فشل في مزامنة البيانات السحابية.', 'danger');
                         resetBtn();
                     });
                 });
             });
 
         }).catch(err => {
-            showAlert('خطأ أثناء الوصول للقاعدة: ' + err.message, 'danger');
+            showAlert('خطأ أثناء الاتصال بالخادم.', 'danger');
             resetBtn();
         });
 
         function resetBtn() {
-            btn.innerHTML = '<i class="fa-solid fa-right-left"></i> تأكيد النقل والمصادقة';
+            btn.innerHTML = '<i class="fa-solid fa-bolt"></i> تأكيد الهوية ونقل الاشتراك';
             btn.disabled = false;
         }
     }
