@@ -1,6 +1,7 @@
 /**
  * fruitsystm.js
  * ملف العقل الرئيسي المستقل لخوارزمية التخمين
+ * (تم التحديث بدمج خوارزمية AI 1 - العقل الإحصائي المدبر)
  */
 
 // دالة لخلط المصفوفات لضمان العشوائية
@@ -13,7 +14,35 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// الخوارزمية الأساسية المستقلة
+// ----------------- نظام الذاكرة قصيرة المدى (Short-term Memory) -----------------
+// متغيرات عالمية لمحاكاة الذاكرة (أحدث 7 جولات)
+let ai1History = [];
+let ai1Occurrences = {};
+
+// دالة لتحديث الذاكرة بناءً على الجولات السابقة (7-Item History)
+function updateAIMemory(winningIds) {
+    if (!winningIds || winningIds.length === 0) return;
+
+    winningIds.forEach(id => {
+        // إضافة الفاكهة لتاريخ الجولات
+        ai1History.push(id);
+        // تحديث عداد التكرارات
+        ai1Occurrences[id] = (ai1Occurrences[id] || 0) + 1;
+
+        // الحفاظ على الذاكرة لآخر 7 عناصر فقط (حذف الأقدم)
+        if (ai1History.length > 7) {
+            let forgottenId = ai1History.shift();
+            if (ai1Occurrences[forgottenId] > 1) {
+                ai1Occurrences[forgottenId]--;
+            } else {
+                delete ai1Occurrences[forgottenId];
+            }
+        }
+    });
+}
+// ---------------------------------------------------------------------------------
+
+// الخوارزمية الأساسية المستقلة (AI 1)
 function generatePrediction(slots, previousSelection) {
     try {
         // التحقق من وجود بيانات الفواكه الأساسية
@@ -21,70 +50,74 @@ function generatePrediction(slots, previousSelection) {
             throw new Error("بيانات الفواكه مفقودة أو غير صالحة.");
         }
 
-        // ----------------- التعديل الحاسم (إعدام نهائي) -----------------
-        // حذف الكرز (4) والبطيخ (6) بشكل قطعي من أي سحب قادم ولن يظهرا أبداً
-        let availableSlots = slots.filter(s => s.id !== 4 && s.id !== 6);
-
-        // ----------------- نظام الأقلية -----------------
-        // دالة مساعدة لدعم الفواكه التي يضغط عليها "أقل عدد من الأشخاص" (الأقلية)
-        const applyMinorityLogic = (array) => {
-            let shuffled = shuffleArray(array); // نبدأ بخلط عشوائي
-            
-            // بنسبة 80% نطبق خوارزمية "الأقلية" لدعم الفواكه ذات العدد الأقل
-            // والـ 20% الباقية تبقى عشوائية بالكامل لضمان التنوع وعدم كشف النمط
-            if (Math.random() > 0.20) {
-                shuffled.sort((a, b) => {
-                    // جلب عدد الأشخاص من المتغير العالمي في ملف HTML إذا كان متوفراً
-                    let amountA = (typeof slotAmounts !== 'undefined' && slotAmounts[a.id]) ? slotAmounts[a.id] : 0;
-                    let amountB = (typeof slotAmounts !== 'undefined' && slotAmounts[b.id]) ? slotAmounts[b.id] : 0;
-                    
-                    // (إجراء احتياطي): إذا لم يتم العثور على المتغير
-                    if (typeof slotAmounts === 'undefined') {
-                        amountA = 0;
-                        amountB = 0;
-                    }
-
-                    // إضافة عامل عشوائي بسيط جداً (±15%) للقيم حتى تظل هناك حيوية إذا تساوت الأرقام
-                    let randomizedA = amountA * (0.85 + Math.random() * 0.3);
-                    let randomizedB = amountB * (0.85 + Math.random() * 0.3);
-
-                    // الترتيب تصاعدي: الفاكهة ذات العدد "الأقل" ستصعد لأول القائمة (لتفوز بالتخمين)
-                    return randomizedA - randomizedB;
-                });
-            }
-            return shuffled;
-        };
-        // --------------------------------------------------
-
-        let selectedSlots = [];
-
-        // خوارزمية اختيار الفواكه العشوائية (باستخدام الفواكه المتاحة فقط)
-        if (!previousSelection || previousSelection.length === 0) {
-            // التخمين الأول (استخدام دالة الأقلية)
-            selectedSlots = applyMinorityLogic(availableSlots).slice(0, 4);
-        } else {
-            // التخمينات المعتمدة على الجولات السابقة
-            let notPickedLastTime = availableSlots.filter(s => !previousSelection.includes(s.id));
-            let pickedLastTime = availableSlots.filter(s => previousSelection.includes(s.id));
-            
-            // تطبيق خوارزمية تقليل الظهور (الأقلية) على المجموعتين
-            notPickedLastTime = applyMinorityLogic(notPickedLastTime);
-            pickedLastTime = applyMinorityLogic(pickedLastTime);
-            
-            // اختيار 3 من الفواكه التي لم تظهر المرة السابقة، وواحدة ظهرت
-            selectedSlots = notPickedLastTime.slice(0, 3).concat(pickedLastTime.slice(0, 1));
-            
-            // --- معالجة نقص العدد ---
-            // نظراً لأننا أعدمنا فاكهتين، قد ينقص العدد عن 4 في بعض الجولات المستعصية، لذلك نكمل النقص آلياً
-            if (selectedSlots.length < 4) {
-                let needed = 4 - selectedSlots.length;
-                let remainingToPick = pickedLastTime.filter(s => !selectedSlots.includes(s));
-                selectedSlots = selectedSlots.concat(remainingToPick.slice(0, needed));
-            }
-
-            // خلط النتيجة النهائية حتى لا تكون الفاكهة المكررة دائماً في نفس الترتيب
-            selectedSlots = shuffleArray(selectedSlots);
+        // 1. تحديث الذاكرة الإحصائية بناءً على الجولة السابقة
+        if (previousSelection && previousSelection.length > 0) {
+            updateAIMemory(previousSelection);
         }
+
+        // 2. نظام الندرة (Rarity System) للكرز (4) والبطيخ (6)
+        // الفواكه الأساسية (6 فواكه) متاحة دائماً
+        let availableSlots = slots.filter(s => s.id !== 4 && s.id !== 6);
+        let rareSlots = slots.filter(s => s.id === 4 || s.id === 6);
+
+        // إعطاء فرصة 15% فقط للكرز أو البطيخ بالدخول في قائمة التخمينات المتاحة
+        rareSlots.forEach(rareItem => {
+            if (Math.random() > 0.85) {
+                availableSlots.push(rareItem);
+            }
+        });
+
+        // 3. التحليل الإحصائي (إيجاد الفاكهة الأكثر تكراراً)
+        let mostFrequentSlot = null;
+        let maxCount = -1;
+        let topCandidates = [];
+
+        // البحث في سجل الذاكرة عن الفاكهة الأكثر تكراراً من ضمن القائمة *المتاحة*
+        availableSlots.forEach(slot => {
+            let count = ai1Occurrences[slot.id] || 0;
+            if (count > maxCount) {
+                maxCount = count;
+                topCandidates = [slot]; // تصفير القائمة ووضع المتصدر الجديد
+            } else if (count === maxCount) {
+                topCandidates.push(slot); // إضافته في حال التعادل
+            }
+        });
+
+        if (topCandidates.length > 0 && maxCount > 0) {
+            // في حال وجود تعادل، يتم اختيار واحدة منها عشوائياً
+            mostFrequentSlot = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+        } else {
+            // في حال عدم وجود سجل مسبق، يتم التخمين العشوائي
+            mostFrequentSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+        }
+
+        // 4. إكمال الصناديق الأربعة (Pick exactly 4 Fruits)
+        let selectedSlots = [];
+        selectedSlots.push(mostFrequentSlot); // تثبيت الفاكهة الإحصائية كخيار مؤكد
+
+        // استبعاد الفاكهة الإحصائية من القائمة المتبقية حتى لا تتكرر
+        let remainingSlots = availableSlots.filter(s => s.id !== mostFrequentSlot.id);
+        
+        // خلط الفواكه المتبقية (Shuffle)
+        remainingSlots = shuffleArray(remainingSlots);
+
+        // اختيار 3 فواكه إضافية ليصبح المجموع 4 تخمينات تماماً
+        for (let i = 0; i < 3 && i < remainingSlots.length; i++) {
+            selectedSlots.push(remainingSlots[i]);
+        }
+
+        // --- معالجة نقص العدد (إجراء أمان) ---
+        // في حالة نادرة (مثل عدم استيفاء العدد بسبب الفلترة)، نُكمل العدد من الفواكه المستبعدة
+        if (selectedSlots.length < 4) {
+            let needed = 4 - selectedSlots.length;
+            let fallbackSlots = slots.filter(s => !selectedSlots.some(selected => selected.id === s.id));
+            fallbackSlots = shuffleArray(fallbackSlots);
+            selectedSlots = selectedSlots.concat(fallbackSlots.slice(0, needed));
+        }
+
+        // 5. الخلط النهائي للتوقعات (Final Shuffle)
+        // لضمان عدم ظهور الفاكهة الإحصائية دائماً في الخانة الأولى ولكسر النمط
+        selectedSlots = shuffleArray(selectedSlots);
 
         // اختبار الأمان: التأكد أن الخوارزمية قامت باختيار 4 فواكه بالضبط
         if (selectedSlots.length !== 4) {
