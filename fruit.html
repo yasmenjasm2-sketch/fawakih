@@ -171,6 +171,83 @@
         .stat-value { color: var(--text-main); }
         .stat-icon { color: var(--primary); }
 
+        /* حاوية تدريب الخوارزمية وتسجيل الفاكهة الصحيحة */
+        .train-panel {
+            background: linear-gradient(135deg, rgba(24, 12, 43, 0.9), rgba(19, 9, 34, 0.95));
+            border: 1px solid var(--primary);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);
+        }
+        .train-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+        .fruit-select-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .fruit-opt-btn {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 4px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .fruit-opt-btn:hover, .fruit-opt-btn.selected {
+            border-color: var(--gold);
+            background: rgba(248, 192, 0, 0.15);
+            box-shadow: 0 0 8px rgba(248, 192, 0, 0.3);
+        }
+        .fruit-opt-btn span.icon { font-size: 18px; }
+        
+        .ai-status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        .ai-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .ai-badge.ai1 { background: rgba(0, 230, 118, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .ai-badge.ai2 { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        
+        .history-pills {
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .history-pill {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
         /* زر المحرك الرئيسي */
         .engine-btn {
             width: 100%;
@@ -299,7 +376,8 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
-        .log-alert { color: var(--primary); }
+        .log-alert { color: var(--gold); }
+        .log-danger { color: var(--danger); }
 
         /* حاوية اللعبة والصورة (البيانات الخام) */
         .game-container {
@@ -359,7 +437,7 @@
         }
 
         /* Scrollbar للمظهر الأنيق */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
     </style>
@@ -397,10 +475,40 @@
             <span>HYBRID 🟣🟢</span>
         </div>
 
-        <!-- زر التشغيل -->
+        <!-- لوحة تدريب الخوارزمية وتسجيل الفاكهة الصحيحة -->
+        <div class="train-panel">
+            <div class="train-header">
+                <span>🎓 تسجيل الفاكهة الفائزة (تدريب الخوارزمية)</span>
+                <span style="font-size: 10px; color: var(--text-muted);">ذاكرة 7 جولات</span>
+            </div>
+
+            <!-- أزرار اختيار الفاكهة الصحيحة -->
+            <div class="fruit-select-grid" id="fruit-select-grid">
+                <!-- سيتم توليد الأزرار تلقائياً -->
+            </div>
+
+            <!-- حالة العقل وسجل الذاكرة -->
+            <div class="ai-status-row">
+                <div>
+                    <span>العقل النشط: </span>
+                    <span id="ai-brain-badge" class="ai-badge ai1">AI 1 (إحصائي)</span>
+                </div>
+                <div>
+                    <span>الأخطاء المتتالية: </span>
+                    <span id="wrong-count-display" style="color: var(--danger); font-weight: bold;">0 / 4</span>
+                </div>
+            </div>
+
+            <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 5px;">سجل آخر 7 نتائج بالذاكرة:</div>
+            <div class="history-pills" id="history-pills">
+                <span style="color: var(--text-muted); font-size: 10px;">لا توجد بيانات بعد</span>
+            </div>
+        </div>
+
+        <!-- زر التشغيل وبدء التحليل -->
         <button id="guess-btn" class="engine-btn" onclick="makeGuess()">
             <div class="status-icon" id="btn-icon"></div>
-            <span id="btn-text">تشغيل المحرك</span>
+            <span id="btn-text">تسجيل وبدء التحليل 🚀</span>
         </button>
 
         <!-- التوقعات (كروت نسبة الثقة) -->
@@ -410,12 +518,11 @@
                 <span style="color: var(--gold); font-size: 10px;">CODEX v7.0</span>
             </div>
             <div class="analyzing-bar" id="analyzing-ui">
-                جاري التحليل... 🧠
+                جاري التحليل وتدريب الخوارزمية... 🧠
             </div>
             <div class="predictions-grid" id="predictions-grid">
-                <!-- سيتم توليد الكروت هنا برمجياً -->
                 <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
-                    اضغط "تشغيل المحرك" لبدء استخراج التوقعات
+                    اختر الفاكهة الصحيحة من الأعلى ثم اضغط "تسجيل وبدء التحليل"
                 </div>
             </div>
         </div>
@@ -427,7 +534,7 @@
             </div>
             <div class="system-log" id="system-log">
                 <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - NEXUS HYBRID ENGINE</div>
-                <div><span class="log-time">[نظام]</span> اضغط زر التشغيل للبدء</div>
+                <div><span class="log-time">[نظام]</span> النظام جاهز لاستقبال الفواكه الصحيحة والتعلم</div>
             </div>
         </div>
 
@@ -483,7 +590,7 @@
             { id: 8, top: '83%', left: '83%' }  // فراولة
         ];
 
-        // الأسماء والمضاعفات لعرضها في الكروت مطابقة للصورة المرفقة
+        // الأسماء والمضاعفات لعرضها في الكروت
         const fruitData = {
             1: { name: 'برتقال', icon: '🍊', mult: 'x5', type: 'SMALL' },
             2: { name: 'ليمون', icon: '🍋', mult: 'x5', type: 'SMALL' },
@@ -500,6 +607,7 @@
         let roundInterval;
         let isGuessingAllowed = true;
         let previousSelection = [];
+        let selectedWinningFruitId = null; // الفاكهة المختارة من المستخدم
 
         // --- نظام التوجيه وتخطي الدخول ---
         function isAppWebView() {
@@ -511,6 +619,8 @@
         }
 
         window.onload = function() {
+            renderFruitSelectorButtons();
+
             const wrapper = document.getElementById('img-wrap');
             slots.forEach(slot => {
                 let badge = document.createElement('div');
@@ -533,10 +643,67 @@
             }
         };
 
+        // رسم أزرار تسجيل الفاكهة الفائزة
+        function renderFruitSelectorButtons() {
+            const container = document.getElementById('fruit-select-grid');
+            container.innerHTML = '';
+            
+            Object.keys(fruitData).forEach(id => {
+                const item = fruitData[id];
+                container.innerHTML += `
+                    <button type="button" class="fruit-opt-btn" id="fruit-opt-${id}" onclick="selectWinningFruit(${id})">
+                        <span class="icon">${item.icon}</span>
+                        <span>${item.name}</span>
+                    </button>
+                `;
+            });
+        }
+
+        function selectWinningFruit(id) {
+            selectedWinningFruitId = Number(id);
+            document.querySelectorAll('.fruit-opt-btn').forEach(btn => btn.classList.remove('selected'));
+            const activeBtn = document.getElementById(`fruit-opt-${id}`);
+            if (activeBtn) activeBtn.classList.add('selected');
+            
+            addSystemLog(`🎯 تم تحديد الفاكهة الفائزة للجولة: ${fruitData[id].icon} ${fruitData[id].name}`, true);
+        }
+
+        function updateAIBrainUI() {
+            const status = getAIBrainStatus();
+            
+            // تحديث شارة العقل
+            const brainBadge = document.getElementById('ai-brain-badge');
+            if (status.currentBrain === "AI 1") {
+                brainBadge.className = "ai-badge ai1";
+                brainBadge.innerText = "AI 1 (إحصائي)";
+            } else {
+                brainBadge.className = "ai-badge ai2";
+                brainBadge.innerText = "AI 2 (عشوائي - حماية الأخطاء)";
+            }
+
+            // تحديث العداد
+            document.getElementById('wrong-count-display').innerText = `${status.wrongGuessesCount} / 4`;
+
+            // تحديث شريط سجل آخر 7 فواكه
+            const pillsBox = document.getElementById('history-pills');
+            pillsBox.innerHTML = '';
+            if (status.history.length === 0) {
+                pillsBox.innerHTML = '<span style="color: var(--text-muted); font-size: 10px;">لا توجد بيانات بعد</span>';
+            } else {
+                status.history.forEach((fId, index) => {
+                    const item = fruitData[fId];
+                    pillsBox.innerHTML += `
+                        <span class="history-pill">${index + 1}. ${item.icon} ${item.name}</span>
+                    `;
+                });
+            }
+        }
+
         function showGame() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             updateLiveStats(true);
+            updateAIBrainUI();
         }
 
         function getDeviceId() {
@@ -595,11 +762,10 @@
             
             selectedSlots.forEach((slot, index) => {
                 const fData = fruitData[slot.id];
-                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95; // 95-99% ثقة كما في الصورة
+                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95; // 95-99%
                 const score = (Math.random() * 2000 + 300).toFixed(1);
                 const minority = (Math.random() * 8 + 0.5).toFixed(1);
                 
-                // تحديد لون الشريط بناءً على نسبة الثقة العالية
                 const barColor = confidence >= 97 ? 'var(--success)' : 'var(--gold)';
                 const activeClass = index === 0 ? 'active-card' : '';
                 const typeLabel = fData.type === 'BIG' ? `${fData.type} 🔴` : `${fData.type} 🟢`;
@@ -634,16 +800,16 @@
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
 
-            addSystemLog("🚀 NEXUS بدء محرك...", true);
-            addSystemLog("🧠 جاري تحليل الأنماط واستراتيجية الأقلية...");
+            addSystemLog("🚀 NEXUS بدء محرك التحليل والتعلم...", true);
 
             btn.classList.add('running');
-            btnText.innerText = "جاري التحليل...";
+            btnText.innerText = "جاري التحليل والتعلم...";
             isGuessingAllowed = false;
 
             // محاكاة وقت التحليل لثانيتين قبل العرض
             setTimeout(() => {
-                let selectedSlots = generatePrediction(slots, previousSelection);
+                // استدعاء الخوارزمية مع الفاكهة الصحيحة التي أدخلها المستخدم (إن وجدت)
+                let selectedSlots = generatePrediction(slots, previousSelection, selectedWinningFruitId);
                 
                 if (!selectedSlots || selectedSlots.length === 0) {
                     addSystemLog("❌ فشل المحرك في استخراج البيانات", false);
@@ -651,8 +817,14 @@
                     return;
                 }
 
+                // تحديث الواجهة الخاصة بالذاكرة والأخطاء والعقل
+                updateAIBrainUI();
+
                 previousSelection = selectedSlots.map(s => s.id);
-                
+                // تصفير الفاكهة الفائزة بعد معالجتها
+                selectedWinningFruitId = null;
+                document.querySelectorAll('.fruit-opt-btn').forEach(b => b.classList.remove('selected'));
+
                 // عرض النتائج في الكروت الفاخرة
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'grid';
@@ -667,8 +839,7 @@
                 });
 
                 mainImg.classList.remove('analyzing');
-                addSystemLog("✅ تم استخراج التوقعات بنجاح", true);
-                addSystemLog("📡 اتصال مباشر نشط...");
+                addSystemLog("✅ تم تحديث الذاكرة واستخراج التوقعات بنجاح", true);
 
                 startActiveRound();
             }, 1500);
@@ -677,7 +848,7 @@
         function resetEngineUI() {
             const btn = document.getElementById('guess-btn');
             btn.classList.remove('running');
-            document.getElementById('btn-text').innerText = "تشغيل المحرك";
+            document.getElementById('btn-text').innerText = "تسجيل وبدء التحليل 🚀";
             document.getElementById('main-image').classList.remove('analyzing');
             document.getElementById('analyzing-ui').style.display = 'none';
             document.getElementById('predictions-grid').style.display = 'grid';
@@ -706,7 +877,7 @@
                 } else {
                     clearInterval(roundInterval);
                     timerDisplay.innerText = "0";
-                    addSystemLog("⏳ انتهت الجولة. المحرك في وضع الاستعداد.");
+                    addSystemLog("⏳ انتهت الجولة. اختر الفاكهة الفائزة للجولة القادمة.");
                     resetEngineUI();
                     updateLiveStats(true); 
                 }
