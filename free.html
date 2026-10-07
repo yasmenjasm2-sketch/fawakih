@@ -337,11 +337,19 @@
             }
         });
 
+        // التقاط أي أخطاء عند العودة من إعادة التوجيه
+        auth.getRedirectResult().catch((error) => {
+            if(error) {
+                showToast("خطأ من جوجل: " + error.message, false);
+            }
+        });
+
         // تسجيل الدخول
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch((error) => {
-                showToast("حدث خطأ أثناء تسجيل الدخول", false);
+            // تم التغيير لـ Redirect لتفادي حظر النوافذ المنبثقة داخل الـ iframe أو الموبايل
+            auth.signInWithRedirect(provider).catch((error) => {
+                showToast("حدث خطأ أثناء الاتصال: " + error.message, false);
             });
         }
 
@@ -351,7 +359,14 @@
             if (user) {
                 db.ref('users/' + user.uid + '/isSubscribed').once('value').then((snapshot) => {
                     if (snapshot.val() === true) {
-                        window.location.href = 'index.html'; // الدخول للعبة
+                        // بدلاً من window.location التي تفتح اللعبة داخل المربع الصغير
+                        // نرسل إشارة للصفحة الأم لإخفاء الـ iframe وفتح اللعبة بشكل صحيح
+                        window.parent.postMessage('login_success', '*');
+                        
+                        // كخيار احتياطي إذا كان الملف مفتوح بشكل مباشر
+                        if (window.top === window.self) {
+                            window.location.href = 'index.html';
+                        }
                     } else {
                         showToast("حسابك غير مفعل! يرجى شراء اشتراك أولاً.", false);
                     }
