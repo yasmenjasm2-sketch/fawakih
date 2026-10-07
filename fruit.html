@@ -20,12 +20,13 @@
             --primary: #9D4EDD;
             --primary-dark: #5A189A;
             --gold: #F8C000;
-            --success: #00E676; /* اللون الأخضر للزر الجديد */
+            --neon-blue: #00E5FF;
+            --success: #00E676;
             --danger: #FF4757;
             --text-main: #FFFFFF;
             --text-muted: #8A7A9E;
             --border-color: #2D1B4E;
-            --glass-bg: rgba(19, 9, 34, 0.65);
+            --glass-bg: rgba(19, 9, 34, 0.75);
         }
 
         * {
@@ -35,11 +36,28 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* خلفية متحركة احترافية (وميض بنفسجي بطيء) */
-        @keyframes deepPurplePulse {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* خلفية متحركة تعتمد على التلاشي التدريجي (Enter Fade 2000ms / Exit 4000ms) */
+        @keyframes animationDrawableFade {
+            0% {
+                background-color: #0B0612;
+                background-image: radial-gradient(circle at 50% 30%, rgba(0, 229, 255, 0.12) 0%, transparent 70%),
+                                  linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
+            }
+            33% {
+                background-color: #130922;
+                background-image: radial-gradient(circle at 30% 70%, rgba(157, 78, 221, 0.2) 0%, transparent 70%),
+                                  linear-gradient(135deg, #120624, #0b0318, #1a0b2e, #09040d);
+            }
+            66% {
+                background-color: #180C2B;
+                background-image: radial-gradient(circle at 70% 40%, rgba(0, 230, 118, 0.15) 0%, transparent 70%),
+                                  linear-gradient(135deg, #1b0a33, #110524, #080210, #180C2B);
+            }
+            100% {
+                background-color: #0B0612;
+                background-image: radial-gradient(circle at 50% 30%, rgba(0, 229, 255, 0.12) 0%, transparent 70%),
+                                  linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
+            }
         }
 
         @keyframes glowPulse {
@@ -49,9 +67,8 @@
         }
 
         body {
-            background: linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
             background-size: 300% 300%;
-            animation: deepPurplePulse 25s ease-in-out infinite;
+            animation: animationDrawableFade 6s ease-in-out infinite;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -60,9 +77,10 @@
             padding: 15px;
             position: relative;
             overflow-x: hidden;
+            transition: background 2s ease-in-out;
         }
 
-        /* تأثير الوميض البنفسجي البطيء والاحترافي */
+        /* تأثير التوهج النيون البنفسجي والأزرق */
         body::before {
             content: '';
             position: fixed;
@@ -70,7 +88,7 @@
             left: -20%;
             width: 140%;
             height: 140%;
-            background: radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.15) 0%, rgba(157, 78, 221, 0.1) 40%, transparent 70%);
             animation: glowPulse 10s ease-in-out infinite;
             pointer-events: none;
             z-index: -1;
@@ -84,17 +102,22 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            border: 2px solid var(--primary);
+            border: 2px solid var(--neon-blue);
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
+            box-shadow: 0 0 12px var(--neon-blue);
+            transition: transform 0.2s ease;
         }
+        #dev-logo:active {
+            transform: scale(1.2);
+        }
+
         #dev-info {
             position: absolute;
             top: 65px;
             right: 15px;
             background: var(--glass-bg);
-            border: 1px solid var(--primary);
+            border: 1px solid var(--neon-blue);
             padding: 10px 15px;
             border-radius: 12px;
             text-align: center;
@@ -104,6 +127,7 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.4s ease;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
         }
         #dev-info.show {
             opacity: 1;
@@ -111,7 +135,7 @@
             transform: translateY(0);
         }
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
-        .dev-sub { color: var(--primary); font-size: 12px; }
+        .dev-sub { color: var(--neon-blue); font-size: 12px; }
 
         /* شاشة الدخول VIP */
         #login-screen {
@@ -123,7 +147,7 @@
             padding: 40px 30px;
             border-radius: 20px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
             width: 100%;
             max-width: 400px;
             margin-top: 10vh;
@@ -162,16 +186,17 @@
             font-weight: 900;
             color: var(--gold);
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(248, 192, 0, 0.3);
+            text-shadow: 0 0 12px rgba(248, 192, 0, 0.5);
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
 
-        /* شريط الإحصائيات */
+        /* شريط الإحصائيات ذو التوهج الأزرق النيون */
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
             border-radius: 12px;
             padding: 12px 15px;
             font-size: 12px;
@@ -179,8 +204,8 @@
             color: var(--text-muted);
         }
         .stats-bar span { display: flex; align-items: center; gap: 5px; }
-        .stat-value { color: var(--text-main); }
-        .stat-icon { color: var(--primary); }
+        .stat-value { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+        .stat-icon { color: var(--gold); }
 
         /* الصورة في الأعلى ومكبرة */
         .game-container {
@@ -189,7 +214,7 @@
             border-radius: 15px;
             overflow: hidden;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+            box-shadow: 0 0 25px rgba(157, 78, 221, 0.4);
             margin-bottom: 10px;
         }
         .game-image {
@@ -210,7 +235,7 @@
             z-index: 10;
         }
 
-        /* حقل الإدخال الجديد وزر بدء الجولة */
+        /* حقل الإدخال الجديد وزر بدء الجولة التدرجي */
         .controls-container {
             display: flex;
             flex-direction: column;
@@ -228,32 +253,36 @@
             text-align: center;
             font-size: 16px;
             outline: none;
-            transition: border 0.3s ease;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
         }
         .modern-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
         }
 
         .start-btn {
             width: 100%;
             padding: 16px;
-            background: var(--success);
+            background: linear-gradient(135deg, #00E676, #00B0FF, #F8C000);
+            background-size: 200% 200%;
             color: #000;
             border: none;
             border-radius: 30px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4), 0 0 10px rgba(248, 192, 0, 0.3);
+            transition: all 0.2s ease-in-out;
         }
-        .start-btn:active { transform: scale(0.97); }
+        .start-btn:active {
+            transform: scale(1.2);
+        }
         .start-btn:disabled {
             background: #2D1B4E;
             color: #8A7A9E;
             box-shadow: none;
             cursor: not-allowed;
+            transform: scale(1);
         }
 
         /* الحاويات (Panels) */
@@ -286,11 +315,15 @@
             border-radius: 10px;
             padding: 10px;
             position: relative;
-            transition: border-color 0.3s;
+            transition: transform 0.2s ease, border-color 0.3s;
+            cursor: pointer;
+        }
+        .pred-card:active {
+            transform: scale(1.2);
         }
         .pred-card.active-card {
             border-color: var(--gold);
-            box-shadow: 0 0 10px rgba(248, 192, 0, 0.1);
+            box-shadow: 0 0 15px rgba(248, 192, 0, 0.2);
         }
         .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
         .pred-title { font-size: 18px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
@@ -341,6 +374,9 @@
     </style>
 </head>
 <body>
+
+    <!-- WebView مخفي في الخلفية استقبال الأوامر التلقائية -->
+    <iframe id="hidden-webview-receiver" style="display:none; width:0; height:0;" src="about:blank"></iframe>
 
     <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
     <div id="dev-info">
@@ -544,7 +580,7 @@
                 inputField.value = ""; // تفريغ الحقل
             }
 
-            // تشغيل المحرك (تم دمج منطق زر تشغيل المحرك القديم هنا)
+            // تشغيل المحرك
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
