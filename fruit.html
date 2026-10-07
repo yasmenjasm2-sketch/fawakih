@@ -8,6 +8,7 @@
     <!-- Firebase SDK (Version 8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <!-- تم إضافة auth للتحقق من تسجيل دخول كوكل -->
 
     <!-- استدعاء العقل الرئيسي (الخوارزمية) من الملف المستقل -->
     <script src="fruitsystm.js"></script>
@@ -136,6 +137,27 @@
         }
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; }
+
+        /* شاشة تسجيل الدخول المدمجة عبر free.html */
+        #login-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 420px;
+            margin-top: 5vh;
+            border: none;
+            background: transparent;
+        }
+
+        #login-frame {
+            width: 100%;
+            height: 650px;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+        }
 
         /* شاشة النظام الرئيسية */
         #game-screen {
@@ -355,9 +377,9 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- شاشة تسجيل الدخول المدمجة (تستدعي ملف free.html) -->
-    <div id="login-screen" style="width: 100%; max-width: 400px; padding: 0; background: transparent; border: none; box-shadow: none; margin-top: 5vh; display: none; justify-content: center; align-items: center;">
-        <iframe src="free.html" style="width: 100%; height: 750px; border: none; border-radius: 25px; background: transparent; overflow: hidden;"></iframe>
+    <!-- شاشة تسجيل الدخول المدمجة (تستدعي ملف free.html عبر iframe) -->
+    <div id="login-screen">
+        <iframe id="login-frame" src="free.html"></iframe>
     </div>
 
     <!-- شاشة النظام الرئيسية -->
@@ -435,8 +457,8 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        // الأكواد السابقة تُركت كما هي تطبيقاً لطلبك
+        const auth = firebase.auth(); // استخدام Firebase Auth للتأكد من تسجيل دخول Google تلقائياً
+
         const allowedCodes = ["hamzagmail34567", "nbras.vip23"];
 
         const slots = [
@@ -471,14 +493,29 @@
             return (ua.indexOf('Android') > -1 && ua.indexOf('wv') > -1) || /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
         }
 
-        window.onload = function() {
-            if (isAppWebView() || localStorage.getItem('is_vip_logged_in') === 'true') {
+        // الاستماع لأحداث التسجيل من free.html القادمة عبر الـ iframe
+        window.addEventListener('message', function(event) {
+            if (event.data === 'login_success' || (event.data && event.data.type === 'login_success')) {
+                localStorage.setItem('is_vip_logged_in', 'true');
+                showGame();
+            }
+        });
+
+        // التحقق الذكي عبر قاعدة بيانات Firebase Auth والتخزين المحلي
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // المستخدم مسجل الدخول بالفعل عبر Google
+                localStorage.setItem('is_vip_logged_in', 'true');
                 showGame();
             } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('game-screen').style.display = 'none';
+                if (isAppWebView() || localStorage.getItem('is_vip_logged_in') === 'true') {
+                    showGame();
+                } else {
+                    document.getElementById('login-screen').style.display = 'flex';
+                    document.getElementById('game-screen').style.display = 'none';
+                }
             }
-        };
+        });
 
         function showGame() {
             document.getElementById('login-screen').style.display = 'none';
@@ -487,15 +524,6 @@
         }
 
         function encryptCode(code) { return btoa(code); }
-
-        function login() {
-            const codeInput = document.getElementById('sub-code').value.trim();
-            const msgBox = document.getElementById('login-msg');
-            if (!codeInput) { msgBox.innerText = "الرجاء إدخال الكود."; return; }
-            if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود غير صالح."; return; }
-            localStorage.setItem('is_vip_logged_in', 'true');
-            showGame();
-        }
 
         function addSystemLog(msg, isHighlight = false) {
             const logBox = document.getElementById('system-log');
