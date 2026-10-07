@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21,7 +20,7 @@
             --primary: #9D4EDD;
             --primary-dark: #5A189A;
             --gold: #F8C000;
-            --success: #00E676;
+            --success: #00E676; /* اللون الأخضر للزر الجديد */
             --danger: #FF4757;
             --text-main: #FFFFFF;
             --text-muted: #8A7A9E;
@@ -36,8 +35,23 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* خلفية متحركة احترافية (وميض بنفسجي بطيء) */
+        @keyframes deepPurplePulse {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes glowPulse {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+
         body {
-            background-color: var(--bg-main);
+            background: linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
+            background-size: 300% 300%;
+            animation: deepPurplePulse 25s ease-in-out infinite;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -48,7 +62,7 @@
             overflow-x: hidden;
         }
 
-        /* تأثير الخلفية المتوهجة */
+        /* تأثير الوميض البنفسجي البطيء والاحترافي */
         body::before {
             content: '';
             position: fixed;
@@ -56,7 +70,8 @@
             left: -20%;
             width: 140%;
             height: 140%;
-            background: radial-gradient(circle at 50% 30%, rgba(157, 78, 221, 0.08) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.15) 0%, transparent 60%);
+            animation: glowPulse 10s ease-in-out infinite;
             pointer-events: none;
             z-index: -1;
         }
@@ -140,6 +155,7 @@
         .app-header {
             text-align: center;
             margin-bottom: 5px;
+            margin-top: 40px;
         }
         .app-header h1 {
             font-size: 24px;
@@ -149,12 +165,6 @@
             text-shadow: 0 0 10px rgba(248, 192, 0, 0.3);
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
-        .app-header p {
-            color: var(--text-muted);
-            font-size: 11px;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
 
         /* شريط الإحصائيات */
         .stats-bar {
@@ -172,37 +182,79 @@
         .stat-value { color: var(--text-main); }
         .stat-icon { color: var(--primary); }
 
-        /* زر المحرك الرئيسي */
-        .engine-btn {
+        /* الصورة في الأعلى ومكبرة */
+        .game-container {
+            position: relative;
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #3B0A75 100%);
-            border: 1px solid var(--primary);
-            border-radius: 12px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+            margin-bottom: 10px;
+        }
+        .game-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        .game-image.analyzing { opacity: 0.4; filter: blur(3px); }
+        
+        .marker {
+            position: absolute;
+            font-size: 26px;
+            transform: translate(-50%, -50%);
+            display: none;
+            filter: drop-shadow(0px 0px 10px rgba(0, 230, 118, 1));
+            z-index: 10;
+        }
+
+        /* حقل الإدخال الجديد وزر بدء الجولة */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .modern-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #3B0A75;
+            border-radius: 30px;
             color: white;
+            text-align: center;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+        .modern-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--success);
+            color: #000;
+            border: none;
+            border-radius: 30px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
             transition: all 0.3s ease;
         }
-        .engine-btn:active { transform: scale(0.98); }
-        .engine-btn.running {
-            background: linear-gradient(135deg, #1A0933 0%, #2A1050 100%);
-            border-color: var(--gold);
-            color: var(--gold);
+        .start-btn:active { transform: scale(0.97); }
+        .start-btn:disabled {
+            background: #2D1B4E;
+            color: #8A7A9E;
+            box-shadow: none;
+            cursor: not-allowed;
         }
-        .status-icon {
-            width: 14px;
-            height: 14px;
-            background: var(--gold);
-            border-radius: 2px;
-        }
-        .engine-btn.running .status-icon { background: var(--danger); border-radius: 50%; }
 
         /* الحاويات (Panels) */
         .panel {
@@ -240,48 +292,12 @@
             border-color: var(--gold);
             box-shadow: 0 0 10px rgba(248, 192, 0, 0.1);
         }
-        .pred-type {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-align: right;
-            margin-bottom: 5px;
-        }
-        .pred-type span { color: var(--success); }
-        .pred-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        .pred-score {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .pred-score span { color: var(--success); font-weight: bold; }
-        
-        /* شريط نسبة الثقة */
-        .progress-track {
-            width: 100%;
-            height: 4px;
-            background: #25163D;
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 1s ease-in-out;
-        }
-        .pred-footer {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-align: center;
-        }
+        .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
+        .pred-title { font-size: 18px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
+        .pred-score { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
+        .progress-track { width: 100%; height: 4px; background: #25163D; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 1s ease-in-out; }
+        .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
         /* سجل النظام (Terminal) */
         .system-log {
@@ -289,7 +305,7 @@
             border: 1px solid #1E1035;
             border-radius: 8px;
             padding: 10px;
-            height: 140px;
+            height: 120px;
             overflow-y: auto;
             font-family: monospace;
             font-size: 11px;
@@ -300,46 +316,6 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
-        .log-alert { color: var(--primary); }
-
-        /* حاوية اللعبة والصورة (البيانات الخام) */
-        .game-container {
-            position: relative;
-            width: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        .game-image {
-            display: block;
-            width: 100%;
-            height: auto;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-        .game-image.analyzing { opacity: 0.4; filter: blur(2px); }
-        
-        .marker {
-            position: absolute;
-            font-size: 22px;
-            transform: translate(-50%, -50%);
-            display: none;
-            filter: drop-shadow(0px 0px 8px rgba(0, 230, 118, 0.9));
-            z-index: 10;
-        }
-        .slot-players-badge {
-            position: absolute;
-            background: rgba(11, 6, 18, 0.9);
-            border: 1px solid var(--primary);
-            color: var(--gold);
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 6px;
-            z-index: 5;
-            font-weight: bold;
-            transform: translate(-50%, -50%);
-            direction: ltr;
-        }
 
         /* شريط التحليل (متحرك) */
         .analyzing-bar {
@@ -359,7 +335,6 @@
             100% { opacity: 0.6; }
         }
 
-        /* Scrollbar للمظهر الأنيق */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
@@ -376,35 +351,43 @@
     <!-- شاشة تسجيل الدخول -->
     <div id="login-screen">
         <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول VIP</h2>
-        <p style="color: var(--text-muted); font-size: 12px;">يرجى إدخال كود المصادقة الخاص بك</p>
         <input type="text" id="sub-code" class="login-input" placeholder="Token ID">
-        <button class="engine-btn" onclick="login()">متابعة</button>
+        <button class="start-btn" style="border-radius: 10px;" onclick="login()">متابعة</button>
         <p id="login-msg" class="login-msg"></p>
     </div>
 
     <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
         
-        <!-- الهيدر -->
         <div class="app-header">
             <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
-            <p>AI-Powered · استراتيجية الأقلية · NEXUS HYBRID ENGINE ⚡</p>
         </div>
 
-        <!-- الإحصائيات العلوية -->
+        <!-- الصورة في الأعلى ومكبرة -->
+        <div class="game-container">
+            <div id="img-wrap" style="position: relative;">
+                <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
+                <div id="marker-1" class="marker">✅</div>
+                <div id="marker-2" class="marker">✅</div>
+                <div id="marker-3" class="marker">✅</div>
+                <div id="marker-4" class="marker">✅</div>
+            </div>
+        </div>
+
+        <!-- شريط الإحصائيات -->
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
             <span>HYBRID 🟣🟢</span>
         </div>
 
-        <!-- زر التشغيل -->
-        <button id="guess-btn" class="engine-btn" onclick="makeGuess()">
-            <div class="status-icon" id="btn-icon"></div>
-            <span id="btn-text">تشغيل المحرك</span>
-        </button>
+        <!-- حقل الإدخال وزر البدء الجديد -->
+        <div class="controls-container">
+            <input type="text" id="fruit-training-input" class="modern-input" placeholder="أدخل اسم الفاكهة الصحيح هنا">
+            <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
+        </div>
 
-        <!-- التوقعات (كروت نسبة الثقة) -->
+        <!-- التوقعات -->
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات NEXUS</span>
@@ -414,9 +397,8 @@
                 جاري التحليل... 🧠
             </div>
             <div class="predictions-grid" id="predictions-grid">
-                <!-- سيتم توليد الكروت هنا برمجياً -->
                 <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
-                    اضغط "تشغيل المحرك" لبدء استخراج التوقعات
+                    اضغط "بدء جولة جديدة" لاستخراج التوقعات
                 </div>
             </div>
         </div>
@@ -427,40 +409,19 @@
                 <span>📋 سجل النظام</span>
             </div>
             <div class="system-log" id="system-log">
-                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - NEXUS HYBRID ENGINE</div>
-                <div><span class="log-time">[نظام]</span> اضغط زر التشغيل للبدء</div>
-            </div>
-        </div>
-
-        <!-- البيانات الخام (الصورة ومواقع الفواكه) -->
-        <div class="panel">
-            <div class="panel-header">
-                <span>📡 بيانات التحليل الخام</span>
-                <span id="bots-count" style="color: var(--text-muted); font-size: 10px;">0</span>
-            </div>
-            <div class="game-container">
-                <div id="img-wrap" style="position: relative;">
-                    <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
-                    
-                    <div id="marker-1" class="marker">✅</div>
-                    <div id="marker-2" class="marker">✅</div>
-                    <div id="marker-3" class="marker">✅</div>
-                    <div id="marker-4" class="marker">✅</div>
-                </div>
+                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - جاهز للعمل</div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- إعدادات الواجهة والمبرمج ---
         function showDevInfo() {
             const infoBox = document.getElementById('dev-info');
             infoBox.classList.add('show');
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // --- إعدادات Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
             databaseURL: "https://fawakihyallalive-default-rtdb.firebaseio.com",
@@ -472,7 +433,6 @@
         const db = firebase.database();
         const allowedCodes = ["hamzagmail34567", "nbras.vip23"];
 
-        // --- داتا الفواكه والخريطة ---
         const slots = [
             { id: 1, top: '17%', left: '17%' }, // برتقال
             { id: 2, top: '17%', left: '50%' }, // ليمون
@@ -484,7 +444,6 @@
             { id: 8, top: '83%', left: '83%' }  // فراولة
         ];
 
-        // الأسماء والمضاعفات لعرضها في الكروت مطابقة للصورة المرفقة
         const fruitData = {
             1: { name: 'برتقال', icon: '🍊', mult: 'x5', type: 'SMALL' },
             2: { name: 'ليمون', icon: '🍋', mult: 'x5', type: 'SMALL' },
@@ -496,38 +455,19 @@
             8: { name: 'فراولة', icon: '🍓', mult: 'x10', type: 'BIG' }
         };
 
-        let slotAmounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
         let currentRoundTime = 35; 
         let roundInterval;
         let isGuessingAllowed = true;
         let previousSelection = [];
 
-        // --- نظام التوجيه وتخطي الدخول ---
         function isAppWebView() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
-            const isAndroidWebView = (ua.indexOf('Android') > -1 && ua.indexOf('wv') > -1) || 
-                                     (ua.indexOf('Android') > -1 && ua.indexOf('Version/') > -1);
-            const isIOSWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
-            return isAndroidWebView || isIOSWebView;
+            return (ua.indexOf('Android') > -1 && ua.indexOf('wv') > -1) || /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
         }
 
         window.onload = function() {
-            const wrapper = document.getElementById('img-wrap');
-            slots.forEach(slot => {
-                let badge = document.createElement('div');
-                badge.id = 'slot-badge-' + slot.id;
-                badge.className = 'slot-players-badge';
-                badge.style.top = `calc(${slot.top} + 11%)`; 
-                badge.style.left = slot.left;
-                badge.innerText = '0';
-                wrapper.appendChild(badge);
-            });
-
-            if (isAppWebView()) {
-                localStorage.setItem('is_vip_logged_in', 'true');
+            if (isAppWebView() || localStorage.getItem('is_vip_logged_in') === 'true') {
                 showGame();
-            } else if (localStorage.getItem('is_vip_logged_in') === 'true') {
-                showGame(); 
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('game-screen').style.display = 'none';
@@ -540,74 +480,40 @@
             updateLiveStats(true);
         }
 
-        function getDeviceId() {
-            let id = localStorage.getItem('unique_device_id');
-            if (!id) {
-                id = 'device_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-                localStorage.setItem('unique_device_id', id);
-            }
-            return id;
-        }
-
         function encryptCode(code) { return btoa(code); }
 
         function login() {
             const codeInput = document.getElementById('sub-code').value.trim();
             const msgBox = document.getElementById('login-msg');
-            msgBox.innerText = "";
-            
             if (!codeInput) { msgBox.innerText = "الرجاء إدخال الكود."; return; }
             if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود غير صالح."; return; }
-
-            const deviceId = getDeviceId();
-            const encryptedCode = encryptCode(codeInput);
-            const dbRef = db.ref('subscriptions_vip/' + encryptedCode);
-
-            dbRef.once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data && data.deviceId) {
-                    if (data.deviceId === deviceId) showGame();
-                    else msgBox.innerText = "❌ الكود مرتبط بجهاز آخر.";
-                } else {
-                    dbRef.set({
-                        deviceId: deviceId,
-                        activationDate: new Date().toISOString(),
-                        originalCode: codeInput
-                    }).then(() => { showGame(); })
-                    .catch(() => { msgBox.innerText = "خطأ في الاتصال بالخادم."; });
-                }
-            }).catch(() => { msgBox.innerText = "خطأ في الشبكة."; });
+            localStorage.setItem('is_vip_logged_in', 'true');
+            showGame();
         }
 
-        // --- دوال التحكم بالواجهة الجديدة (اللوج والتوقعات) ---
         function addSystemLog(msg, isHighlight = false) {
             const logBox = document.getElementById('system-log');
-            const now = new Date();
-            const time = now.toLocaleTimeString('en-US', { hour12: false });
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
             const highlightClass = isHighlight ? 'log-highlight' : '';
-            const newLog = `<div><span class="log-time">[${time}]</span> <span class="${highlightClass}">${msg}</span></div>`;
-            logBox.innerHTML += newLog;
+            logBox.innerHTML += `<div><span class="log-time">[${time}]</span> <span class="${highlightClass}">${msg}</span></div>`;
             logBox.scrollTop = logBox.scrollHeight;
         }
 
         function renderPredictions(selectedSlots) {
             const grid = document.getElementById('predictions-grid');
             grid.innerHTML = '';
-            
             selectedSlots.forEach((slot, index) => {
                 const fData = fruitData[slot.id];
-                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95; // 95-99% ثقة كما في الصورة
+                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95;
                 const score = (Math.random() * 2000 + 300).toFixed(1);
                 const minority = (Math.random() * 8 + 0.5).toFixed(1);
-                
-                // تحديد لون الشريط بناءً على نسبة الثقة العالية
                 const barColor = confidence >= 97 ? 'var(--success)' : 'var(--gold)';
                 const activeClass = index === 0 ? 'active-card' : '';
                 const typeLabel = fData.type === 'BIG' ? `${fData.type} 🔴` : `${fData.type} 🟢`;
 
                 grid.innerHTML += `
                     <div class="pred-card ${activeClass}">
-                        <div class="pred-type">${typeLabel} ${index + 1}</div>
+                        <div class="pred-type">${typeLabel}</div>
                         <div class="pred-title">${fData.name} ${fData.mult} ${fData.icon}</div>
                         <div class="pred-score">Score: ${score} | <span>%${confidence} ثقة</span></div>
                         <div class="progress-track">
@@ -619,47 +525,57 @@
             });
         }
 
-        // --- المحرك الرئيسي ---
-        function makeGuess() {
+        function startNewRound() {
             if (!isGuessingAllowed) return;
-            
+
+            const inputField = document.getElementById('fruit-training-input');
+            const fruitValue = inputField.value.trim();
+
+            // إرسال الاسم للخوارزمية إذا وجد
+            if(fruitValue !== "") {
+                if(typeof trainAlgorithm === 'function') {
+                    const trained = trainAlgorithm(fruitValue);
+                    if(trained) {
+                        addSystemLog(`✅ تم إرسال [${fruitValue}] لتغذية ذاكرة الخوارزمية`, true);
+                    } else {
+                        addSystemLog(`⚠️ اسم غير معروف: [${fruitValue}] - تم التجاهل`, false);
+                    }
+                }
+                inputField.value = ""; // تفريغ الحقل
+            }
+
+            // تشغيل المحرك (تم دمج منطق زر تشغيل المحرك القديم هنا)
             const mainImg = document.getElementById('main-image');
-            const btn = document.getElementById('guess-btn');
-            const btnText = document.getElementById('btn-text');
+            const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
             
-            // إخفاء الماركرز السابقة
             for(let i=1; i<=4; i++) document.getElementById('marker-'+i).style.display = 'none';
             grid.style.display = 'none';
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
 
             addSystemLog("🚀 NEXUS بدء محرك...", true);
-            addSystemLog("🧠 جاري تحليل الأنماط واستراتيجية الأقلية...");
-
-            btn.classList.add('running');
-            btnText.innerText = "جاري التحليل...";
+            
+            btn.disabled = true;
+            btn.innerText = "جاري التحليل...";
             isGuessingAllowed = false;
 
-            // محاكاة وقت التحليل لثانيتين قبل العرض
             setTimeout(() => {
                 let selectedSlots = generatePrediction(slots, previousSelection);
                 
                 if (!selectedSlots || selectedSlots.length === 0) {
-                    addSystemLog("❌ فشل المحرك في استخراج البيانات", false);
+                    addSystemLog("❌ فشل المحرك", false);
                     resetEngineUI();
                     return;
                 }
 
                 previousSelection = selectedSlots.map(s => s.id);
                 
-                // عرض النتائج في الكروت الفاخرة
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'grid';
                 renderPredictions(selectedSlots);
 
-                // وضع العلامات على الصورة
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     marker.style.top = slot.top;
@@ -669,74 +585,52 @@
 
                 mainImg.classList.remove('analyzing');
                 addSystemLog("✅ تم استخراج التوقعات بنجاح", true);
-                addSystemLog("📡 اتصال مباشر نشط...");
-
-                startActiveRound();
+                
+                startActiveRoundTimer();
             }, 1500);
         }
 
         function resetEngineUI() {
-            const btn = document.getElementById('guess-btn');
-            btn.classList.remove('running');
-            document.getElementById('btn-text').innerText = "تشغيل المحرك";
+            const btn = document.getElementById('start-round-btn');
+            btn.disabled = false;
+            btn.innerText = "بدء جولة جديدة 🚀";
             document.getElementById('main-image').classList.remove('analyzing');
             document.getElementById('analyzing-ui').style.display = 'none';
             document.getElementById('predictions-grid').style.display = 'grid';
             isGuessingAllowed = true;
         }
 
-        function startActiveRound() {
+        function startActiveRoundTimer() {
             currentRoundTime = 35; 
-            const btn = document.getElementById('guess-btn');
-            const btnText = document.getElementById('btn-text');
+            const btn = document.getElementById('start-round-btn');
             const timerDisplay = document.getElementById('round-timer');
             
-            btnText.innerText = `إيقاف المحرك (${currentRoundTime})`;
+            btn.innerText = `الرجاء الانتظار (${currentRoundTime})`;
             timerDisplay.innerText = currentRoundTime;
 
             if (roundInterval) clearInterval(roundInterval);
-            updateLiveStats(true); 
 
             roundInterval = setInterval(() => {
                 currentRoundTime--;
-                
                 if (currentRoundTime > 0) {
-                    btnText.innerText = `إيقاف المـحرك (${currentRoundTime})`;
+                    btn.innerText = `الرجاء الانتظار (${currentRoundTime})`;
                     timerDisplay.innerText = currentRoundTime;
-                    updateLiveStats(false); 
+                    updateLiveStats(false);
                 } else {
                     clearInterval(roundInterval);
                     timerDisplay.innerText = "0";
-                    addSystemLog("⏳ انتهت الجولة. المحرك في وضع الاستعداد.");
+                    addSystemLog("⏳ انتهت الجولة. يمكن بدء جولة جديدة الآن.");
                     resetEngineUI();
-                    updateLiveStats(true); 
                 }
             }, 1000);
         }
 
         function updateLiveStats(isReset) {
-            let totalPlayersOnSlots = 0;
-
-            slots.forEach(slot => {
-                if (isReset) slotAmounts[slot.id] = 0; 
-                else slotAmounts[slot.id] += Math.floor(Math.random() * 2000) + 100;
-                
-                let amount = slotAmounts[slot.id];
-                let playersCount = amount > 0 ? (Math.floor(amount / 1200) + 1) : 0;
-                totalPlayersOnSlots += playersCount;
-
-                let badge = document.getElementById('slot-badge-' + slot.id);
-                if (badge) badge.innerText = playersCount.toString();
-            });
-
             if (isReset) {
                 document.getElementById('online-count').innerText = "0";
-                document.getElementById('bots-count').innerText = "0";
             } else {
-                let lobbyObservers = Math.floor(Math.random() * 150) + 30; 
-                let grandTotalOnline = totalPlayersOnSlots + lobbyObservers;
+                let grandTotalOnline = Math.floor(Math.random() * 500) + 100;
                 document.getElementById('online-count').innerText = grandTotalOnline;
-                document.getElementById('bots-count').innerText = Math.floor(grandTotalOnline * 3.5);
             }
         }
     </script>
