@@ -661,6 +661,9 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
+        // تفعيل حفظ الجلسة محلياً لمنع الخروج
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+
         // إعدادات Firebase الثانية (قاعدة بيانات اللعبة الإحصائية)
         const firebaseConfigGame = {
             apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
@@ -696,47 +699,71 @@
             }
         }
 
-        // 3. التحقق من حالة الاشتراك وتسجيل الدخول عند فتح الصفحة
-        window.addEventListener('DOMContentLoaded', () => {
+        // حفظ وتحديث بيانات المستخدم عند تسجيل الدخول
+        function handleUserLogin(user) {
+            if (!user) return;
+            db.ref('users/' + user.uid).update({
+                name: user.displayName || "مستخدم",
+                email: user.email || "",
+                deviceID: deviceID,
+                lastLogin: new Date().toISOString()
+            }).catch(e => console.error(e));
+
             if (localStorage.getItem('is_vip_logged_in') === 'true') {
                 showScreen('game');
             } else {
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        if (localStorage.getItem('is_vip_logged_in') === 'true') {
-                            showScreen('game');
-                        } else {
-                            showScreen('activation');
-                        }
-                    } else {
-                        showScreen('login');
-                    }
-                });
+                showScreen('activation');
+            }
+        }
+
+        // 3. التحقق من ناتج إعادة التوجيه عند فتح/تحديث الصفحة
+        auth.getRedirectResult().then((result) => {
+            if (result && result.user) {
+                handleUserLogin(result.user);
+            }
+        }).catch((error) => {
+            console.error("خطأ التوجيه:", error);
+        });
+
+        // 4. مراقبة حالة المصادقة المباشرة
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                handleUserLogin(user);
+            } else {
+                if (localStorage.getItem('is_vip_logged_in') === 'true') {
+                    showScreen('game');
+                } else {
+                    showScreen('login');
+                }
             }
         });
 
-        // 4. دالة تسجيل الدخول بجوجل
+        // 5. دالة تسجيل الدخول بجوجل (متوافقة مع جميع الأجهزة والمحاكيات)
         function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then((result) => {
-                const user = result.user;
-                db.ref('users/' + user.uid).set({
-                    name: user.displayName,
-                    email: user.email,
-                    deviceID: deviceID,
-                    lastLogin: new Date().toISOString()
+            provider.addScope('email');
+            provider.addScope('profile');
+
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                auth.signInWithRedirect(provider);
+            } else {
+                auth.signInWithPopup(provider).then((result) => {
+                    if (result && result.user) {
+                        handleUserLogin(result.user);
+                    }
+                }).catch((error) => {
+                    if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                        auth.signInWithRedirect(provider);
+                    } else {
+                        alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
+                    }
                 });
-                showScreen('activation');
-            }).catch((error) => {
-                if (error.code === 'auth/popup-closed-by-user') {
-                    alert("تم إغلاق نافذة تسجيل الدخول قبل إتمام العملية. يرجى المحاولة مرة أخرى.");
-                } else {
-                    alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
-                }
-            });
+            }
         }
 
-        // 5. دالة نسخ معرف الجهاز
+        // 6. دالة نسخ معرف الجهاز
         function copyDeviceID() {
             navigator.clipboard.writeText(deviceID).then(() => {
                 alert("تم نسخ معرف الجهاز بنجاح: " + deviceID);
@@ -745,7 +772,7 @@
             });
         }
 
-        // 6. دالة لصق الكود
+        // 7. دالة لصق الكود
         function pasteCode() {
             navigator.clipboard.readText().then(text => {
                 document.getElementById('activation-code').value = text;
@@ -754,7 +781,7 @@
             });
         }
 
-        // 7. التحقق من الكود والدخول الآمن للعبة
+        // 8. التحقق من الكود والدخول الآمن للعبة
         function verifyAndEnterGame() {
             const codeInput = document.getElementById('activation-code');
             const code = codeInput ? codeInput.value.trim() : "";
