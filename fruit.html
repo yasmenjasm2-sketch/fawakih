@@ -155,18 +155,18 @@
             text-align: center;
         }
 
-        /* رسومات برجية وفلكية احترافية في شاشة تسجيل الدخول */
-        .zodiac-header-art {
-            width: 70px;
-            height: 70px;
+        /* درع الأمان البرمجي في شاشة تسجيل الدخول */
+        .shield-header-art {
+            width: 75px;
+            height: 75px;
             margin-bottom: 12px;
-            filter: drop-shadow(0 0 10px var(--gold));
-            animation: rotateZodiac 20s linear infinite;
+            filter: drop-shadow(0 0 15px var(--neon-blue));
+            animation: pulseShield 2.5s infinite alternate ease-in-out;
         }
 
-        @keyframes rotateZodiac {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes pulseShield {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--neon-blue)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 25px var(--neon-blue)); }
         }
 
         .zodiac-icon-btn {
@@ -241,6 +241,36 @@
             margin-top: 12px; 
             min-height: 20px;
             font-weight: 600;
+        }
+
+        /* زر الدعم الفني (واتساب) */
+        .whatsapp-btn {
+            margin-top: 15px;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #128C7E, #25D366);
+            color: #FFF;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .whatsapp-btn:active {
+            transform: scale(0.95);
+        }
+
+        .whatsapp-btn svg {
+            width: 22px;
+            height: 22px;
+            margin-left: 8px;
+            fill: currentColor;
         }
 
         /* شاشة النظام الرئيسية */
@@ -475,23 +505,23 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- شاشة تسجيل الدخول VIP مع رسمات برجية وفلكية احترافية -->
+    <!-- شاشة تسجيل الدخول VIP -->
     <div id="login-screen">
-        <!-- الرسمة البرجية الرئيسية (عجلة الأبراج الفلكية SVG) -->
-        <svg class="zodiac-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="46" stroke="#F8C000" stroke-width="1.5" fill="none" stroke-dasharray="4 2"/>
-            <circle cx="50" cy="50" r="38" stroke="#00E5FF" stroke-width="1" fill="none"/>
-            <path d="M 50 4 L 50 96 M 4 50 L 96 50 M 17 17 L 83 83 M 17 83 L 83 17" stroke="rgba(157, 78, 221, 0.5)" stroke-width="1"/>
-            <polygon points="50,15 58,35 80,35 62,48 68,70 50,56 32,70 38,48 20,35 42,35" fill="none" stroke="#F8C000" stroke-width="1.5"/>
-            <circle cx="50" cy="50" r="8" fill="#00E5FF"/>
+        <!-- درع الأمان البرمجي -->
+        <svg class="shield-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- خلفية الدرع -->
+            <path d="M 50 5 L 90 20 L 90 50 C 90 75 50 95 50 95 C 50 95 10 75 10 50 L 10 20 Z" fill="rgba(0, 229, 255, 0.1)" stroke="#00E5FF" stroke-width="3"/>
+            <!-- خطوط داخلية -->
+            <path d="M 50 12 L 82 24 L 82 48 C 82 68 50 86 50 86 C 50 86 18 68 18 48 L 18 24 Z" fill="none" stroke="#9D4EDD" stroke-width="2" stroke-dasharray="4 2"/>
+            <!-- علامة الصح في المنتصف -->
+            <path d="M 35 50 L 45 60 L 65 35" fill="none" stroke="#F8C000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
 
         <h2 style="color: var(--gold); margin-bottom: 8px; font-weight: 800; letter-spacing: 0.5px;">تسجيل الدخول VIP</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">اضغط على إرسال الرمز لاستلام كود التحقق الخاص بك</p>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">اضغط على طلب رمز التحقق لاستلام كود الاشتراك الخاص بك</p>
         
         <div class="login-btn-container">
             <button class="vip-btn-send" onclick="sendTelegramCode()">
-                <!-- أيقونة برج العقرب/الرمز الفلكي SVG -->
                 <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                     <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
                 </svg>
@@ -501,7 +531,6 @@
             <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا">
 
             <button class="vip-btn-confirm" onclick="loginWithCode()">
-                <!-- أيقونة نجمة الأبراج والمجرات SVG -->
                 <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                     <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/>
                 </svg>
@@ -510,9 +539,17 @@
         </div>
 
         <p id="login-msg" class="login-msg"></p>
+
+        <!-- زر الدعم الفني واتساب -->
+        <a href="https://wa.me/90424678123" target="_blank" class="whatsapp-btn">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+            </svg>
+            الدعم الفني عبر واتساب
+        </a>
     </div>
 
-    <!-- شاشة الانتظار الخالية -->
+    <!-- شاشة الانتظار -->
     <div id="waiting-screen">
         <div class="loader-spinner" id="waiting-spinner"></div>
         <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
@@ -537,11 +574,11 @@
             </div>
         </div>
 
-        <!-- شريط الإحصائيات -->
+        <!-- شريط الإحصائيات مع إظهار المتبقي من الاشتراك -->
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
+            <span><span class="stat-icon">⏳</span> الاشتراك: <span class="stat-value" id="sub-remaining">--</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
-            <span>HYBRID 🟣🟢</span>
         </div>
 
         <!-- حقل الإدخال وزر البدء -->
@@ -561,7 +598,7 @@
             </div>
             <div class="predictions-grid" id="predictions-grid">
                 <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
-                    اضغط "بدء جولة جديدة" لاستخراج التوقعات
+                    اضغط "بدء جولة جديدة" لاستخرج التوقعات
                 </div>
             </div>
         </div>
@@ -641,15 +678,14 @@
         let previousSelection = [];
 
         window.onload = function() {
-            checkCurrentDeviceStatus();
+            listenToCurrentDeviceStatus();
         };
 
-        // التحقق الآمن من الخادم ومطابقة فترة الاشتراك بالتوقيت الدقيق
-        function checkCurrentDeviceStatus() {
-            db.ref('requests/' + deviceId).once('value', (snapshot) => {
+        // الاستماع المباشر والمستمر لحالة الجهاز من قاعدة البيانات
+        function listenToCurrentDeviceStatus() {
+            db.ref('requests/' + deviceId).on('value', (snapshot) => {
                 const data = snapshot.val();
                 handleDeviceStatusData(data);
-                listenToStatusChanges();
             });
         }
 
@@ -662,9 +698,9 @@
             if (data.status === 'approved') {
                 const now = Date.now();
                 if (data.expiryTimestamp && now >= data.expiryTimestamp) {
-                    // انتهت فترة الاشتراك -> إرجاع تلقائي لشاشة تسجيل الدخول وتحديث الخادم
+                    // انتهت فترة الاشتراك -> إرجاع تلقائي لشاشة تسجيل الدخول وتحديث الحالة
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
-                    showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى إعادة طلب كود جديد والتجديد.");
+                    showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد للتجديد.");
                 } else {
                     showGame();
                     startSubscriptionMonitor(data.expiryTimestamp);
@@ -678,33 +714,44 @@
             }
         }
 
-        function listenToStatusChanges() {
-            db.ref('requests/' + deviceId).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    handleDeviceStatusData(data);
-                } else {
-                    showLoginScreen();
-                }
-            });
-        }
-
-        // فحص مستمر للسيرفر لضمان طرد المستخدم لحظة انتهاء الاشتراك أثناء الاستخدام
+        // مراقبة حية ومباشرة للوقت والمطرود فور انتهاء الاشتراك
         function startSubscriptionMonitor(expiryTimestamp) {
             if (subscriptionCheckInterval) clearInterval(subscriptionCheckInterval);
             if (!expiryTimestamp) return;
 
-            subscriptionCheckInterval = setInterval(() => {
+            function updateRemainingDisplay() {
                 const now = Date.now();
-                if (now >= expiryTimestamp) {
+                const diffMs = expiryTimestamp - now;
+
+                if (diffMs <= 0) {
                     clearInterval(subscriptionCheckInterval);
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
                     showLoginScreen("⌛ انتهت فترة اشتراكك الآن. يرجى التجديد.");
+                    return;
                 }
-            }, 5000);
+
+                const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                let remainingStr = "";
+                if (days > 0) {
+                    remainingStr = `${days} يوم و ${hours} ساعة`;
+                } else if (hours > 0) {
+                    remainingStr = `${hours} ساعة و ${minutes} د`;
+                } else {
+                    remainingStr = `${minutes} دقيقة`;
+                }
+
+                const subElem = document.getElementById('sub-remaining');
+                if (subElem) subElem.innerText = remainingStr;
+            }
+
+            updateRemainingDisplay();
+            // تحديث الحساب كل 10 ثوانٍ لضمان الدقة وتوفير أداء الجهاز
+            subscriptionCheckInterval = setInterval(updateRemainingDisplay, 10000);
         }
 
-        // إرسال الكود برمجياً بسلامة ودون إظهار أي مصطلحات تفصح عن آلية الإرسال
         function sendTelegramCode() {
             const msgBox = document.getElementById('login-msg');
             currentSentCode = Math.floor(100000 + Math.random() * 900000).toString();
