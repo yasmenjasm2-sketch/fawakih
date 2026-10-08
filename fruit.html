@@ -217,7 +217,7 @@
             transition: all 0.2s ease;
         }
 
-        .vip-btn-send:active, .vip-btn-confirm:active {
+        .vip-btn-send:active:not(:disabled), .vip-btn-confirm:active {
             transform: scale(0.98);
         }
 
@@ -650,6 +650,11 @@
         let currentSentCode = null;
         let subscriptionCheckInterval = null;
 
+        // --- المتغيرات الجديدة الخاصة بمؤقت زر طلب الكود (Spam Protection) ---
+        let codeRequestCount = 0; 
+        let codeTimerInterval = null;
+        // -------------------------------------------------------------------
+
         const slots = [
             { id: 1, top: '17%', left: '17%' },
             { id: 2, top: '17%', left: '50%' },
@@ -753,6 +758,14 @@
         }
 
         function sendTelegramCode() {
+            const sendBtn = document.querySelector('.vip-btn-send');
+            if (sendBtn.disabled) return; // لمنع النقر المزدوج السريع
+
+            codeRequestCount++; // زيادة عدد مرات الطلب
+            
+            // تحديد وقت الانتظار: دقيقة إذا كان أقل من أو يساوي 3 مرات، و 3 دقائق إذا زاد عن 3 مرات
+            let waitTimeSeconds = (codeRequestCount > 3) ? 180 : 60;
+
             const msgBox = document.getElementById('login-msg');
             currentSentCode = Math.floor(100000 + Math.random() * 900000).toString();
             
@@ -761,6 +774,34 @@
             msgBox.style.color = "var(--gold)";
             msgBox.innerText = "جاري إرسال رمز التحقق...";
 
+            // إعدادات العداد وتغيير شكل الزر
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.6';
+            sendBtn.style.cursor = 'not-allowed';
+            sendBtn.innerHTML = `⏳ الرجاء الانتظار (${waitTimeSeconds})`;
+
+            if (codeTimerInterval) clearInterval(codeTimerInterval);
+            
+            codeTimerInterval = setInterval(() => {
+                waitTimeSeconds--;
+                if (waitTimeSeconds > 0) {
+                    sendBtn.innerHTML = `⏳ الرجاء الانتظار (${waitTimeSeconds})`;
+                } else {
+                    clearInterval(codeTimerInterval);
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                    sendBtn.style.cursor = 'pointer';
+                    // إعادة الزر لشكله الأصلي
+                    sendBtn.innerHTML = `
+                        <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                            <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
+                        </svg>
+                        طلب رمز التحقق
+                    `;
+                }
+            }, 1000);
+
+            // الإرسال الفعلي للتليجرام
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
