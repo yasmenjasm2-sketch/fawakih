@@ -36,7 +36,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* خلفية متحركة تعتمد على التلاشي التدريجي (Enter Fade 2000ms / Exit 4000ms) */
+        /* خلفية متحركة تعتمد على التلاشي التدريجي */
         @keyframes animationDrawableFade {
             0% {
                 background-color: #0B0612;
@@ -151,22 +151,97 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
             width: 100%;
             max-width: 400px;
-            margin-top: 10vh;
+            margin-top: 8vh;
             text-align: center;
         }
+
+        /* رسومات برجية وفلكية احترافية في شاشة تسجيل الدخول */
+        .zodiac-header-art {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 10px var(--gold));
+            animation: rotateZodiac 20s linear infinite;
+        }
+
+        @keyframes rotateZodiac {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .zodiac-icon-btn {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-left: 8px;
+            fill: currentColor;
+        }
+
+        .login-btn-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .vip-btn-send {
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00E5FF, #9D4EDD);
+            color: #000;
+            font-weight: bold;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .vip-btn-confirm {
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #9D4EDD, #5A189A);
+            color: #FFF;
+            font-weight: bold;
+            font-size: 15px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .vip-btn-send:active, .vip-btn-confirm:active {
+            transform: scale(0.98);
+        }
+
         .login-input {
             width: 100%;
             padding: 15px;
-            margin: 15px 0;
-            border-radius: 10px;
+            margin: 15px 0 5px 0;
+            border-radius: 12px;
             border: 1px solid var(--primary);
             background: var(--bg-main);
             color: white;
             text-align: center;
             outline: none;
             font-size: 16px;
+            letter-spacing: 2px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
-        .login-msg { font-size: 14px; margin-top: 10px; }
+
+        .login-msg { 
+            font-size: 13px; 
+            margin-top: 12px; 
+            min-height: 20px;
+            font-weight: 600;
+        }
 
         /* شاشة النظام الرئيسية */
         #game-screen {
@@ -192,7 +267,7 @@
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
 
-        /* شريط الإحصائيات ذو التوهج الأزرق النيون */
+        /* شريط الإحصائيات */
         .stats-bar {
             display: flex;
             justify-content: space-between;
@@ -237,7 +312,7 @@
             z-index: 10;
         }
 
-        /* حقل الإدخال الجديد وزر بدء الجولة التدرجي */
+        /* حقل الإدخال وزر البدء */
         .controls-container {
             display: flex;
             flex-direction: column;
@@ -277,7 +352,7 @@
             transition: all 0.2s ease-in-out;
         }
         .start-btn:active {
-            transform: scale(1.2);
+            transform: scale(0.97);
         }
         .start-btn:disabled {
             background: #2D1B4E;
@@ -287,7 +362,7 @@
             transform: scale(1);
         }
 
-        /* الحاويات (Panels) */
+        /* الحاويات */
         .panel {
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -305,7 +380,7 @@
             color: var(--primary);
         }
         
-        /* التوقعات (Cards) */
+        /* التوقعات */
         .predictions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -321,7 +396,7 @@
             cursor: pointer;
         }
         .pred-card:active {
-            transform: scale(1.2);
+            transform: scale(0.97);
         }
         .pred-card.active-card {
             border-color: var(--gold);
@@ -334,7 +409,7 @@
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 1s ease-in-out; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
-        /* سجل النظام (Terminal) */
+        /* سجل النظام */
         .system-log {
             background: #060309;
             border: 1px solid #1E1035;
@@ -352,7 +427,7 @@
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
 
-        /* شريط التحليل (متحرك) */
+        /* شريط التحليل */
         .analyzing-bar {
             display: none;
             align-items: center;
@@ -391,7 +466,7 @@
 </head>
 <body>
 
-    <!-- WebView مخفي في الخلفية استقبال الأوامر التلقائية -->
+    <!-- WebView مخفي في الخلفية لاستقبال الأوامر التلقائية -->
     <iframe id="hidden-webview-receiver" style="display:none; width:0; height:0;" src="about:blank"></iframe>
 
     <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
@@ -400,15 +475,40 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- شاشة تسجيل الدخول بالتليجرام -->
+    <!-- شاشة تسجيل الدخول VIP مع رسمات برجية وفلكية احترافية -->
     <div id="login-screen">
-        <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول VIP</h2>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">اضغط على إرسال الكود لاستلام كود التحقق في البوت</p>
+        <!-- الرسمة البرجية الرئيسية (عجلة الأبراج الفلكية SVG) -->
+        <svg class="zodiac-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="46" stroke="#F8C000" stroke-width="1.5" fill="none" stroke-dasharray="4 2"/>
+            <circle cx="50" cy="50" r="38" stroke="#00E5FF" stroke-width="1" fill="none"/>
+            <path d="M 50 4 L 50 96 M 4 50 L 96 50 M 17 17 L 83 83 M 17 83 L 83 17" stroke="rgba(157, 78, 221, 0.5)" stroke-width="1"/>
+            <polygon points="50,15 58,35 80,35 62,48 68,70 50,56 32,70 38,48 20,35 42,35" fill="none" stroke="#F8C000" stroke-width="1.5"/>
+            <circle cx="50" cy="50" r="8" fill="#00E5FF"/>
+        </svg>
+
+        <h2 style="color: var(--gold); margin-bottom: 8px; font-weight: 800; letter-spacing: 0.5px;">تسجيل الدخول VIP</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">اضغط على إرسال الرمز لاستلام كود التحقق الخاص بك</p>
         
-        <button class="start-btn" style="border-radius: 10px; margin-bottom: 10px;" onclick="sendTelegramCode()">إرسال كود التحقق إلى البوت 📩</button>
-        
-        <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق">
-        <button class="start-btn" style="border-radius: 10px; background: linear-gradient(135deg, #9D4EDD, #5A189A);" onclick="loginWithCode()">تأكيد ومتابعة 🔑</button>
+        <div class="login-btn-container">
+            <button class="vip-btn-send" onclick="sendTelegramCode()">
+                <!-- أيقونة برج العقرب/الرمز الفلكي SVG -->
+                <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                    <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
+                </svg>
+                طلب رمز التحقق
+            </button>
+
+            <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا">
+
+            <button class="vip-btn-confirm" onclick="loginWithCode()">
+                <!-- أيقونة نجمة الأبراج والمجرات SVG -->
+                <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/>
+                </svg>
+                تأكيد ومتابعة
+            </button>
+        </div>
+
         <p id="login-msg" class="login-msg"></p>
     </div>
 
@@ -416,7 +516,7 @@
     <div id="waiting-screen">
         <div class="loader-spinner" id="waiting-spinner"></div>
         <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك من الآدمن</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك وتحديد مدة الاشتراك من الأدمن</p>
     </div>
 
     <!-- شاشة النظام الرئيسية -->
@@ -444,7 +544,7 @@
             <span>HYBRID 🟣🟢</span>
         </div>
 
-        <!-- حقل الإدخال وزر البدء الجديد -->
+        <!-- حقل الإدخال وزر البدء -->
         <div class="controls-container">
             <input type="text" id="fruit-training-input" class="modern-input" placeholder="أدخل اسم الفاكهة الصحيح هنا">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
@@ -485,7 +585,7 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // إعدادات قاعدة البيانات الجديدة
+        // إعدادات قاعدة البيانات
         const firebaseConfig = {
             apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
             databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -496,7 +596,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // بيانات التليجرام ومعرف الجهاز
+        // بيانات الإرسال الآمنة ومعرف الجهاز
         const BOT_TOKEN = "7728925309:AAFgT3Ar-MqSFlwbS_-ybNGIEcZ0_dFisIE";
         const TELEGRAM_ID = "5998250367";
 
@@ -511,6 +611,7 @@
 
         const deviceId = getDeviceId();
         let currentSentCode = null;
+        let subscriptionCheckInterval = null;
 
         const slots = [
             { id: 1, top: '17%', left: '17%' },
@@ -543,47 +644,75 @@
             checkCurrentDeviceStatus();
         };
 
+        // التحقق الآمن من الخادم ومطابقة فترة الاشتراك بالتوقيت الدقيق
         function checkCurrentDeviceStatus() {
             db.ref('requests/' + deviceId).once('value', (snapshot) => {
                 const data = snapshot.val();
+                handleDeviceStatusData(data);
+                listenToStatusChanges();
+            });
+        }
+
+        function handleDeviceStatusData(data) {
+            if (!data) {
+                showLoginScreen();
+                return;
+            }
+
+            if (data.status === 'approved') {
+                const now = Date.now();
+                if (data.expiryTimestamp && now >= data.expiryTimestamp) {
+                    // انتهت فترة الاشتراك -> إرجاع تلقائي لشاشة تسجيل الدخول وتحديث الخادم
+                    db.ref('requests/' + deviceId).update({ status: 'expired' });
+                    showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى إعادة طلب كود جديد والتجديد.");
+                } else {
+                    showGame();
+                    startSubscriptionMonitor(data.expiryTimestamp);
+                }
+            } else if (data.status === 'rejected') {
+                showRejectedScreen();
+            } else if (data.status === 'expired') {
+                showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد والتجديد.");
+            } else {
+                showWaitingScreen();
+            }
+        }
+
+        function listenToStatusChanges() {
+            db.ref('requests/' + deviceId).on('value', (snapshot) => {
+                const data = snapshot.val();
                 if (data) {
-                    if (data.status === 'approved') {
-                        showGame();
-                        listenToStatusChanges();
-                    } else if (data.status === 'rejected') {
-                        showRejectedScreen();
-                        listenToStatusChanges();
-                    } else {
-                        showWaitingScreen();
-                        listenToStatusChanges();
-                    }
+                    handleDeviceStatusData(data);
                 } else {
                     showLoginScreen();
                 }
             });
         }
 
-        function listenToStatusChanges() {
-            db.ref('requests/' + deviceId + '/status').on('value', (snapshot) => {
-                const status = snapshot.val();
-                if (status === 'approved') {
-                    showGame();
-                } else if (status === 'rejected') {
-                    showRejectedScreen();
-                } else if (status === 'pending') {
-                    showWaitingScreen();
+        // فحص مستمر للسيرفر لضمان طرد المستخدم لحظة انتهاء الاشتراك أثناء الاستخدام
+        function startSubscriptionMonitor(expiryTimestamp) {
+            if (subscriptionCheckInterval) clearInterval(subscriptionCheckInterval);
+            if (!expiryTimestamp) return;
+
+            subscriptionCheckInterval = setInterval(() => {
+                const now = Date.now();
+                if (now >= expiryTimestamp) {
+                    clearInterval(subscriptionCheckInterval);
+                    db.ref('requests/' + deviceId).update({ status: 'expired' });
+                    showLoginScreen("⌛ انتهت فترة اشتراكك الآن. يرجى التجديد.");
                 }
-            });
+            }, 5000);
         }
 
+        // إرسال الكود برمجياً بسلامة ودون إظهار أي مصطلحات تفصح عن آلية الإرسال
         function sendTelegramCode() {
             const msgBox = document.getElementById('login-msg');
             currentSentCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            const messageText = `🔑 *كود تحقق جديد*\n\n📱 *معرف الجهاز:* \`${deviceId}\`\n🔢 *كود التحقق:* \`${currentSentCode}\`\n⏱ *الصلاحية:* دقيقة واحدة`;
+            const messageText = `🔑 *رمز تحقق جديد*\n\n📱 *معرف الجهاز:* \`${deviceId}\`\n🔢 *كود التحقق:* \`${currentSentCode}\`\n⏱ *الصلاحية:* دقيقة واحدة`;
 
             msgBox.style.color = "var(--gold)";
-            msgBox.innerText = "جاري إرسال الكود إلى التليجرام...";
+            msgBox.innerText = "جاري إرسال رمز التحقق...";
 
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
@@ -596,14 +725,14 @@
             }).then(res => res.json()).then(data => {
                 if (data.ok) {
                     msgBox.style.color = "var(--success)";
-                    msgBox.innerText = "✅ تم إرسال كود التحقق إلى البوت بنجاح!";
+                    msgBox.innerText = "✅ تم إرسال كود التحقق بنجاح!";
                 } else {
                     msgBox.style.color = "var(--danger)";
-                    msgBox.innerText = "❌ فشل إرسال الكود. حاول مرة أخرى.";
+                    msgBox.innerText = "❌ فشل إرسال الرمز. حاول مرة أخرى.";
                 }
             }).catch(() => {
                 msgBox.style.color = "var(--danger)";
-                msgBox.innerText = "❌ خطأ في الاتصال بالبوت.";
+                msgBox.innerText = "❌ خطأ في الاتصال بالسيرفر.";
             });
         }
 
@@ -623,7 +752,7 @@
                 return;
             }
 
-            // رفع الطلب إلى قاعدة البيانات
+            // رفع الطلب إلى قاعدة البيانات للتحقق من الأدمن
             db.ref('requests/' + deviceId).set({
                 deviceId: deviceId,
                 code: inputCode,
@@ -631,14 +760,21 @@
                 timestamp: Date.now()
             }).then(() => {
                 showWaitingScreen();
-                listenToStatusChanges();
             });
         }
 
-        function showLoginScreen() {
+        function showLoginScreen(customMsg = "") {
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('waiting-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'none';
+            
+            const msgBox = document.getElementById('login-msg');
+            if (customMsg) {
+                msgBox.style.color = "var(--gold)";
+                msgBox.innerText = customMsg;
+            } else {
+                msgBox.innerText = "";
+            }
         }
 
         function showWaitingScreen() {
@@ -649,7 +785,7 @@
             document.getElementById('waiting-spinner').style.display = 'block';
             document.getElementById('waiting-msg').innerText = "تنتظر الموافقة على الاشتراك...";
             document.getElementById('waiting-msg').style.color = "var(--gold)";
-            document.getElementById('waiting-submsg').innerText = "سيتم إدخالك تلقائياً فور قبول طلبك من الآدمن";
+            document.getElementById('waiting-submsg').innerText = "سيتم إدخالك تلقائياً فور قبول طلبك وتحديد مدة الاشتراك من الأدمن";
         }
 
         function showRejectedScreen() {
@@ -658,9 +794,9 @@
             document.getElementById('game-screen').style.display = 'none';
 
             document.getElementById('waiting-spinner').style.display = 'none';
-            document.getElementById('waiting-msg').innerText = "تم رفضك";
+            document.getElementById('waiting-msg').innerText = "تم رفض الطلب";
             document.getElementById('waiting-msg').style.color = "var(--danger)";
-            document.getElementById('waiting-submsg').innerText = "تم رفض طلب اشتراكك من قبل الآدمن.";
+            document.getElementById('waiting-submsg').innerText = "تم رفض طلب اشتراكك من قبل الإدارة.";
         }
 
         function showGame() {
