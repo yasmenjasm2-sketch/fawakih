@@ -137,35 +137,6 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; }
 
-        /* شاشة الدخول VIP */
-        #login-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
-            width: 100%;
-            max-width: 400px;
-            margin-top: 10vh;
-        }
-        .login-input {
-            width: 100%;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 10px;
-            border: 1px solid var(--primary);
-            background: var(--bg-main);
-            color: white;
-            text-align: center;
-            outline: none;
-            font-size: 16px;
-        }
-        .login-msg { color: var(--danger); font-size: 14px; margin-top: 10px; }
-
         /* شاشة النظام الرئيسية */
         #game-screen {
             display: none;
@@ -384,14 +355,6 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- شاشة تسجيل الدخول -->
-    <div id="login-screen">
-        <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول VIP</h2>
-        <input type="text" id="sub-code" class="login-input" placeholder="Token ID">
-        <button class="start-btn" style="border-radius: 10px;" onclick="login()">متابعة</button>
-        <p id="login-msg" class="login-msg"></p>
-    </div>
-
     <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
         
@@ -467,7 +430,6 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const allowedCodes = ["hamzagmail34567", "nbras.vip23"];
 
         const slots = [
             { id: 1, top: '17%', left: '17%' }, // برتقال
@@ -502,29 +464,18 @@
         }
 
         window.onload = function() {
+            // التحقق من حالة تسجيل الدخول أولاً
             if (isAppWebView() || localStorage.getItem('is_vip_logged_in') === 'true') {
-                showGame();
+                showGame(); // فتح الشاشة إذا كان مسجلاً للدخول
             } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('game-screen').style.display = 'none';
+                // إذا لم يكن مسجلاً للدخول، يتم استدعاء ملف free.html كواجهة دخول
+                window.location.href = 'free.html';
             }
         };
 
         function showGame() {
-            document.getElementById('login-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             updateLiveStats(true);
-        }
-
-        function encryptCode(code) { return btoa(code); }
-
-        function login() {
-            const codeInput = document.getElementById('sub-code').value.trim();
-            const msgBox = document.getElementById('login-msg');
-            if (!codeInput) { msgBox.innerText = "الرجاء إدخال الكود."; return; }
-            if (!allowedCodes.includes(codeInput)) { msgBox.innerText = "كود غير صالح."; return; }
-            localStorage.setItem('is_vip_logged_in', 'true');
-            showGame();
         }
 
         function addSystemLog(msg, isHighlight = false) {
