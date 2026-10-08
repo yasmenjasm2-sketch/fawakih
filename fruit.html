@@ -7,7 +7,6 @@
     
     <!-- Firebase SDK (Version 8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <!-- استدعاء العقل الرئيسي (الخوارزمية) من الملف المستقل -->
@@ -18,11 +17,7 @@
             --bg-main: #0B0612;
             --bg-panel: #130922;
             --bg-card: #180C2B;
-            --container-bg: #22153b;
             --primary: #9D4EDD;
-            --primary-purple: #a67cff;
-            --btn-purple: #9d6cff;
-            --btn-dark: #2a1f43;
             --primary-dark: #5A189A;
             --gold: #F8C000;
             --neon-blue: #00E5FF;
@@ -32,8 +27,6 @@
             --text-muted: #8A7A9E;
             --border-color: #2D1B4E;
             --glass-bg: rgba(19, 9, 34, 0.75);
-            --green-whatsapp: #25D366;
-            --blue-buy: #3498db;
         }
 
         * {
@@ -43,7 +36,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* خلفية متحركة */
+        /* خلفية متحركة تعتمد على التلاشي التدريجي (Enter Fade 2000ms / Exit 4000ms) */
         @keyframes animationDrawableFade {
             0% {
                 background-color: #0B0612;
@@ -81,13 +74,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 15px;
             position: relative;
             overflow-x: hidden;
             transition: background 2s ease-in-out;
         }
 
+        /* تأثير التوهج النيون البنفسجي والأزرق */
         body::before {
             content: '';
             position: fixed;
@@ -100,177 +93,6 @@
             pointer-events: none;
             z-index: -1;
         }
-
-        /* تنسيقات شاشات تسجيل الدخول والتفعيل */
-        .auth-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            background: var(--container-bg);
-            padding: 40px 25px;
-            border-radius: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
-            position: relative;
-            margin: auto;
-        }
-
-        .auth-container.active {
-            display: flex;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(145deg, #ffffff, #f0f0f0);
-            color: #333;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-            margin-top: 20px;
-        }
-        .google-btn:active { transform: scale(0.96); }
-        .google-btn svg { width: 24px; height: 24px; }
-
-        .shield-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #c4a1ff, #8b5cf6);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-        }
-
-        h2 { color: var(--text-main); font-size: 22px; margin-bottom: 10px; font-weight: 700; }
-        p { color: #a093b5; font-size: 13px; margin-bottom: 25px; }
-
-        .input-group {
-            position: relative;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .input-group input {
-            width: 100%;
-            background: #1a0f2e;
-            border: 1px solid #3d2b5e;
-            padding: 16px 20px;
-            padding-left: 80px;
-            border-radius: 15px;
-            color: white;
-            font-size: 15px;
-            outline: none;
-            text-align: right;
-            direction: rtl;
-        }
-
-        .input-group input::placeholder { color: #6b5c85; }
-
-        .paste-btn {
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #2a1f43;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: 0.2s;
-        }
-        .paste-btn:hover { background: #3d2b5e; }
-
-        .secure-login-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(90deg, #a67cff, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
-            margin-bottom: 20px;
-            transition: opacity 0.2s;
-        }
-        .secure-login-btn:active { opacity: 0.8; }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            margin-bottom: 25px;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 14px 10px;
-            background: var(--btn-dark);
-            border: none;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: white;
-            transition: background 0.2s;
-        }
-        .action-btn:hover { background: #352754; }
-
-        .btn-whatsapp { color: var(--green-whatsapp); }
-        .btn-buy { color: var(--blue-buy); }
-
-        .footer-links {
-            display: flex;
-            gap: 15px;
-            color: #a093b5;
-            font-size: 12px;
-            margin-bottom: 25px;
-        }
-        .footer-links span { cursor: pointer; }
-        .footer-links span:hover { color: white; }
-
-        .device-id-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #a093b5;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.2);
-            transition: 0.2s;
-        }
-        .device-id-container:hover { background: rgba(0,0,0,0.4); color: white; }
 
         /* قسم المبرمج */
         #dev-logo {
@@ -286,7 +108,9 @@
             box-shadow: 0 0 12px var(--neon-blue);
             transition: transform 0.2s ease;
         }
-        #dev-logo:active { transform: scale(1.2); }
+        #dev-logo:active {
+            transform: scale(1.2);
+        }
 
         #dev-info {
             position: absolute;
@@ -313,20 +137,51 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; }
 
-        /* شاشة اللعبة الرئيسية */
+        /* شاشة الدخول VIP */
+        #login-screen, #waiting-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10vh;
+            text-align: center;
+        }
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid var(--primary);
+            background: var(--bg-main);
+            color: white;
+            text-align: center;
+            outline: none;
+            font-size: 16px;
+        }
+        .login-msg { font-size: 14px; margin-top: 10px; }
+
+        /* شاشة النظام الرئيسية */
         #game-screen {
             display: none;
             flex-direction: column;
             width: 100%;
             max-width: 480px;
             gap: 15px;
-            margin-top: 20px;
         }
 
+        /* الهيدر العلوي */
         .app-header {
             text-align: center;
             margin-bottom: 5px;
-            margin-top: 20px;
+            margin-top: 40px;
         }
         .app-header h1 {
             font-size: 24px;
@@ -337,6 +192,7 @@
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
 
+        /* شريط الإحصائيات ذو التوهج الأزرق النيون */
         .stats-bar {
             display: flex;
             justify-content: space-between;
@@ -353,6 +209,7 @@
         .stat-value { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
         .stat-icon { color: var(--gold); }
 
+        /* الصورة في الأعلى ومكبرة */
         .game-container {
             position: relative;
             width: 100%;
@@ -380,6 +237,7 @@
             z-index: 10;
         }
 
+        /* حقل الإدخال الجديد وزر بدء الجولة التدرجي */
         .controls-container {
             display: flex;
             flex-direction: column;
@@ -418,7 +276,9 @@
             box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4), 0 0 10px rgba(248, 192, 0, 0.3);
             transition: all 0.2s ease-in-out;
         }
-        .start-btn:active { transform: scale(0.98); }
+        .start-btn:active {
+            transform: scale(1.2);
+        }
         .start-btn:disabled {
             background: #2D1B4E;
             color: #8A7A9E;
@@ -427,6 +287,7 @@
             transform: scale(1);
         }
 
+        /* الحاويات (Panels) */
         .panel {
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -444,6 +305,7 @@
             color: var(--primary);
         }
         
+        /* التوقعات (Cards) */
         .predictions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -458,7 +320,9 @@
             transition: transform 0.2s ease, border-color 0.3s;
             cursor: pointer;
         }
-        .pred-card:active { transform: scale(0.98); }
+        .pred-card:active {
+            transform: scale(1.2);
+        }
         .pred-card.active-card {
             border-color: var(--gold);
             box-shadow: 0 0 15px rgba(248, 192, 0, 0.2);
@@ -470,6 +334,7 @@
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 1s ease-in-out; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
+        /* سجل النظام (Terminal) */
         .system-log {
             background: #060309;
             border: 1px solid #1E1035;
@@ -487,6 +352,7 @@
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
 
+        /* شريط التحليل (متحرك) */
         .analyzing-bar {
             display: none;
             align-items: center;
@@ -504,7 +370,20 @@
             100% { opacity: 0.6; }
         }
 
-        svg { fill: currentColor; width: 16px; height: 16px; }
+        .loader-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--neon-blue);
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
@@ -512,7 +391,7 @@
 </head>
 <body>
 
-    <!-- WebView مخفي في الخلفية لاستقبال الأوامر التلقائية -->
+    <!-- WebView مخفي في الخلفية استقبال الأوامر التلقائية -->
     <iframe id="hidden-webview-receiver" style="display:none; width:0; height:0;" src="about:blank"></iframe>
 
     <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
@@ -521,79 +400,33 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- 1. شاشة تسجيل الدخول بواسطة جوجل -->
-    <div id="login-screen" class="auth-container active">
-        <div style="margin-bottom: 20px;">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z" fill="#9D4EDD"/>
-            </svg>
-        </div>
-        <h2>تسجيل الدخول</h2>
-        <p>قم بتسجيل الدخول للوصول إلى محرك الألعاب</p>
+    <!-- شاشة تسجيل الدخول بالتليجرام -->
+    <div id="login-screen">
+        <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول VIP</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">اضغط على إرسال الكود لاستلام كود التحقق في البوت</p>
         
-        <button class="google-btn" onclick="signInWithGoogle()">
-            <svg viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-            </svg>
-            تسجيل الدخول بـ Google
-        </button>
+        <button class="start-btn" style="border-radius: 10px; margin-bottom: 10px;" onclick="sendTelegramCode()">إرسال كود التحقق إلى البوت 📩</button>
+        
+        <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق">
+        <button class="start-btn" style="border-radius: 10px; background: linear-gradient(135deg, #9D4EDD, #5A189A);" onclick="loginWithCode()">تأكيد ومتابعة 🔑</button>
+        <p id="login-msg" class="login-msg"></p>
     </div>
 
-    <!-- 2. شاشة تفعيل الاشتراك -->
-    <div id="activation-screen" class="auth-container">
-        <div class="shield-icon">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-            </svg>
-        </div>
-
-        <h2>تفعيل الاشتراك</h2>
-        <p>يرجى إدخال أو لصق كود التفعيل الخاص بك</p>
-
-        <div class="input-group">
-            <button class="paste-btn" onclick="pasteCode()">
-                لصق
-                <svg viewBox="0 0 24 24"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg>
-            </button>
-            <input type="text" id="activation-code" placeholder="أدخل الكود هنا . . .">
-        </div>
-
-        <button class="secure-login-btn" onclick="verifyAndEnterGame()">دخول آمن</button>
-
-        <div class="action-buttons">
-            <button class="action-btn btn-buy" onclick="window.open('https://yasmenjasm2-sketch.github.io/update.json/payment.html', '_blank')">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
-                شراء اشتراك
-            </button>
-
-            <button class="action-btn btn-whatsapp" onclick="window.open('https://wa.me/905424678123', '_blank')">
-                <svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91s-4.45-9.91-9.91-9.91zm5.44 14.21c-.23.64-1.33 1.24-1.84 1.32-.46.07-1.04.14-3.15-.74-2.58-1.07-4.24-3.72-4.37-3.89-.13-.18-1.04-1.39-1.04-2.66 0-1.27.66-1.89.89-2.14.23-.25.51-.31.68-.31s.34.01.49.02c.16.01.37-.06.57.42.21.49.72 1.76.79 1.89.06.13.11.28.02.46-.08.18-.13.29-.25.44-.13.14-.26.32-.38.44-.13.13-.27.27-.12.52.14.26.64 1.07 1.38 1.73.95.84 1.74 1.1 1.99 1.23.25.13.4.11.55-.06.14-.18.61-.71.77-.96.16-.25.32-.21.55-.13.23.08 1.48.7 1.74.83.25.13.42.19.48.29.06.11.06.63-.17 1.27z"/></svg>
-                الدعم الفني
-            </button>
-        </div>
-
-        <div class="footer-links">
-            <span>سياسة الخصوصية</span>
-            <span>•</span>
-            <span>طريقة الاستخدام</span>
-        </div>
-
-        <div class="device-id-container" onclick="copyDeviceID()" title="انقر لنسخ المعرف">
-            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-            <span id="display-device-id">DEVICE ID: جاري التوليد...</span>
-        </div>
+    <!-- شاشة الانتظار الخالية -->
+    <div id="waiting-screen">
+        <div class="loader-spinner" id="waiting-spinner"></div>
+        <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك من الآدمن</p>
     </div>
 
-    <!-- 3. شاشة اللعبة الرئيسية -->
+    <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
         
         <div class="app-header">
             <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
         </div>
 
+        <!-- الصورة في الأعلى ومكبرة -->
         <div class="game-container">
             <div id="img-wrap" style="position: relative;">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
@@ -604,17 +437,20 @@
             </div>
         </div>
 
+        <!-- شريط الإحصائيات -->
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
             <span>HYBRID 🟣🟢</span>
         </div>
 
+        <!-- حقل الإدخال وزر البدء الجديد -->
         <div class="controls-container">
             <input type="text" id="fruit-training-input" class="modern-input" placeholder="أدخل اسم الفاكهة الصحيح هنا">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
         </div>
 
+        <!-- التوقعات -->
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات NEXUS</span>
@@ -630,6 +466,7 @@
             </div>
         </div>
 
+        <!-- سجل النظام -->
         <div class="panel">
             <div class="panel-header">
                 <span>📋 سجل النظام</span>
@@ -648,157 +485,33 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // إعدادات Firebase الأولى (المصادقة والتسجيل)
-        const firebaseConfigAuth = {
+        // إعدادات قاعدة البيانات الجديدة
+        const firebaseConfig = {
             apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
-            authDomain: "mehamzaalanat.firebaseapp.com",
             databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "mehamzaalanat",
             storageBucket: "mehamzaalanat.firebasestorage.app",
             appId: "1:10248497310:android:bc2b88983738827f15338f"
         };
-        firebase.initializeApp(firebaseConfigAuth);
-        const auth = firebase.auth();
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // تفعيل حفظ الجلسة محلياً لمنع الخروج
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
+        // بيانات التليجرام ومعرف الجهاز
+        const BOT_TOKEN = "7728925309:AAFgT3Ar-MqSFlwbS_-ybNGIEcZ0_dFisIE";
+        const TELEGRAM_ID = "5998250367";
 
-        // إعدادات Firebase الثانية (قاعدة بيانات اللعبة الإحصائية)
-        const firebaseConfigGame = {
-            apiKey: "AIzaSyAo4IaLd5SfVYHAAp_noJD7ZXBbhdVx9-0",
-            databaseURL: "https://fawakihyallalive-default-rtdb.firebaseio.com",
-            projectId: "fawakihyallalive",
-            storageBucket: "fawakihyallalive.firebasestorage.app",
-            appId: "1:917478913649:android:fee5d42aca81c8a2e3cdd0"
-        };
-        const gameApp = firebase.initializeApp(firebaseConfigGame, "gameApp");
-        const gameDb = gameApp.database();
-
-        // 1. توليد أو جلب معرف الجهاز
-        let deviceID = localStorage.getItem('game_device_id');
-        if (!deviceID) {
-            deviceID = Math.floor(100000000 + Math.random() * 900000000).toString();
-            localStorage.setItem('game_device_id', deviceID);
-        }
-        document.getElementById('display-device-id').innerText = `DEVICE ID: ${deviceID}`;
-
-        // 2. التنقل بين الشاشات
-        function showScreen(screenId) {
-            document.getElementById('login-screen').classList.remove('active');
-            document.getElementById('activation-screen').classList.remove('active');
-            document.getElementById('game-screen').style.display = 'none';
-
-            if (screenId === 'game') {
-                document.getElementById('game-screen').style.display = 'flex';
-                updateLiveStats(true);
-            } else if (screenId === 'activation') {
-                document.getElementById('activation-screen').classList.add('active');
-            } else {
-                document.getElementById('login-screen').classList.add('active');
+        function getDeviceId() {
+            let id = localStorage.getItem('nexus_device_id');
+            if (!id) {
+                id = 'DEV-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString().slice(-4);
+                localStorage.setItem('nexus_device_id', id);
             }
+            return id;
         }
 
-        // حفظ وتحديث بيانات المستخدم عند تسجيل الدخول
-        function handleUserLogin(user) {
-            if (!user) return;
-            db.ref('users/' + user.uid).update({
-                name: user.displayName || "مستخدم",
-                email: user.email || "",
-                deviceID: deviceID,
-                lastLogin: new Date().toISOString()
-            }).catch(e => console.error(e));
+        const deviceId = getDeviceId();
+        let currentSentCode = null;
 
-            if (localStorage.getItem('is_vip_logged_in') === 'true') {
-                showScreen('game');
-            } else {
-                showScreen('activation');
-            }
-        }
-
-        // 3. التحقق من ناتج إعادة التوجيه عند فتح/تحديث الصفحة
-        auth.getRedirectResult().then((result) => {
-            if (result && result.user) {
-                handleUserLogin(result.user);
-            }
-        }).catch((error) => {
-            console.error("خطأ التوجيه:", error);
-        });
-
-        // 4. مراقبة حالة المصادقة المباشرة
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                handleUserLogin(user);
-            } else {
-                if (localStorage.getItem('is_vip_logged_in') === 'true') {
-                    showScreen('game');
-                } else {
-                    showScreen('login');
-                }
-            }
-        });
-
-        // 5. دالة تسجيل الدخول بجوجل (متوافقة مع جميع الأجهزة والمحاكيات)
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.addScope('email');
-            provider.addScope('profile');
-
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-            if (isMobile) {
-                auth.signInWithRedirect(provider);
-            } else {
-                auth.signInWithPopup(provider).then((result) => {
-                    if (result && result.user) {
-                        handleUserLogin(result.user);
-                    }
-                }).catch((error) => {
-                    if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-                        auth.signInWithRedirect(provider);
-                    } else {
-                        alert("حدث خطأ أثناء تسجيل الدخول: " + error.message);
-                    }
-                });
-            }
-        }
-
-        // 6. دالة نسخ معرف الجهاز
-        function copyDeviceID() {
-            navigator.clipboard.writeText(deviceID).then(() => {
-                alert("تم نسخ معرف الجهاز بنجاح: " + deviceID);
-            }).catch(err => {
-                console.error('فشل النسخ: ', err);
-            });
-        }
-
-        // 7. دالة لصق الكود
-        function pasteCode() {
-            navigator.clipboard.readText().then(text => {
-                document.getElementById('activation-code').value = text;
-            }).catch(err => {
-                alert('يرجى السماح بصلاحية اللصق في المتصفح');
-            });
-        }
-
-        // 8. التحقق من الكود والدخول الآمن للعبة
-        function verifyAndEnterGame() {
-            const codeInput = document.getElementById('activation-code');
-            const code = codeInput ? codeInput.value.trim() : "";
-            
-            if(code.length === 9 && !isNaN(code)) {
-                // حفظ التفعيل في ذاكرة المتصفح للوصول المباشر للعبة دائماً
-                localStorage.setItem('is_vip_logged_in', 'true');
-                if (auth.currentUser) {
-                    db.ref('users/' + auth.currentUser.uid + '/activationCode').set(code);
-                }
-                showScreen('game');
-            } else {
-                alert("الكود غير صحيح أو الاشتراك غير مفعل. يرجى إدخال كود يتكون من 9 أرقام أو التواصل مع الدعم.");
-            }
-        }
-
-        // --- محرك اللعبة والخوارزميات ---
         const slots = [
             { id: 1, top: '17%', left: '17%' },
             { id: 2, top: '17%', left: '50%' },
@@ -826,9 +539,139 @@
         let isGuessingAllowed = true;
         let previousSelection = [];
 
+        window.onload = function() {
+            checkCurrentDeviceStatus();
+        };
+
+        function checkCurrentDeviceStatus() {
+            db.ref('requests/' + deviceId).once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.status === 'approved') {
+                        showGame();
+                        listenToStatusChanges();
+                    } else if (data.status === 'rejected') {
+                        showRejectedScreen();
+                        listenToStatusChanges();
+                    } else {
+                        showWaitingScreen();
+                        listenToStatusChanges();
+                    }
+                } else {
+                    showLoginScreen();
+                }
+            });
+        }
+
+        function listenToStatusChanges() {
+            db.ref('requests/' + deviceId + '/status').on('value', (snapshot) => {
+                const status = snapshot.val();
+                if (status === 'approved') {
+                    showGame();
+                } else if (status === 'rejected') {
+                    showRejectedScreen();
+                } else if (status === 'pending') {
+                    showWaitingScreen();
+                }
+            });
+        }
+
+        function sendTelegramCode() {
+            const msgBox = document.getElementById('login-msg');
+            currentSentCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            const messageText = `🔑 *كود تحقق جديد*\n\n📱 *معرف الجهاز:* \`${deviceId}\`\n🔢 *كود التحقق:* \`${currentSentCode}\`\n⏱ *الصلاحية:* دقيقة واحدة`;
+
+            msgBox.style.color = "var(--gold)";
+            msgBox.innerText = "جاري إرسال الكود إلى التليجرام...";
+
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_ID,
+                    text: messageText,
+                    parse_mode: 'Markdown'
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.ok) {
+                    msgBox.style.color = "var(--success)";
+                    msgBox.innerText = "✅ تم إرسال كود التحقق إلى البوت بنجاح!";
+                } else {
+                    msgBox.style.color = "var(--danger)";
+                    msgBox.innerText = "❌ فشل إرسال الكود. حاول مرة أخرى.";
+                }
+            }).catch(() => {
+                msgBox.style.color = "var(--danger)";
+                msgBox.innerText = "❌ خطأ في الاتصال بالبوت.";
+            });
+        }
+
+        function loginWithCode() {
+            const inputCode = document.getElementById('sub-code').value.trim();
+            const msgBox = document.getElementById('login-msg');
+
+            if (!inputCode) {
+                msgBox.style.color = "var(--danger)";
+                msgBox.innerText = "الرجاء إدخال كود التحقق أولاً.";
+                return;
+            }
+
+            if (!currentSentCode || inputCode !== currentSentCode) {
+                msgBox.style.color = "var(--danger)";
+                msgBox.innerText = "كود التحقق غير صحيح أو غير مفعل.";
+                return;
+            }
+
+            // رفع الطلب إلى قاعدة البيانات
+            db.ref('requests/' + deviceId).set({
+                deviceId: deviceId,
+                code: inputCode,
+                status: 'pending',
+                timestamp: Date.now()
+            }).then(() => {
+                showWaitingScreen();
+                listenToStatusChanges();
+            });
+        }
+
+        function showLoginScreen() {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('waiting-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+        }
+
+        function showWaitingScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('waiting-screen').style.display = 'flex';
+            document.getElementById('game-screen').style.display = 'none';
+            
+            document.getElementById('waiting-spinner').style.display = 'block';
+            document.getElementById('waiting-msg').innerText = "تنتظر الموافقة على الاشتراك...";
+            document.getElementById('waiting-msg').style.color = "var(--gold)";
+            document.getElementById('waiting-submsg').innerText = "سيتم إدخالك تلقائياً فور قبول طلبك من الآدمن";
+        }
+
+        function showRejectedScreen() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('waiting-screen').style.display = 'flex';
+            document.getElementById('game-screen').style.display = 'none';
+
+            document.getElementById('waiting-spinner').style.display = 'none';
+            document.getElementById('waiting-msg').innerText = "تم رفضك";
+            document.getElementById('waiting-msg').style.color = "var(--danger)";
+            document.getElementById('waiting-submsg').innerText = "تم رفض طلب اشتراكك من قبل الآدمن.";
+        }
+
+        function showGame() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('waiting-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            updateLiveStats(true);
+        }
+
         function addSystemLog(msg, isHighlight = false) {
             const logBox = document.getElementById('system-log');
-            if(!logBox) return;
             const time = new Date().toLocaleTimeString('en-US', { hour12: false });
             const highlightClass = isHighlight ? 'log-highlight' : '';
             logBox.innerHTML += `<div><span class="log-time">[${time}]</span> <span class="${highlightClass}">${msg}</span></div>`;
@@ -884,10 +727,7 @@
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
             
-            for(let i=1; i<=4; i++) {
-                const m = document.getElementById('marker-'+i);
-                if(m) m.style.display = 'none';
-            }
+            for(let i=1; i<=4; i++) document.getElementById('marker-'+i).style.display = 'none';
             grid.style.display = 'none';
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
@@ -899,7 +739,7 @@
             isGuessingAllowed = false;
 
             setTimeout(() => {
-                let selectedSlots = (typeof generatePrediction === 'function') ? generatePrediction(slots, previousSelection) : slots.slice(0, 4);
+                let selectedSlots = generatePrediction(slots, previousSelection);
                 
                 if (!selectedSlots || selectedSlots.length === 0) {
                     addSystemLog("❌ فشل المحرك", false);
@@ -915,11 +755,9 @@
 
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
-                    if(marker) {
-                        marker.style.top = slot.top;
-                        marker.style.left = slot.left;
-                        marker.style.display = 'block';
-                    }
+                    marker.style.top = slot.top;
+                    marker.style.left = slot.left;
+                    marker.style.display = 'block';
                 });
 
                 mainImg.classList.remove('analyzing');
@@ -965,13 +803,11 @@
         }
 
         function updateLiveStats(isReset) {
-            const countElem = document.getElementById('online-count');
-            if(!countElem) return;
             if (isReset) {
-                countElem.innerText = "0";
+                document.getElementById('online-count').innerText = "0";
             } else {
                 let grandTotalOnline = Math.floor(Math.random() * 500) + 100;
-                countElem.innerText = grandTotalOnline;
+                document.getElementById('online-count').innerText = grandTotalOnline;
             }
         }
     </script>
