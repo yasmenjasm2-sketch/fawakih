@@ -314,20 +314,28 @@
         .stat-value { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
         .stat-icon { color: var(--gold); }
 
-        /* الصورة في الأعلى ومكبرة */
+        /* الصورة في الأعلى ومكبرة - تم إصلاح المشكلة هنا */
         .game-container {
             position: relative;
             width: 100%;
+            aspect-ratio: 1 / 1; /* يجبر الحاوية على أن تكون مربعة دائماً حتى لو الصورة خربانة */
+            background-color: var(--bg-card); /* لون خلفية في حال فشل تحميل الصورة */
             border-radius: 15px;
             overflow: hidden;
             border: 2px solid var(--primary);
             box-shadow: 0 0 25px rgba(157, 78, 221, 0.4);
             margin-bottom: 10px;
         }
+        #img-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%; /* يأخذ الارتفاع الكامل للمربع */
+        }
         .game-image {
             display: block;
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: fill; /* يملأ المربع بالكامل ليطابق الإحداثيات */
             opacity: 0.9;
             transition: opacity 0.3s;
         }
@@ -335,11 +343,11 @@
         
         .marker {
             position: absolute;
-            font-size: 26px;
+            font-size: 30px; /* تكبير بسيط للعلامة */
             transform: translate(-50%, -50%);
             display: none;
             filter: drop-shadow(0px 0px 10px rgba(0, 230, 118, 1));
-            z-index: 10;
+            z-index: 100; /* ضمان ظهورها فوق الصورة دائماً */
         }
 
         /* حقل الإدخال وزر البدء */
@@ -565,7 +573,7 @@
 
         <!-- الصورة في الأعلى ومكبرة -->
         <div class="game-container">
-            <div id="img-wrap" style="position: relative;">
+            <div id="img-wrap">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
                 <div id="marker-1" class="marker">✅</div>
                 <div id="marker-2" class="marker">✅</div>
