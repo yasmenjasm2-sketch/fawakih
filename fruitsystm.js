@@ -82,11 +82,6 @@ function recordRoundResult(predictedIds, actualWinnerId) {
 function calculateFruitWeight(slot, previousSelection) {
     let slotId = slot.id;
 
-    // *** التعديل الجذري: حظر تام للكرز (4) والبطيخ (6) من التخمين كلياً ***
-    if (slotId === 4 || slotId === 6) {
-        return 0; 
-    }
-
     // أ) الأساس العشوائي (Chaos Value: من 1 إلى 8)
     let weight = Math.floor(Math.random() * 8) + 1;
 
@@ -138,6 +133,11 @@ function calculateFruitWeight(slot, previousSelection) {
         weight = 0;
     }
 
+    // 2. الكرز (آيدي 4) والبطيخ (آيدي 6): تنصيف الوزن إلى النصف إذا ظهرت سابقاً
+    if ((slotId === 4 || slotId === 6) && prevIds.includes(slotId)) {
+        weight = Math.floor(weight / 2);
+    }
+
     // د) كبح الأوزان (Cap Weight at 45)
     weight = Math.min(weight, 45);
 
@@ -184,10 +184,7 @@ function generatePrediction(slots, previousSelection) {
 
         // 6. في حال عدم اكتمال 4 فواكه (بسبب استثناءات الأوزان 0)، يتم إكمالها من الفواكه المتبقية
         if (selectedSlots.length < 4) {
-            let remainingSlots = slots.filter(s => 
-                !selectedSlots.some(sel => sel.id === s.id) && 
-                s.id !== 4 && s.id !== 6 // التعديل الجذري: منع الكرز والبطيخ من الدخول في الإكمال العشوائي
-            );
+            let remainingSlots = slots.filter(s => !selectedSlots.some(sel => sel.id === s.id));
             remainingSlots = shuffleArray(remainingSlots);
             while (selectedSlots.length < 4 && remainingSlots.length > 0) {
                 selectedSlots.push(remainingSlots.pop());
