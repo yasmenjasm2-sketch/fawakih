@@ -150,7 +150,7 @@
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             margin-top: 8vh;
             text-align: center;
         }
@@ -170,11 +170,12 @@
         }
 
         .zodiac-icon-btn {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             vertical-align: middle;
-            margin-left: 8px;
+            margin-left: 6px;
             fill: currentColor;
+            flex-shrink: 0;
         }
 
         .login-btn-container {
@@ -185,47 +186,70 @@
             margin-top: 15px;
         }
 
+        /* تصميم صف الأزرار الأنيق جنب بعض */
+        .login-buttons-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
         .vip-btn-send {
-            border-radius: 12px;
-            padding: 14px;
+            flex: 1;
+            border-radius: 14px;
+            padding: 13px 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #00E5FF, #9D4EDD);
-            color: #000;
-            font-weight: bold;
-            font-size: 15px;
-            border: none;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(157, 78, 221, 0.28));
+            color: var(--neon-blue);
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid rgba(0, 229, 255, 0.4);
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.15);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        .vip-btn-send:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(157, 78, 221, 0.45));
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+            transform: translateY(-2px);
+        }
+        .vip-btn-send:active:not(:disabled) {
+            transform: scale(0.97);
         }
 
         .vip-btn-confirm {
-            border-radius: 12px;
-            padding: 14px;
+            flex: 1;
+            border-radius: 14px;
+            padding: 13px 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #9D4EDD, #5A189A);
             color: #FFF;
-            font-weight: bold;
-            font-size: 15px;
-            border: 1px solid var(--border-color);
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid rgba(157, 78, 221, 0.6);
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
         }
-
-        .vip-btn-send:active:not(:disabled), .vip-btn-confirm:active {
-            transform: scale(0.98);
+        .vip-btn-confirm:hover {
+            background: linear-gradient(135deg, #b060ee, #6d1fb8);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
+            transform: translateY(-2px);
+        }
+        .vip-btn-confirm:active {
+            transform: scale(0.97);
         }
 
         .login-input {
             width: 100%;
             padding: 15px;
-            margin: 15px 0 5px 0;
-            border-radius: 12px;
+            margin: 5px 0 5px 0;
+            border-radius: 14px;
             border: 1px solid var(--primary);
             background: var(--bg-main);
             color: white;
@@ -234,6 +258,11 @@
             font-size: 16px;
             letter-spacing: 2px;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .login-input:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
         }
 
         .login-msg { 
@@ -529,21 +558,23 @@
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">اضغط على طلب رمز التحقق لاستلام كود الاشتراك الخاص بك</p>
         
         <div class="login-btn-container">
-            <button class="vip-btn-send" onclick="sendTelegramCode()">
-                <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
-                    <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
-                </svg>
-                طلب رمز التحقق
-            </button>
-
             <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا">
 
-            <button class="vip-btn-confirm" onclick="loginWithCode()">
-                <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
-                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/>
-                </svg>
-                تأكيد ومتابعة
-            </button>
+            <div class="login-buttons-row">
+                <button class="vip-btn-send" onclick="sendTelegramCode()">
+                    <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                        <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
+                    </svg>
+                    طلب رمز التحقق
+                </button>
+
+                <button class="vip-btn-confirm" onclick="loginWithCode()">
+                    <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/>
+                    </svg>
+                    تأكيد ومتابعة
+                </button>
+            </div>
         </div>
 
         <p id="login-msg" class="login-msg"></p>
@@ -786,14 +817,14 @@
             sendBtn.disabled = true;
             sendBtn.style.opacity = '0.6';
             sendBtn.style.cursor = 'not-allowed';
-            sendBtn.innerHTML = `⏳ الرجاء الانتظار (${waitTimeSeconds})`;
+            sendBtn.innerHTML = `⏳ الانتظار (${waitTimeSeconds})`;
 
             if (codeTimerInterval) clearInterval(codeTimerInterval);
             
             codeTimerInterval = setInterval(() => {
                 waitTimeSeconds--;
                 if (waitTimeSeconds > 0) {
-                    sendBtn.innerHTML = `⏳ الرجاء الانتظار (${waitTimeSeconds})`;
+                    sendBtn.innerHTML = `⏳ الانتظار (${waitTimeSeconds})`;
                 } else {
                     clearInterval(codeTimerInterval);
                     sendBtn.disabled = false;
