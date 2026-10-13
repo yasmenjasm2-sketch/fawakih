@@ -84,6 +84,16 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         body {
             background-size: 300% 300%;
             animation: animationDrawableFade 6s ease-in-out infinite;
@@ -153,9 +163,7 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
-        /* ============================================
-           شاشة تسجيل الدخول - تصميم VIP محسّن
-           ============================================ */
+        /* شاشات الدخول */
         #login-screen, #waiting-screen {
             display: none;
             flex-direction: column;
@@ -293,9 +301,7 @@
             box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
             transform: translateY(-3px);
         }
-        .vip-btn-send:active:not(:disabled) {
-            transform: scale(0.96);
-        }
+        .vip-btn-send:active:not(:disabled) { transform: scale(0.96); }
         .vip-btn-send:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -316,9 +322,7 @@
             box-shadow: 0 0 30px rgba(157, 78, 221, 0.85);
             transform: translateY(-3px);
         }
-        .vip-btn-confirm:active {
-            transform: scale(0.96);
-        }
+        .vip-btn-confirm:active { transform: scale(0.96); }
 
         .zodiac-icon-btn {
             width: 18px;
@@ -337,7 +341,6 @@
             transition: all 0.3s ease;
         }
 
-        /* زر الدعم الفني (واتساب) */
         .whatsapp-btn {
             margin-top: 18px;
             border-radius: 16px;
@@ -363,11 +366,7 @@
             transform: translateY(-3px);
         }
         .whatsapp-btn:active { transform: scale(0.96); }
-        .whatsapp-btn svg {
-            width: 22px;
-            height: 22px;
-            fill: currentColor;
-        }
+        .whatsapp-btn svg { width: 22px; height: 22px; fill: currentColor; }
 
         /* شاشة النظام الرئيسية */
         #game-screen {
@@ -435,121 +434,124 @@
         .game-image.analyzing { opacity: 0.4; filter: blur(3px); }
 
         /* ============================================================
-           🎯 نظام الاستهداف الرسومي الجديد (Target Reticle)
-           يحل مكان ✅ برسمة برمجية متحركة تحيط بالفاكهة المخمّنة
+           🟨 المربع الذهبي الاحترافي فقط (بدون دوائر زرقاء أو خضراء)
            ============================================================ */
         .marker {
             position: absolute;
-            width: 56px;
-            height: 56px;
+            width: 58px;
+            height: 58px;
             transform: translate(-50%, -50%);
             display: none;
             z-index: 100;
             pointer-events: none;
+            animation: markerPulse 1.8s ease-in-out infinite;
         }
 
-        /* حلقة خارجية نابضة */
-        .marker .ring-outer {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 230, 118, 0.9);
-            box-shadow: 
-                0 0 12px rgba(0, 230, 118, 0.9),
-                inset 0 0 12px rgba(0, 230, 118, 0.4),
-                0 0 24px rgba(0, 230, 118, 0.5);
-            animation: reticlePulse 1.6s ease-in-out infinite;
-        }
-
-        /* حلقة داخلية متقطعة تدور */
-        .marker .ring-inner {
-            position: absolute;
-            inset: 8px;
-            border-radius: 50%;
-            border: 2px dashed rgba(0, 229, 255, 0.95);
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
-            animation: reticleSpin 3s linear infinite;
-        }
-
-        /* زوايا الاستهداف الأربع */
+        /* الزوايا الذهبية الأربع */
         .marker .corner {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 18px;
+            height: 18px;
             border-color: var(--gold);
-            filter: drop-shadow(0 0 6px var(--gold));
+            filter: 
+                drop-shadow(0 0 3px var(--gold))
+                drop-shadow(0 0 7px rgba(248, 192, 0, 0.75));
         }
         .marker .corner.tl {
-            top: -3px; left: -3px;
+            top: 0; left: 0;
             border-top: 3px solid var(--gold);
             border-left: 3px solid var(--gold);
         }
         .marker .corner.tr {
-            top: -3px; right: -3px;
+            top: 0; right: 0;
             border-top: 3px solid var(--gold);
             border-right: 3px solid var(--gold);
         }
         .marker .corner.bl {
-            bottom: -3px; left: -3px;
+            bottom: 0; left: 0;
             border-bottom: 3px solid var(--gold);
             border-left: 3px solid var(--gold);
         }
         .marker .corner.br {
-            bottom: -3px; right: -3px;
+            bottom: 0; right: 0;
             border-bottom: 3px solid var(--gold);
             border-right: 3px solid var(--gold);
         }
 
-        /* نقطة المنتصف */
+        /* شُرَط صغيرة في منتصف كل ضلع (تكمل الشكل الاحترافي) */
+        .marker .edge-top {
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 3px;
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
+            border-radius: 2px;
+        }
+        .marker .edge-bottom {
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 3px;
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
+            border-radius: 2px;
+        }
+        .marker .edge-left {
+            position: absolute;
+            left: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 12px;
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
+            border-radius: 2px;
+        }
+        .marker .edge-right {
+            position: absolute;
+            right: -1px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 12px;
+            background: var(--gold);
+            box-shadow: 0 0 6px var(--gold);
+            border-radius: 2px;
+        }
+
+        /* نقطة ذهبية مركزية صغيرة */
         .marker .center-dot {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             transform: translate(-50%, -50%);
-            background: var(--success);
+            background: var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 12px var(--success), 0 0 20px var(--success);
-            animation: dotBlink 1s ease-in-out infinite;
+            box-shadow: 0 0 8px var(--gold), 0 0 14px var(--gold);
+            animation: dotBlink 1.2s ease-in-out infinite;
         }
 
-        /* شعاع ماسح دوّار */
-        .marker .scanner {
-            position: absolute;
-            inset: 4px;
-            border-radius: 50%;
-            background: conic-gradient(
-                from 0deg,
-                transparent 0deg,
-                transparent 300deg,
-                rgba(0, 229, 255, 0.55) 340deg,
-                rgba(0, 229, 255, 0.9) 360deg
-            );
-            animation: reticleSpin 2s linear infinite;
-            -webkit-mask: radial-gradient(circle, transparent 55%, #000 60%, #000 100%);
-            mask: radial-gradient(circle, transparent 55%, #000 60%, #000 100%);
-        }
-
-        @keyframes reticlePulse {
+        @keyframes markerPulse {
             0%, 100% {
-                transform: scale(1);
+                transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
             50% {
-                transform: scale(1.12);
-                opacity: 0.75;
+                transform: translate(-50%, -50%) scale(1.08);
+                opacity: 0.85;
             }
-        }
-
-        @keyframes reticleSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         @keyframes dotBlink {
             0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.7); }
+            50% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.65); }
         }
         /* ============================================================ */
 
@@ -660,7 +662,6 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
-        .log-train { color: var(--neon-blue); font-weight: bold; }
 
         .analyzing-bar {
             display: none;
@@ -698,18 +699,144 @@
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
 
+        /* شارة التعلم (قابلة للنقر) */
         .learning-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 3px 8px;
+            padding: 4px 10px;
             background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(157,78,221,0.15));
             border: 1px solid var(--neon-blue);
             border-radius: 20px;
             font-size: 10px;
             color: var(--neon-blue);
             font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
+        .learning-badge:hover {
+            background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(157,78,221,0.3));
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+            transform: scale(1.05);
+        }
+        .learning-badge:active { transform: scale(0.95); }
+
+        /* ============================================================
+           نافذة الفواكه المُتعلمة (Modal)
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
+        }
+        .modal-overlay.show { display: flex; }
+
+        .modal-content {
+            background: linear-gradient(145deg, rgba(19, 9, 34, 0.98), rgba(11, 6, 18, 0.98));
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 25px 20px 20px 20px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.9),
+                0 0 40px rgba(248, 192, 0, 0.4);
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(248, 192, 0, 0.5);
+        }
+
+        .modal-total {
+            text-align: center;
+            font-size: 12px;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .trained-fruits-list {
+            overflow-y: auto;
+            flex: 1;
+            padding: 5px;
+            max-height: 45vh;
+        }
+
+        .trained-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            animation: slideUp 0.3s ease;
+        }
+        .trained-item-name {
+            color: #FFF;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .trained-item-boost {
+            color: var(--neon-blue);
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(0, 229, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+        .trained-item-time {
+            color: var(--text-muted);
+            font-size: 10px;
+            font-family: monospace;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 30px 15px;
+            font-size: 13px;
+        }
+
+        .modal-close-btn {
+            margin-top: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, #9D4EDD, #5A189A);
+            color: #FFF;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+        .modal-close-btn:hover {
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
+            transform: translateY(-2px);
+        }
+        .modal-close-btn:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
@@ -791,48 +918,52 @@
             <div id="img-wrap">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
 
-                <!-- 🎯 علامات الاستهداف الرسومية الجديدة (بدل ✅) -->
+                <!-- 🟨 علامات الاستهداف الذهبية فقط -->
                 <div id="marker-1" class="marker">
-                    <div class="ring-outer"></div>
-                    <div class="ring-inner"></div>
-                    <div class="scanner"></div>
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
                     <div class="corner bl"></div>
                     <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-2" class="marker">
-                    <div class="ring-outer"></div>
-                    <div class="ring-inner"></div>
-                    <div class="scanner"></div>
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
                     <div class="corner bl"></div>
                     <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-3" class="marker">
-                    <div class="ring-outer"></div>
-                    <div class="ring-inner"></div>
-                    <div class="scanner"></div>
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
                     <div class="corner bl"></div>
                     <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-4" class="marker">
-                    <div class="ring-outer"></div>
-                    <div class="ring-inner"></div>
-                    <div class="scanner"></div>
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
                     <div class="corner bl"></div>
                     <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
@@ -845,7 +976,7 @@
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
-        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة (زر واحد فقط) -->
+        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة -->
         <div class="controls-container">
             <input type="text" id="fruit-training-input" class="modern-input" placeholder="🧠 أدخل اسم الفاكهة (مثال: برتقال)">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
@@ -854,7 +985,7 @@
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات NEXUS</span>
-                <span class="learning-badge">
+                <span class="learning-badge" onclick="showTrainedFruitsModal()" title="اضغط لعرض الفواكه المُتعلمة">
                     <span>🧠 تعلم: <span id="trained-count">0</span></span>
                 </span>
             </div>
@@ -877,6 +1008,18 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- 🧠 نافذة الفواكه المُتعلمة -->
+    <div id="trained-fruits-modal" class="modal-overlay" onclick="closeTrainedModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">🧠 الفواكه المُتعلَّمة</div>
+            <div class="modal-total" id="modal-total">الإجمالي: 0</div>
+            <div class="trained-fruits-list" id="trained-fruits-list">
+                <div class="empty-message">لم يتم تعلم أي فاكهة بعد</div>
+            </div>
+            <button class="modal-close-btn" onclick="closeTrainedModal()">إغلاق</button>
+        </div>
     </div>
 
     <script>
@@ -941,25 +1084,33 @@
         let isGuessingAllowed = true;
         let previousSelection = [];
 
+        // عداد محلي احتياطي
+        let localTrainedCount = 0;
+
         window.onload = function() {
             listenToCurrentDeviceStatus();
             updateTrainedCount();
         };
 
-        // ✨ تحديث عداد عمليات التعلم في الواجهة
+        // ✨ تحديث عداد التعلم (مضمون 100%)
         function updateTrainedCount() {
+            let algoCount = 0;
             if (typeof getLearningStats === 'function') {
-                const stats = getLearningStats();
-                const el = document.getElementById('trained-count');
-                if (el) el.innerText = stats.totalTrained;
+                try {
+                    const stats = getLearningStats();
+                    if (stats && typeof stats.totalTrained === 'number') {
+                        algoCount = stats.totalTrained;
+                    }
+                } catch(e) { /* تجاهل */ }
             }
+            const finalCount = Math.max(algoCount, localTrainedCount);
+            const el = document.getElementById('trained-count');
+            if (el) el.innerText = finalCount;
         }
 
-        // ✨ دالة التعلم الداخلية - تُستدعى من زر بدء الجولة تلقائياً
+        // ✨ التعلم من الحقل
         function trainFromInput(fruitValue) {
-            if (!fruitValue || fruitValue.trim() === "") {
-                return false;
-            }
+            if (!fruitValue || fruitValue.trim() === "") return false;
 
             if (typeof trainAlgorithm !== 'function') {
                 addSystemLog(`❌ خطأ: ملف الخوارزمية لم يتم تحميله`, false);
@@ -967,15 +1118,69 @@
             }
 
             const result = trainAlgorithm(fruitValue.trim());
+            const isSuccess = (result === true) || (result && result.success === true);
 
-            if (result && result.success) {
-                addSystemLog(`🧠 تم تعلم [${fruitValue.trim()}] - مكافأة: ${result.boost}x - الإجمالي: ${result.totalTrained}`, true);
+            if (isSuccess) {
+                localTrainedCount++;
+                const boost = (result && typeof result === 'object' && result.boost) ? result.boost : localTrainedCount;
+                const total = (result && typeof result === 'object' && result.totalTrained) ? result.totalTrained : localTrainedCount;
+
+                addSystemLog(`🧠 تم تعلم [${fruitValue.trim()}] - مكافأة: ${boost}x - الإجمالي: ${total}`, true);
                 updateTrainedCount();
                 return true;
             } else {
-                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}] - الفواكه المتاحة: برتقال، ليمون، عنب، كرز، تفاح، بطيخ، مانجو، فراولة`, false);
+                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}]`, false);
                 return false;
             }
+        }
+
+        // ✨ عرض نافذة الفواكه المُتعلمة
+        function showTrainedFruitsModal() {
+            const modal = document.getElementById('trained-fruits-modal');
+            const list = document.getElementById('trained-fruits-list');
+            const totalEl = document.getElementById('modal-total');
+
+            let fruits = [];
+            if (typeof getTrainedFruits === 'function') {
+                try {
+                    fruits = getTrainedFruits();
+                } catch(e) { fruits = []; }
+            }
+
+            totalEl.innerText = `الإجمالي: ${fruits.length}`;
+            list.innerHTML = '';
+
+            if (fruits.length === 0) {
+                list.innerHTML = '<div class="empty-message">لم يتم تعلم أي فاكهة بعد</div>';
+            } else {
+                // عرض من الأحدث للأقدم
+                const reversed = [...fruits].reverse();
+                reversed.forEach(item => {
+                    const fruitInfo = fruitData[item.id];
+                    const icon = fruitInfo ? fruitInfo.icon : '🍎';
+                    const time = new Date(item.time).toLocaleTimeString('en-US', { hour12: false });
+                    
+                    list.innerHTML += `
+                        <div class="trained-item">
+                            <div class="trained-item-name">
+                                <span>${icon}</span>
+                                <span>${item.name}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="trained-item-boost">${item.boost}x</span>
+                                <span class="trained-item-time">${time}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            modal.classList.add('show');
+        }
+
+        function closeTrainedModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('trained-fruits-modal').classList.remove('show');
         }
 
         function listenToCurrentDeviceStatus() {
@@ -1215,18 +1420,17 @@
         function startNewRound() {
             if (!isGuessingAllowed) return;
 
-            // 1) أولاً: التعلم إن وُجد اسم فاكهة في الحقل
+            // 1) التعلم إن وُجد اسم فاكهة، ثم مسح الحقل لتسجيل الفاكهة التالية
             const inputField = document.getElementById('fruit-training-input');
             const fruitValue = inputField.value.trim();
 
             if (fruitValue !== "") {
-                const learned = trainFromInput(fruitValue);
-                if (learned) {
-                    inputField.value = ""; // تصفير الحقل بعد التعلم الناجح
-                }
+                trainFromInput(fruitValue);
+                // 🧹 مسح الحقل دائماً بعد المحاولة، لتسجيل الاسم التالي
+                inputField.value = "";
             }
 
-            // 2) ثانياً: بدء الجولة كالمعتاد
+            // 2) بدء الجولة
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
@@ -1258,7 +1462,7 @@
                 grid.style.display = 'grid';
                 renderPredictions(selectedSlots);
 
-                // 🎯 عرض علامات الاستهداف الرسومية الجديدة على الفواكه المخمّنة
+                // 🟨 عرض علامات الاستهداف الذهبية
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     marker.style.top = slot.top;
@@ -1317,7 +1521,7 @@
             }
         }
 
-        // دعم زر Enter في حقل التعلم - يفعّل زر بدء الجولة (الذي بدوره يتعلم)
+        // دعم Enter في حقل التعلم
         document.addEventListener('DOMContentLoaded', () => {
             const trainInput = document.getElementById('fruit-training-input');
             if (trainInput) {
