@@ -84,16 +84,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         body {
             background-size: 300% 300%;
             animation: animationDrawableFade 6s ease-in-out infinite;
@@ -163,7 +153,9 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
-        /* شاشات الدخول */
+        /* ============================================
+           شاشة تسجيل الدخول - تصميم VIP محسّن
+           ============================================ */
         #login-screen, #waiting-screen {
             display: none;
             flex-direction: column;
@@ -301,7 +293,9 @@
             box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
             transform: translateY(-3px);
         }
-        .vip-btn-send:active:not(:disabled) { transform: scale(0.96); }
+        .vip-btn-send:active:not(:disabled) {
+            transform: scale(0.96);
+        }
         .vip-btn-send:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -322,7 +316,9 @@
             box-shadow: 0 0 30px rgba(157, 78, 221, 0.85);
             transform: translateY(-3px);
         }
-        .vip-btn-confirm:active { transform: scale(0.96); }
+        .vip-btn-confirm:active {
+            transform: scale(0.96);
+        }
 
         .zodiac-icon-btn {
             width: 18px;
@@ -341,32 +337,93 @@
             transition: all 0.3s ease;
         }
 
-        .whatsapp-btn {
-            margin-top: 18px;
+        /* ============================================================
+           💳 زر شراء الاشتراك (استبدال زر واتساب)
+           ============================================================ */
+        .buy-subscription-btn {
+            margin-top: 20px;
             border-radius: 16px;
-            padding: 14px;
+            padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #128C7E, #25D366, #128C7E);
+            gap: 10px;
+            background: linear-gradient(135deg, #F8C000 0%, #FFD54F 50%, #F8C000 100%);
             background-size: 200% 200%;
-            color: #FFF;
-            font-weight: 800;
-            font-size: 14px;
+            color: #1a0b2e;
+            font-weight: 900;
+            font-size: 15px;
             text-decoration: none;
-            border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: 0 6px 22px rgba(37, 211, 102, 0.4);
-            transition: all 0.25s ease;
+            border: 2px solid rgba(255, 215, 0, 0.6);
+            box-shadow: 
+                0 8px 25px rgba(248, 192, 0, 0.5),
+                0 0 20px rgba(248, 192, 0, 0.3),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: buyShine 3s ease-in-out infinite;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
         }
-        .whatsapp-btn:hover {
-            background-position: 100% 0;
-            box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+
+        .buy-subscription-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: buyShimmer 2.5s infinite;
+        }
+
+        @keyframes buyShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes buyShine {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .buy-subscription-btn:hover {
             transform: translateY(-3px);
+            box-shadow: 
+                0 12px 35px rgba(248, 192, 0, 0.7),
+                0 0 35px rgba(248, 192, 0, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.5);
         }
-        .whatsapp-btn:active { transform: scale(0.96); }
-        .whatsapp-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .buy-subscription-btn:active { transform: scale(0.97); }
+
+        .buy-subscription-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #1a0b2e;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+            flex-shrink: 0;
+        }
+
+        .buy-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: right;
+            line-height: 1.2;
+        }
+        .buy-title {
+            font-size: 15px;
+            font-weight: 900;
+        }
+        .buy-sub {
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
 
         /* شاشة النظام الرئيسية */
         #game-screen {
@@ -434,7 +491,7 @@
         .game-image.analyzing { opacity: 0.4; filter: blur(3px); }
 
         /* ============================================================
-           🟨 المربع الذهبي الاحترافي فقط (بدون دوائر زرقاء أو خضراء)
+           🟨 المربع الأصفر فقط للاستهداف (بدون أي دوائر)
            ============================================================ */
         .marker {
             position: absolute;
@@ -447,7 +504,7 @@
             animation: markerPulse 1.8s ease-in-out infinite;
         }
 
-        /* الزوايا الذهبية الأربع */
+        /* زوايا المربع الذهبية الأربع */
         .marker .corner {
             position: absolute;
             width: 18px;
@@ -478,7 +535,7 @@
             border-right: 3px solid var(--gold);
         }
 
-        /* شُرَط صغيرة في منتصف كل ضلع (تكمل الشكل الاحترافي) */
+        /* شُرَط صغيرة في منتصف كل ضلع */
         .marker .edge-top {
             position: absolute;
             top: -1px;
@@ -524,7 +581,7 @@
             border-radius: 2px;
         }
 
-        /* نقطة ذهبية مركزية صغيرة */
+        /* نقطة ذهبية مركزية */
         .marker .center-dot {
             position: absolute;
             top: 50%;
@@ -662,6 +719,7 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
+        .log-train { color: var(--neon-blue); font-weight: bold; }
 
         .analyzing-bar {
             display: none;
@@ -699,144 +757,18 @@
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
 
-        /* شارة التعلم (قابلة للنقر) */
         .learning-badge {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
+            padding: 3px 8px;
             background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(157,78,221,0.15));
             border: 1px solid var(--neon-blue);
             border-radius: 20px;
             font-size: 10px;
             color: var(--neon-blue);
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
         }
-        .learning-badge:hover {
-            background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(157,78,221,0.3));
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
-            transform: scale(1.05);
-        }
-        .learning-badge:active { transform: scale(0.95); }
-
-        /* ============================================================
-           نافذة الفواكه المُتعلمة (Modal)
-           ============================================================ */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(6px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 5000;
-            padding: 20px;
-            animation: modalFadeIn 0.3s ease;
-        }
-        .modal-overlay.show { display: flex; }
-
-        .modal-content {
-            background: linear-gradient(145deg, rgba(19, 9, 34, 0.98), rgba(11, 6, 18, 0.98));
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            padding: 25px 20px 20px 20px;
-            max-width: 420px;
-            width: 100%;
-            max-height: 70vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 
-                0 20px 60px rgba(0,0,0,0.9),
-                0 0 40px rgba(248, 192, 0, 0.4);
-            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(248, 192, 0, 0.5);
-        }
-
-        .modal-total {
-            text-align: center;
-            font-size: 12px;
-            color: var(--neon-blue);
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .trained-fruits-list {
-            overflow-y: auto;
-            flex: 1;
-            padding: 5px;
-            max-height: 45vh;
-        }
-
-        .trained-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            animation: slideUp 0.3s ease;
-        }
-        .trained-item-name {
-            color: #FFF;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .trained-item-boost {
-            color: var(--neon-blue);
-            font-size: 11px;
-            font-weight: 700;
-            background: rgba(0, 229, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 229, 255, 0.3);
-        }
-        .trained-item-time {
-            color: var(--text-muted);
-            font-size: 10px;
-            font-family: monospace;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 30px 15px;
-            font-size: 13px;
-        }
-
-        .modal-close-btn {
-            margin-top: 15px;
-            padding: 12px;
-            background: linear-gradient(135deg, #9D4EDD, #5A189A);
-            color: #FFF;
-            border: none;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
-        }
-        .modal-close-btn:hover {
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
-            transform: translateY(-2px);
-        }
-        .modal-close-btn:active { transform: scale(0.96); }
     </style>
 </head>
 <body>
@@ -892,11 +824,15 @@
 
         <p id="login-msg" class="login-msg"></p>
 
-        <a href="https://wa.me/+905424678123" target="_blank" class="whatsapp-btn">
+        <!-- 💳 زر شراء الاشتراك (بدل زر واتساب) -->
+        <a href="https://wa.me/+905424678123?text=مرحباً، أرغب في شراء اشتراك FawakihAI VIP 🚀" target="_blank" class="buy-subscription-btn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
             </svg>
-            الدعم الفني عبر واتساب
+            <div class="buy-text-wrapper">
+                <span class="buy-title">💎 شراء اشتراك VIP</span>
+                <span class="buy-sub">تفعيل فوري عبر واتساب</span>
+            </div>
         </a>
     </div>
 
@@ -918,7 +854,7 @@
             <div id="img-wrap">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
 
-                <!-- 🟨 علامات الاستهداف الذهبية فقط -->
+                <!-- 🟨 علامات الاستهداف الذهبية (مربع فقط بدون دوائر) -->
                 <div id="marker-1" class="marker">
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
@@ -976,7 +912,7 @@
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
-        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة -->
+        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة (زر واحد فقط) -->
         <div class="controls-container">
             <input type="text" id="fruit-training-input" class="modern-input" placeholder="🧠 أدخل اسم الفاكهة (مثال: برتقال)">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
@@ -985,7 +921,7 @@
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات NEXUS</span>
-                <span class="learning-badge" onclick="showTrainedFruitsModal()" title="اضغط لعرض الفواكه المُتعلمة">
+                <span class="learning-badge">
                     <span>🧠 تعلم: <span id="trained-count">0</span></span>
                 </span>
             </div>
@@ -1008,18 +944,6 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- 🧠 نافذة الفواكه المُتعلمة -->
-    <div id="trained-fruits-modal" class="modal-overlay" onclick="closeTrainedModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-title">🧠 الفواكه المُتعلَّمة</div>
-            <div class="modal-total" id="modal-total">الإجمالي: 0</div>
-            <div class="trained-fruits-list" id="trained-fruits-list">
-                <div class="empty-message">لم يتم تعلم أي فاكهة بعد</div>
-            </div>
-            <button class="modal-close-btn" onclick="closeTrainedModal()">إغلاق</button>
-        </div>
     </div>
 
     <script>
@@ -1084,33 +1008,25 @@
         let isGuessingAllowed = true;
         let previousSelection = [];
 
-        // عداد محلي احتياطي
-        let localTrainedCount = 0;
-
         window.onload = function() {
             listenToCurrentDeviceStatus();
             updateTrainedCount();
         };
 
-        // ✨ تحديث عداد التعلم (مضمون 100%)
+        // ✨ تحديث عداد عمليات التعلم في الواجهة
         function updateTrainedCount() {
-            let algoCount = 0;
             if (typeof getLearningStats === 'function') {
-                try {
-                    const stats = getLearningStats();
-                    if (stats && typeof stats.totalTrained === 'number') {
-                        algoCount = stats.totalTrained;
-                    }
-                } catch(e) { /* تجاهل */ }
+                const stats = getLearningStats();
+                const el = document.getElementById('trained-count');
+                if (el) el.innerText = stats.totalTrained;
             }
-            const finalCount = Math.max(algoCount, localTrainedCount);
-            const el = document.getElementById('trained-count');
-            if (el) el.innerText = finalCount;
         }
 
-        // ✨ التعلم من الحقل
+        // ✨ دالة التعلم الداخلية - تُستدعى من زر بدء الجولة تلقائياً
         function trainFromInput(fruitValue) {
-            if (!fruitValue || fruitValue.trim() === "") return false;
+            if (!fruitValue || fruitValue.trim() === "") {
+                return false;
+            }
 
             if (typeof trainAlgorithm !== 'function') {
                 addSystemLog(`❌ خطأ: ملف الخوارزمية لم يتم تحميله`, false);
@@ -1118,69 +1034,15 @@
             }
 
             const result = trainAlgorithm(fruitValue.trim());
-            const isSuccess = (result === true) || (result && result.success === true);
 
-            if (isSuccess) {
-                localTrainedCount++;
-                const boost = (result && typeof result === 'object' && result.boost) ? result.boost : localTrainedCount;
-                const total = (result && typeof result === 'object' && result.totalTrained) ? result.totalTrained : localTrainedCount;
-
-                addSystemLog(`🧠 تم تعلم [${fruitValue.trim()}] - مكافأة: ${boost}x - الإجمالي: ${total}`, true);
+            if (result && result.success) {
+                addSystemLog(`🧠 تم تعلم [${fruitValue.trim()}] - مكافأة: ${result.boost}x - الإجمالي: ${result.totalTrained}`, true);
                 updateTrainedCount();
                 return true;
             } else {
-                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}]`, false);
+                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}] - الفواكه المتاحة: برتقال، ليمون، عنب، كرز، تفاح، بطيخ، مانجو، فراولة`, false);
                 return false;
             }
-        }
-
-        // ✨ عرض نافذة الفواكه المُتعلمة
-        function showTrainedFruitsModal() {
-            const modal = document.getElementById('trained-fruits-modal');
-            const list = document.getElementById('trained-fruits-list');
-            const totalEl = document.getElementById('modal-total');
-
-            let fruits = [];
-            if (typeof getTrainedFruits === 'function') {
-                try {
-                    fruits = getTrainedFruits();
-                } catch(e) { fruits = []; }
-            }
-
-            totalEl.innerText = `الإجمالي: ${fruits.length}`;
-            list.innerHTML = '';
-
-            if (fruits.length === 0) {
-                list.innerHTML = '<div class="empty-message">لم يتم تعلم أي فاكهة بعد</div>';
-            } else {
-                // عرض من الأحدث للأقدم
-                const reversed = [...fruits].reverse();
-                reversed.forEach(item => {
-                    const fruitInfo = fruitData[item.id];
-                    const icon = fruitInfo ? fruitInfo.icon : '🍎';
-                    const time = new Date(item.time).toLocaleTimeString('en-US', { hour12: false });
-                    
-                    list.innerHTML += `
-                        <div class="trained-item">
-                            <div class="trained-item-name">
-                                <span>${icon}</span>
-                                <span>${item.name}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span class="trained-item-boost">${item.boost}x</span>
-                                <span class="trained-item-time">${time}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            modal.classList.add('show');
-        }
-
-        function closeTrainedModal(event) {
-            if (event && event.target !== event.currentTarget) return;
-            document.getElementById('trained-fruits-modal').classList.remove('show');
         }
 
         function listenToCurrentDeviceStatus() {
@@ -1420,17 +1282,18 @@
         function startNewRound() {
             if (!isGuessingAllowed) return;
 
-            // 1) التعلم إن وُجد اسم فاكهة، ثم مسح الحقل لتسجيل الفاكهة التالية
+            // 1) أولاً: التعلم إن وُجد اسم فاكهة في الحقل
             const inputField = document.getElementById('fruit-training-input');
             const fruitValue = inputField.value.trim();
 
             if (fruitValue !== "") {
-                trainFromInput(fruitValue);
-                // 🧹 مسح الحقل دائماً بعد المحاولة، لتسجيل الاسم التالي
-                inputField.value = "";
+                const learned = trainFromInput(fruitValue);
+                if (learned) {
+                    inputField.value = ""; // تصفير الحقل بعد التعلم الناجح
+                }
             }
 
-            // 2) بدء الجولة
+            // 2) ثانياً: بدء الجولة كالمعتاد
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
@@ -1462,7 +1325,7 @@
                 grid.style.display = 'grid';
                 renderPredictions(selectedSlots);
 
-                // 🟨 عرض علامات الاستهداف الذهبية
+                // 🟨 عرض علامات الاستهداف الذهبية على الفواكه المخمّنة
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     marker.style.top = slot.top;
@@ -1521,7 +1384,7 @@
             }
         }
 
-        // دعم Enter في حقل التعلم
+        // دعم زر Enter في حقل التعلم - يفعّل زر بدء الجولة (الذي بدوره يتعلم)
         document.addEventListener('DOMContentLoaded', () => {
             const trainInput = document.getElementById('fruit-training-input');
             if (trainInput) {
