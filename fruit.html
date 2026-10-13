@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fawakihai yalla ipohne.</title>
+    <title>FawakihAI - Yalla iPhone</title>
     
-    <!-- Firebase SDK (Version 8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-    <!-- استدعاء العقل الرئيسي (الخوارزمية) من الملف المستقل -->
     <script src="fruitsystm.js"></script>
 
     <style>
@@ -21,6 +18,7 @@
             --primary-dark: #5A189A;
             --gold: #F8C000;
             --neon-blue: #00E5FF;
+            --neon-pink: #FF00E5;
             --success: #00E676;
             --danger: #FF4757;
             --text-main: #FFFFFF;
@@ -34,9 +32,9 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* خلفية متحركة تعتمد على التلاشي التدريجي */
         @keyframes animationDrawableFade {
             0% {
                 background-color: #0B0612;
@@ -66,6 +64,26 @@
             100% { opacity: 0.3; transform: scale(1); }
         }
 
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.03); }
+        }
+
+        @keyframes pulseShield {
+            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px var(--neon-blue)); }
+            100% { transform: scale(1.06) rotate(2deg); filter: drop-shadow(0 0 25px var(--neon-pink)); }
+        }
+
+        @keyframes shine {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         body {
             background-size: 300% 300%;
             animation: animationDrawableFade 6s ease-in-out infinite;
@@ -77,10 +95,8 @@
             padding: 15px;
             position: relative;
             overflow-x: hidden;
-            transition: background 2s ease-in-out;
         }
 
-        /* تأثير التوهج النيون البنفسجي والأزرق */
         body::before {
             content: '';
             position: fixed;
@@ -99,27 +115,27 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border: 2px solid var(--neon-blue);
             cursor: pointer;
             z-index: 1000;
-            box-shadow: 0 0 12px var(--neon-blue);
+            object-fit: cover;
+            box-shadow: 0 0 15px var(--neon-blue);
+            animation: floatLogo 3s ease-in-out infinite;
             transition: transform 0.2s ease;
         }
-        #dev-logo:active {
-            transform: scale(1.2);
-        }
+        #dev-logo:active { transform: scale(1.15); }
 
         #dev-info {
             position: absolute;
-            top: 65px;
+            top: 68px;
             right: 15px;
             background: var(--glass-bg);
             border: 1px solid var(--neon-blue);
-            padding: 10px 15px;
-            border-radius: 12px;
+            padding: 12px 18px;
+            border-radius: 14px;
             text-align: center;
             z-index: 1000;
             backdrop-filter: blur(10px);
@@ -127,7 +143,7 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.4s ease;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
         }
         #dev-info.show {
             opacity: 1;
@@ -135,170 +151,221 @@
             transform: translateY(0);
         }
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
-        .dev-sub { color: var(--neon-blue); font-size: 12px; }
+        .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
-        /* شاشة الدخول VIP */
+        /* ============================================
+           شاشة تسجيل الدخول - تصميم VIP محسّن
+           ============================================ */
         #login-screen, #waiting-screen {
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.3);
+            background: linear-gradient(145deg, rgba(19, 9, 34, 0.95), rgba(11, 6, 18, 0.9));
+            backdrop-filter: blur(20px);
+            padding: 35px 25px 30px 25px;
+            border-radius: 24px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.9),
+                0 0 30px rgba(157, 78, 221, 0.4),
+                0 0 60px rgba(0, 229, 255, 0.15),
+                inset 0 0 30px rgba(157, 78, 221, 0.08);
             width: 100%;
             max-width: 420px;
             margin-top: 8vh;
             text-align: center;
+            position: relative;
+            animation: slideUp 0.6s ease-out;
         }
 
-        /* درع الأمان البرمجي في شاشة تسجيل الدخول */
+        #login-screen::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--primary), var(--neon-pink), var(--gold));
+            background-size: 300% 300%;
+            animation: shine 4s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         .shield-header-art {
-            width: 75px;
-            height: 75px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 0 15px var(--neon-blue));
+            width: 85px;
+            height: 85px;
+            margin-bottom: 15px;
             animation: pulseShield 2.5s infinite alternate ease-in-out;
         }
 
-        @keyframes pulseShield {
-            0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--neon-blue)); }
-            100% { transform: scale(1.08); filter: drop-shadow(0 0 25px var(--neon-blue)); }
+        .login-title {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            background: linear-gradient(90deg, var(--gold), var(--neon-blue), var(--gold));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+            margin-bottom: 8px;
         }
 
-        .zodiac-icon-btn {
-            width: 18px;
-            height: 18px;
-            vertical-align: middle;
-            margin-left: 6px;
-            fill: currentColor;
-            flex-shrink: 0;
+        .login-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.6;
+            padding: 0 10px;
         }
 
         .login-btn-container {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        /* تصميم صف الأزرار الأنيق جنب بعض */
-        .login-buttons-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .vip-btn-send {
-            flex: 1;
-            border-radius: 14px;
-            padding: 13px 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(157, 78, 221, 0.28));
-            color: var(--neon-blue);
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid rgba(0, 229, 255, 0.4);
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.15);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            outline: none;
-        }
-        .vip-btn-send:hover:not(:disabled) {
-            background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(157, 78, 221, 0.45));
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
-            transform: translateY(-2px);
-        }
-        .vip-btn-send:active:not(:disabled) {
-            transform: scale(0.97);
-        }
-
-        .vip-btn-confirm {
-            flex: 1;
-            border-radius: 14px;
-            padding: 13px 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #9D4EDD, #5A189A);
-            color: #FFF;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid rgba(157, 78, 221, 0.6);
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.35);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            outline: none;
-        }
-        .vip-btn-confirm:hover {
-            background: linear-gradient(135deg, #b060ee, #6d1fb8);
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
-            transform: translateY(-2px);
-        }
-        .vip-btn-confirm:active {
-            transform: scale(0.97);
+            gap: 14px;
+            margin-top: 5px;
         }
 
         .login-input {
             width: 100%;
-            padding: 15px;
-            margin: 5px 0 5px 0;
-            border-radius: 14px;
-            border: 1px solid var(--primary);
-            background: var(--bg-main);
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid var(--primary);
+            background: rgba(0, 0, 0, 0.55);
             color: white;
             text-align: center;
             outline: none;
-            font-size: 16px;
-            letter-spacing: 2px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            font-size: 17px;
+            letter-spacing: 4px;
+            font-weight: 700;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
             transition: all 0.3s ease;
+        }
+        .login-input::placeholder {
+            color: #6A5A7E;
+            letter-spacing: 1px;
+            font-weight: 400;
         }
         .login-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4), inset 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5), inset 0 2px 10px rgba(0,0,0,0.7);
+            transform: scale(1.01);
+        }
+
+        .login-buttons-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .vip-btn-send, .vip-btn-confirm {
+            flex: 1;
+            border-radius: 16px;
+            padding: 15px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+            min-height: 52px;
+        }
+
+        .vip-btn-send {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.05));
+            color: var(--neon-blue);
+            border-color: rgba(0, 229, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
+        }
+        .vip-btn-send:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(0, 229, 255, 0.15));
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
+            transform: translateY(-3px);
+        }
+        .vip-btn-send:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        .vip-btn-send:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            color: var(--gold);
+            border-color: rgba(248, 192, 0, 0.5);
+        }
+
+        .vip-btn-confirm {
+            background: linear-gradient(135deg, #9D4EDD, #5A189A, #9D4EDD);
+            background-size: 200% 200%;
+            color: #FFF;
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 22px rgba(157, 78, 221, 0.55);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .vip-btn-confirm:hover {
+            background-position: 100% 0;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.85);
+            transform: translateY(-3px);
+        }
+        .vip-btn-confirm:active {
+            transform: scale(0.96);
+        }
+
+        .zodiac-icon-btn {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            flex-shrink: 0;
         }
 
         .login-msg { 
             font-size: 13px; 
-            margin-top: 12px; 
-            min-height: 20px;
-            font-weight: 600;
+            margin-top: 14px; 
+            min-height: 22px;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
 
         /* زر الدعم الفني (واتساب) */
         .whatsapp-btn {
-            margin-top: 15px;
-            border-radius: 12px;
-            padding: 12px;
+            margin-top: 18px;
+            border-radius: 16px;
+            padding: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #128C7E, #25D366);
+            gap: 8px;
+            background: linear-gradient(135deg, #128C7E, #25D366, #128C7E);
+            background-size: 200% 200%;
             color: #FFF;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 14px;
             text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-            transition: all 0.2s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 6px 22px rgba(37, 211, 102, 0.4);
+            transition: all 0.25s ease;
             width: 100%;
         }
-
-        .whatsapp-btn:active {
-            transform: scale(0.95);
+        .whatsapp-btn:hover {
+            background-position: 100% 0;
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.7);
+            transform: translateY(-3px);
         }
-
+        .whatsapp-btn:active { transform: scale(0.96); }
         .whatsapp-btn svg {
             width: 22px;
             height: 22px;
-            margin-left: 8px;
             fill: currentColor;
         }
 
@@ -311,7 +378,6 @@
             gap: 15px;
         }
 
-        /* الهيدر العلوي */
         .app-header {
             text-align: center;
             margin-bottom: 5px;
@@ -326,7 +392,6 @@
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
 
-        /* شريط الإحصائيات */
         .stats-bar {
             display: flex;
             justify-content: space-between;
@@ -343,12 +408,11 @@
         .stat-value { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
         .stat-icon { color: var(--gold); }
 
-        /* الصورة في الأعلى ومكبرة - تم إصلاح المشكلة هنا */
         .game-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 1 / 1; /* يجبر الحاوية على أن تكون مربعة دائماً حتى لو الصورة خربانة */
-            background-color: var(--bg-card); /* لون خلفية في حال فشل تحميل الصورة */
+            aspect-ratio: 1 / 1;
+            background-color: var(--bg-card);
             border-radius: 15px;
             overflow: hidden;
             border: 2px solid var(--primary);
@@ -358,50 +422,160 @@
         #img-wrap {
             position: relative;
             width: 100%;
-            height: 100%; /* يأخذ الارتفاع الكامل للمربع */
+            height: 100%;
         }
         .game-image {
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: fill; /* يملأ المربع بالكامل ليطابق الإحداثيات */
+            object-fit: fill;
             opacity: 0.9;
             transition: opacity 0.3s;
         }
         .game-image.analyzing { opacity: 0.4; filter: blur(3px); }
-        
+
+        /* ============================================================
+           🎯 نظام الاستهداف الرسومي الجديد (Target Reticle)
+           يحل مكان ✅ برسمة برمجية متحركة تحيط بالفاكهة المخمّنة
+           ============================================================ */
         .marker {
             position: absolute;
-            font-size: 30px; /* تكبير بسيط للعلامة */
+            width: 56px;
+            height: 56px;
             transform: translate(-50%, -50%);
             display: none;
-            filter: drop-shadow(0px 0px 10px rgba(0, 230, 118, 1));
-            z-index: 100; /* ضمان ظهورها فوق الصورة دائماً */
+            z-index: 100;
+            pointer-events: none;
         }
 
-        /* حقل الإدخال وزر البدء */
+        /* حلقة خارجية نابضة */
+        .marker .ring-outer {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 230, 118, 0.9);
+            box-shadow: 
+                0 0 12px rgba(0, 230, 118, 0.9),
+                inset 0 0 12px rgba(0, 230, 118, 0.4),
+                0 0 24px rgba(0, 230, 118, 0.5);
+            animation: reticlePulse 1.6s ease-in-out infinite;
+        }
+
+        /* حلقة داخلية متقطعة تدور */
+        .marker .ring-inner {
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: 2px dashed rgba(0, 229, 255, 0.95);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+            animation: reticleSpin 3s linear infinite;
+        }
+
+        /* زوايا الاستهداف الأربع */
+        .marker .corner {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--gold);
+            filter: drop-shadow(0 0 6px var(--gold));
+        }
+        .marker .corner.tl {
+            top: -3px; left: -3px;
+            border-top: 3px solid var(--gold);
+            border-left: 3px solid var(--gold);
+        }
+        .marker .corner.tr {
+            top: -3px; right: -3px;
+            border-top: 3px solid var(--gold);
+            border-right: 3px solid var(--gold);
+        }
+        .marker .corner.bl {
+            bottom: -3px; left: -3px;
+            border-bottom: 3px solid var(--gold);
+            border-left: 3px solid var(--gold);
+        }
+        .marker .corner.br {
+            bottom: -3px; right: -3px;
+            border-bottom: 3px solid var(--gold);
+            border-right: 3px solid var(--gold);
+        }
+
+        /* نقطة المنتصف */
+        .marker .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            transform: translate(-50%, -50%);
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--success), 0 0 20px var(--success);
+            animation: dotBlink 1s ease-in-out infinite;
+        }
+
+        /* شعاع ماسح دوّار */
+        .marker .scanner {
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 300deg,
+                rgba(0, 229, 255, 0.55) 340deg,
+                rgba(0, 229, 255, 0.9) 360deg
+            );
+            animation: reticleSpin 2s linear infinite;
+            -webkit-mask: radial-gradient(circle, transparent 55%, #000 60%, #000 100%);
+            mask: radial-gradient(circle, transparent 55%, #000 60%, #000 100%);
+        }
+
+        @keyframes reticlePulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.12);
+                opacity: 0.75;
+            }
+        }
+
+        @keyframes reticleSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.7); }
+        }
+        /* ============================================================ */
+
         .controls-container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 5px;
         }
         
         .modern-input {
             width: 100%;
             padding: 16px;
             background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #3B0A75;
+            border: 2px solid #3B0A75;
             border-radius: 30px;
             color: white;
             text-align: center;
             font-size: 16px;
             outline: none;
-            transition: border 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
         }
+        .modern-input::placeholder { color: #6A5A7E; }
         .modern-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
         }
 
         .start-btn {
@@ -413,14 +587,12 @@
             border: none;
             border-radius: 30px;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 900;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4), 0 0 10px rgba(248, 192, 0, 0.3);
             transition: all 0.2s ease-in-out;
         }
-        .start-btn:active {
-            transform: scale(0.97);
-        }
+        .start-btn:active { transform: scale(0.97); }
         .start-btn:disabled {
             background: #2D1B4E;
             color: #8A7A9E;
@@ -429,7 +601,6 @@
             transform: scale(1);
         }
 
-        /* الحاويات */
         .panel {
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -447,7 +618,6 @@
             color: var(--primary);
         }
         
-        /* التوقعات */
         .predictions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -462,9 +632,7 @@
             transition: transform 0.2s ease, border-color 0.3s;
             cursor: pointer;
         }
-        .pred-card:active {
-            transform: scale(0.97);
-        }
+        .pred-card:active { transform: scale(0.97); }
         .pred-card.active-card {
             border-color: var(--gold);
             box-shadow: 0 0 15px rgba(248, 192, 0, 0.2);
@@ -476,7 +644,6 @@
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 1s ease-in-out; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
-        /* سجل النظام */
         .system-log {
             background: #060309;
             border: 1px solid #1E1035;
@@ -493,8 +660,8 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
+        .log-train { color: var(--neon-blue); font-weight: bold; }
 
-        /* شريط التحليل */
         .analyzing-bar {
             display: none;
             align-items: center;
@@ -514,10 +681,11 @@
 
         .loader-spinner {
             border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border-left-color: var(--neon-blue);
+            border-top-color: var(--neon-pink);
             animation: spin 1s linear infinite;
             margin-bottom: 15px;
         }
@@ -529,11 +697,23 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #060309; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+        .learning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(157,78,221,0.15));
+            border: 1px solid var(--neon-blue);
+            border-radius: 20px;
+            font-size: 10px;
+            color: var(--neon-blue);
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
-    <!-- WebView مخفي في الخلفية لاستقبال الأوامر التلقائية -->
     <iframe id="hidden-webview-receiver" style="display:none; width:0; height:0;" src="about:blank"></iframe>
 
     <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
@@ -544,42 +724,47 @@
 
     <!-- شاشة تسجيل الدخول VIP -->
     <div id="login-screen">
-        <!-- درع الأمان البرمجي -->
         <svg class="shield-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <!-- خلفية الدرع -->
-            <path d="M 50 5 L 90 20 L 90 50 C 90 75 50 95 50 95 C 50 95 10 75 10 50 L 10 20 Z" fill="rgba(0, 229, 255, 0.1)" stroke="#00E5FF" stroke-width="3"/>
-            <!-- خطوط داخلية -->
+            <defs>
+                <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#9D4EDD;stop-opacity:0.3" />
+                </linearGradient>
+                <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#F8C000" />
+                    <stop offset="100%" style="stop-color:#FFD54F" />
+                </linearGradient>
+            </defs>
+            <path d="M 50 5 L 90 20 L 90 50 C 90 75 50 95 50 95 C 50 95 10 75 10 50 L 10 20 Z" fill="url(#shieldGrad)" stroke="#00E5FF" stroke-width="3"/>
             <path d="M 50 12 L 82 24 L 82 48 C 82 68 50 86 50 86 C 50 86 18 68 18 48 L 18 24 Z" fill="none" stroke="#9D4EDD" stroke-width="2" stroke-dasharray="4 2"/>
-            <!-- علامة الصح في المنتصف -->
-            <path d="M 35 50 L 45 60 L 65 35" fill="none" stroke="#F8C000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 33 50 L 45 62 L 67 33" fill="none" stroke="url(#checkGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
 
-        <h2 style="color: var(--gold); margin-bottom: 8px; font-weight: 800; letter-spacing: 0.5px;">FawakihAI</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">اضغط على طلب رمز التحقق لاستلام كود الاشتراك الخاص بك</p>
+        <h2 class="login-title">FawakihAI</h2>
+        <p class="login-subtitle">🔐 اضغط على <b style="color:#00E5FF">طلب رمز التحقق</b> لاستلام كود الاشتراك الخاص بك من الأدمن</p>
         
         <div class="login-btn-container">
-            <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا">
+            <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا" inputmode="numeric">
 
             <div class="login-buttons-row">
                 <button class="vip-btn-send" onclick="sendTelegramCode()">
                     <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                         <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
                     </svg>
-                    طلب رمز التحقق
+                    <span>طلب رمز</span>
                 </button>
 
                 <button class="vip-btn-confirm" onclick="loginWithCode()">
                     <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                         <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5Z"/>
                     </svg>
-                    تأكيد ومتابعة
+                    <span>تأكيد الدخول</span>
                 </button>
             </div>
         </div>
 
         <p id="login-msg" class="login-msg"></p>
 
-        <!-- زر الدعم الفني واتساب -->
         <a href="https://wa.me/+905424678123" target="_blank" class="whatsapp-btn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
@@ -592,7 +777,7 @@
     <div id="waiting-screen">
         <div class="loader-spinner" id="waiting-spinner"></div>
         <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك وتحديد مدة الاشتراك من الأدمن</p>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك</p>
     </div>
 
     <!-- شاشة النظام الرئيسية -->
@@ -602,53 +787,93 @@
             <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
         </div>
 
-        <!-- الصورة في الأعلى ومكبرة -->
         <div class="game-container">
             <div id="img-wrap">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
-                <div id="marker-1" class="marker">✅</div>
-                <div id="marker-2" class="marker">✅</div>
-                <div id="marker-3" class="marker">✅</div>
-                <div id="marker-4" class="marker">✅</div>
+
+                <!-- 🎯 علامات الاستهداف الرسومية الجديدة (بدل ✅) -->
+                <div id="marker-1" class="marker">
+                    <div class="ring-outer"></div>
+                    <div class="ring-inner"></div>
+                    <div class="scanner"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="center-dot"></div>
+                </div>
+
+                <div id="marker-2" class="marker">
+                    <div class="ring-outer"></div>
+                    <div class="ring-inner"></div>
+                    <div class="scanner"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="center-dot"></div>
+                </div>
+
+                <div id="marker-3" class="marker">
+                    <div class="ring-outer"></div>
+                    <div class="ring-inner"></div>
+                    <div class="scanner"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="center-dot"></div>
+                </div>
+
+                <div id="marker-4" class="marker">
+                    <div class="ring-outer"></div>
+                    <div class="ring-inner"></div>
+                    <div class="scanner"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="center-dot"></div>
+                </div>
+
             </div>
         </div>
 
-        <!-- شريط الإحصائيات مع إظهار المتبقي من الاشتراك -->
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
             <span><span class="stat-icon">⏳</span> الاشتراك: <span class="stat-value" id="sub-remaining">--</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
-        <!-- حقل الإدخال وزر البدء -->
+        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة (زر واحد فقط) -->
         <div class="controls-container">
-            <input type="text" id="fruit-training-input" class="modern-input" placeholder="أدخل اسم الفاكهة الصحيح هنا">
+            <input type="text" id="fruit-training-input" class="modern-input" placeholder="🧠 أدخل اسم الفاكهة (مثال: برتقال)">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
         </div>
 
-        <!-- التوقعات -->
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات NEXUS</span>
-                <span style="color: var(--gold); font-size: 10px;">CODEX v7.0</span>
+                <span class="learning-badge">
+                    <span>🧠 تعلم: <span id="trained-count">0</span></span>
+                </span>
             </div>
             <div class="analyzing-bar" id="analyzing-ui">
                 جاري التحليل... 🧠
             </div>
             <div class="predictions-grid" id="predictions-grid">
                 <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
-                    اضغط "بدء جولة جديدة" لاستخرج التوقعات
+                    اضغط "بدء جولة جديدة" لاستخراج التوقعات
                 </div>
             </div>
         </div>
 
-        <!-- سجل النظام -->
         <div class="panel">
             <div class="panel-header">
                 <span>📋 سجل النظام</span>
             </div>
             <div class="system-log" id="system-log">
-                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - جاهز للعمل</div>
+                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - عقل واحد AI1 - جاهز للعمل</div>
             </div>
         </div>
 
@@ -661,7 +886,6 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // إعدادات قاعدة البيانات
         const firebaseConfig = {
             apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
             databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -672,7 +896,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // بيانات الإرسال الآمنة ومعرف الجهاز
         const BOT_TOKEN = "7728925309:AAFgT3Ar-MqSFlwbS_-ybNGIEcZ0_dFisIE";
         const TELEGRAM_ID = "5998250367";
 
@@ -688,11 +911,8 @@
         const deviceId = getDeviceId();
         let currentSentCode = null;
         let subscriptionCheckInterval = null;
-
-        // --- المتغيرات الجديدة الخاصة بمؤقت زر طلب الكود (Spam Protection) ---
         let codeRequestCount = 0; 
         let codeTimerInterval = null;
-        // -------------------------------------------------------------------
 
         const slots = [
             { id: 1, top: '17%', left: '17%' },
@@ -723,9 +943,41 @@
 
         window.onload = function() {
             listenToCurrentDeviceStatus();
+            updateTrainedCount();
         };
 
-        // الاستماع المباشر والمستمر لحالة الجهاز من قاعدة البيانات
+        // ✨ تحديث عداد عمليات التعلم في الواجهة
+        function updateTrainedCount() {
+            if (typeof getLearningStats === 'function') {
+                const stats = getLearningStats();
+                const el = document.getElementById('trained-count');
+                if (el) el.innerText = stats.totalTrained;
+            }
+        }
+
+        // ✨ دالة التعلم الداخلية - تُستدعى من زر بدء الجولة تلقائياً
+        function trainFromInput(fruitValue) {
+            if (!fruitValue || fruitValue.trim() === "") {
+                return false;
+            }
+
+            if (typeof trainAlgorithm !== 'function') {
+                addSystemLog(`❌ خطأ: ملف الخوارزمية لم يتم تحميله`, false);
+                return false;
+            }
+
+            const result = trainAlgorithm(fruitValue.trim());
+
+            if (result && result.success) {
+                addSystemLog(`🧠 تم تعلم [${fruitValue.trim()}] - مكافأة: ${result.boost}x - الإجمالي: ${result.totalTrained}`, true);
+                updateTrainedCount();
+                return true;
+            } else {
+                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}] - الفواكه المتاحة: برتقال، ليمون، عنب، كرز، تفاح، بطيخ، مانجو، فراولة`, false);
+                return false;
+            }
+        }
+
         function listenToCurrentDeviceStatus() {
             db.ref('requests/' + deviceId).on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -742,7 +994,6 @@
             if (data.status === 'approved') {
                 const now = Date.now();
                 if (data.expiryTimestamp && now >= data.expiryTimestamp) {
-                    // انتهت فترة الاشتراك -> إرجاع تلقائي لشاشة تسجيل الدخول وتحديث الحالة
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
                     showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد للتجديد.");
                 } else {
@@ -758,7 +1009,6 @@
             }
         }
 
-        // مراقبة حية ومباشرة للوقت والمطرود فور انتهاء الاشتراك
         function startSubscriptionMonitor(expiryTimestamp) {
             if (subscriptionCheckInterval) clearInterval(subscriptionCheckInterval);
             if (!expiryTimestamp) return;
@@ -792,17 +1042,14 @@
             }
 
             updateRemainingDisplay();
-            // تحديث الحساب كل 10 ثوانٍ لضمان الدقة وتوفير أداء الجهاز
             subscriptionCheckInterval = setInterval(updateRemainingDisplay, 10000);
         }
 
         function sendTelegramCode() {
             const sendBtn = document.querySelector('.vip-btn-send');
-            if (sendBtn.disabled) return; // لمنع النقر المزدوج السريع
+            if (sendBtn.disabled) return;
 
-            codeRequestCount++; // زيادة عدد مرات الطلب
-            
-            // تحديد وقت الانتظار: دقيقة إذا كان أقل من أو يساوي 3 مرات، و 3 دقائق إذا زاد عن 3 مرات
+            codeRequestCount++;
             let waitTimeSeconds = (codeRequestCount > 3) ? 180 : 60;
 
             const msgBox = document.getElementById('login-msg');
@@ -813,34 +1060,31 @@
             msgBox.style.color = "var(--gold)";
             msgBox.innerText = "جاري إرسال رمز التحقق...";
 
-            // إعدادات العداد وتغيير شكل الزر
             sendBtn.disabled = true;
             sendBtn.style.opacity = '0.6';
             sendBtn.style.cursor = 'not-allowed';
-            sendBtn.innerHTML = `⏳ الانتظار (${waitTimeSeconds})`;
+            sendBtn.innerHTML = `⏳ (${waitTimeSeconds})`;
 
             if (codeTimerInterval) clearInterval(codeTimerInterval);
             
             codeTimerInterval = setInterval(() => {
                 waitTimeSeconds--;
                 if (waitTimeSeconds > 0) {
-                    sendBtn.innerHTML = `⏳ الانتظار (${waitTimeSeconds})`;
+                    sendBtn.innerHTML = `⏳ (${waitTimeSeconds})`;
                 } else {
                     clearInterval(codeTimerInterval);
                     sendBtn.disabled = false;
                     sendBtn.style.opacity = '1';
                     sendBtn.style.cursor = 'pointer';
-                    // إعادة الزر لشكله الأصلي
                     sendBtn.innerHTML = `
                         <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                             <path d="M12 2A10 10 0 1 0 22 12 A10 10 0 0 0 12 2 Z M12 4 A8 8 0 1 1 4 12 A8 8 0 0 1 12 4 Z M12 6 L14 10 L18 10 L15 13 L16 17 L12 14.5 L8 17 L9 13 L6 10 L10 10 Z"/>
                         </svg>
-                        طلب رمز التحقق
+                        <span>طلب رمز</span>
                     `;
                 }
             }, 1000);
 
-            // الإرسال الفعلي للتليجرام
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -879,7 +1123,6 @@
                 return;
             }
 
-            // رفع الطلب إلى قاعدة البيانات للتحقق من الأدمن
             db.ref('requests/' + deviceId).set({
                 deviceId: deviceId,
                 code: inputCode,
@@ -931,6 +1174,7 @@
             document.getElementById('waiting-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             updateLiveStats(true);
+            updateTrainedCount();
         }
 
         function addSystemLog(msg, isHighlight = false) {
@@ -967,24 +1211,22 @@
             });
         }
 
+        // 🚀 الدالة الموحدة: التعلم + بدء الجولة في زر واحد
         function startNewRound() {
             if (!isGuessingAllowed) return;
 
+            // 1) أولاً: التعلم إن وُجد اسم فاكهة في الحقل
             const inputField = document.getElementById('fruit-training-input');
             const fruitValue = inputField.value.trim();
 
-            if(fruitValue !== "") {
-                if(typeof trainAlgorithm === 'function') {
-                    const trained = trainAlgorithm(fruitValue);
-                    if(trained) {
-                        addSystemLog(`✅ تم إرسال [${fruitValue}] لتغذية ذاكرة الخوارزمية`, true);
-                    } else {
-                        addSystemLog(`⚠️ اسم غير معروف: [${fruitValue}] - تم التجاهل`, false);
-                    }
+            if (fruitValue !== "") {
+                const learned = trainFromInput(fruitValue);
+                if (learned) {
+                    inputField.value = ""; // تصفير الحقل بعد التعلم الناجح
                 }
-                inputField.value = "";
             }
 
+            // 2) ثانياً: بدء الجولة كالمعتاد
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
@@ -1016,6 +1258,7 @@
                 grid.style.display = 'grid';
                 renderPredictions(selectedSlots);
 
+                // 🎯 عرض علامات الاستهداف الرسومية الجديدة على الفواكه المخمّنة
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     marker.style.top = slot.top;
@@ -1073,6 +1316,19 @@
                 document.getElementById('online-count').innerText = grandTotalOnline;
             }
         }
+
+        // دعم زر Enter في حقل التعلم - يفعّل زر بدء الجولة (الذي بدوره يتعلم)
+        document.addEventListener('DOMContentLoaded', () => {
+            const trainInput = document.getElementById('fruit-training-input');
+            if (trainInput) {
+                trainInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        startNewRound();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
