@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0B0612">
     <title>FawakihAI - Yalla iPhone</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -24,7 +25,7 @@
             --text-main: #FFFFFF;
             --text-muted: #8A7A9E;
             --border-color: #2D1B4E;
-            --glass-bg: rgba(19, 9, 34, 0.75);
+            --glass-bg: rgba(19, 9, 34, 0.92);
         }
 
         * {
@@ -35,58 +36,23 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        @keyframes animationDrawableFade {
-            0% {
-                background-color: #0B0612;
-                background-image: radial-gradient(circle at 50% 30%, rgba(0, 229, 255, 0.12) 0%, transparent 70%),
-                                  linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
-            }
-            33% {
-                background-color: #130922;
-                background-image: radial-gradient(circle at 30% 70%, rgba(157, 78, 221, 0.2) 0%, transparent 70%),
-                                  linear-gradient(135deg, #120624, #0b0318, #1a0b2e, #09040d);
-            }
-            66% {
-                background-color: #180C2B;
-                background-image: radial-gradient(circle at 70% 40%, rgba(0, 230, 118, 0.15) 0%, transparent 70%),
-                                  linear-gradient(135deg, #1b0a33, #110524, #080210, #180C2B);
-            }
-            100% {
-                background-color: #0B0612;
-                background-image: radial-gradient(circle at 50% 30%, rgba(0, 229, 255, 0.12) 0%, transparent 70%),
-                                  linear-gradient(135deg, #09040d, #1a0b2e, #0d0616, #210d3b);
+        /* ⚡ تخفيف الحركات على الهاتف */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
 
-        @keyframes glowPulse {
-            0% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
-            100% { opacity: 0.3; transform: scale(1); }
-        }
-
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-8px) scale(1.03); }
-        }
-
-        @keyframes pulseShield {
-            0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px var(--neon-blue)); }
-            100% { transform: scale(1.06) rotate(2deg); filter: drop-shadow(0 0 25px var(--neon-pink)); }
-        }
-
-        @keyframes shine {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* ⚡ خلفية ثابتة خفيفة (بدل المتحركة الثقيلة) */
         body {
-            background-size: 300% 300%;
-            animation: animationDrawableFade 6s ease-in-out infinite;
+            background: #0B0612;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 229, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(157, 78, 221, 0.10) 0%, transparent 50%),
+                linear-gradient(135deg, #09040d 0%, #1a0b2e 50%, #0d0616 100%);
+            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -95,20 +61,11 @@
             padding: 15px;
             position: relative;
             overflow-x: hidden;
+            transform: translateZ(0);
+            -webkit-font-smoothing: antialiased;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            left: -20%;
-            width: 140%;
-            height: 140%;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.15) 0%, rgba(157, 78, 221, 0.1) 40%, transparent 70%);
-            animation: glowPulse 10s ease-in-out infinite;
-            pointer-events: none;
-            z-index: -1;
-        }
+        /* ⚡ تم إزالة background animation الثقيل */
 
         /* قسم المبرمج */
         #dev-logo {
@@ -122,8 +79,7 @@
             cursor: pointer;
             z-index: 1000;
             object-fit: cover;
-            box-shadow: 0 0 15px var(--neon-blue);
-            animation: floatLogo 3s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
             transition: transform 0.2s ease;
         }
         #dev-logo:active { transform: scale(1.15); }
@@ -138,12 +94,11 @@
             border-radius: 14px;
             text-align: center;
             z-index: 1000;
-            backdrop-filter: blur(10px);
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.4s ease;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
         }
         #dev-info.show {
             opacity: 1;
@@ -153,65 +108,39 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
-        /* ============================================
-           شاشة تسجيل الدخول - تصميم VIP محسّن
-           ============================================ */
+        /* شاشات الدخول */
         #login-screen, #waiting-screen {
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(145deg, rgba(19, 9, 34, 0.95), rgba(11, 6, 18, 0.9));
-            backdrop-filter: blur(20px);
+            background: linear-gradient(145deg, rgba(19, 9, 34, 0.98), rgba(11, 6, 18, 0.96));
             padding: 35px 25px 30px 25px;
             border-radius: 24px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
+            border: 2px solid var(--primary);
             box-shadow: 
-                0 20px 50px rgba(0,0,0,0.9),
-                0 0 30px rgba(157, 78, 221, 0.4),
-                0 0 60px rgba(0, 229, 255, 0.15),
-                inset 0 0 30px rgba(157, 78, 221, 0.08);
+                0 10px 30px rgba(0,0,0,0.8),
+                0 0 25px rgba(157, 78, 221, 0.3);
             width: 100%;
             max-width: 420px;
             margin-top: 8vh;
             text-align: center;
             position: relative;
-            animation: slideUp 0.6s ease-out;
-        }
-
-        #login-screen::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 24px;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--neon-blue), var(--primary), var(--neon-pink), var(--gold));
-            background-size: 300% 300%;
-            animation: shine 4s linear infinite;
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
         }
 
         .shield-header-art {
             width: 85px;
             height: 85px;
             margin-bottom: 15px;
-            animation: pulseShield 2.5s infinite alternate ease-in-out;
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
         }
 
         .login-title {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 900;
             letter-spacing: 1.5px;
-            background: linear-gradient(90deg, var(--gold), var(--neon-blue), var(--gold));
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: shine 3s linear infinite;
+            color: var(--gold);
+            text-shadow: 0 0 12px rgba(248, 192, 0, 0.5);
             margin-bottom: 8px;
         }
 
@@ -236,15 +165,14 @@
             padding: 16px 20px;
             border-radius: 16px;
             border: 2px solid var(--primary);
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             text-align: center;
             outline: none;
             font-size: 17px;
             letter-spacing: 4px;
             font-weight: 700;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
-            transition: all 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .login-input::placeholder {
             color: #6A5A7E;
@@ -253,8 +181,7 @@
         }
         .login-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5), inset 0 2px 10px rgba(0,0,0,0.7);
-            transform: scale(1.01);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
         }
 
         .login-buttons-row {
@@ -274,10 +201,8 @@
             font-weight: 800;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             outline: none;
-            position: relative;
-            overflow: hidden;
             border: 2px solid transparent;
             min-height: 52px;
         }
@@ -286,16 +211,9 @@
             background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.05));
             color: var(--neon-blue);
             border-color: rgba(0, 229, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
         }
-        .vip-btn-send:hover:not(:disabled) {
-            background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(0, 229, 255, 0.15));
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
-            transform: translateY(-3px);
-        }
-        .vip-btn-send:active:not(:disabled) {
-            transform: scale(0.96);
-        }
+        .vip-btn-send:active:not(:disabled) { transform: scale(0.96); }
         .vip-btn-send:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -304,21 +222,12 @@
         }
 
         .vip-btn-confirm {
-            background: linear-gradient(135deg, #9D4EDD, #5A189A, #9D4EDD);
-            background-size: 200% 200%;
+            background: linear-gradient(135deg, #9D4EDD, #5A189A);
             color: #FFF;
             border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 6px 22px rgba(157, 78, 221, 0.55);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.5);
         }
-        .vip-btn-confirm:hover {
-            background-position: 100% 0;
-            box-shadow: 0 0 30px rgba(157, 78, 221, 0.85);
-            transform: translateY(-3px);
-        }
-        .vip-btn-confirm:active {
-            transform: scale(0.96);
-        }
+        .vip-btn-confirm:active { transform: scale(0.96); }
 
         .zodiac-icon-btn {
             width: 18px;
@@ -334,12 +243,9 @@
             font-weight: 700;
             padding: 8px 12px;
             border-radius: 10px;
-            transition: all 0.3s ease;
         }
 
-        /* ============================================================
-           💳 زر شراء الاشتراك (استبدال زر واتساب)
-           ============================================================ */
+        /* 💳 زر شراء الاشتراك */
         .buy-subscription-btn {
             margin-top: 20px;
             border-radius: 16px;
@@ -349,52 +255,17 @@
             justify-content: center;
             gap: 10px;
             background: linear-gradient(135deg, #F8C000 0%, #FFD54F 50%, #F8C000 100%);
-            background-size: 200% 200%;
             color: #1a0b2e;
             font-weight: 900;
             font-size: 15px;
             text-decoration: none;
             border: 2px solid rgba(255, 215, 0, 0.6);
-            box-shadow: 
-                0 8px 25px rgba(248, 192, 0, 0.5),
-                0 0 20px rgba(248, 192, 0, 0.3),
-                inset 0 1px 0 rgba(255,255,255,0.4);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(248, 192, 0, 0.4);
+            transition: transform 0.25s ease;
             width: 100%;
             position: relative;
             overflow: hidden;
-            animation: buyShine 3s ease-in-out infinite;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-            letter-spacing: 0.5px;
-        }
-
-        .buy-subscription-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-            animation: buyShimmer 2.5s infinite;
-        }
-
-        @keyframes buyShimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        @keyframes buyShine {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .buy-subscription-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 12px 35px rgba(248, 192, 0, 0.7),
-                0 0 35px rgba(248, 192, 0, 0.5),
-                inset 0 1px 0 rgba(255,255,255,0.5);
         }
 
         .buy-subscription-btn:active { transform: scale(0.97); }
@@ -403,7 +274,6 @@
             width: 24px;
             height: 24px;
             fill: #1a0b2e;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
             flex-shrink: 0;
         }
 
@@ -444,7 +314,7 @@
             font-weight: 900;
             color: var(--gold);
             letter-spacing: 1px;
-            text-shadow: 0 0 12px rgba(248, 192, 0, 0.5);
+            text-shadow: 0 0 10px rgba(248, 192, 0, 0.4);
         }
         .app-header h1 span { color: var(--danger); font-size: 18px; }
 
@@ -453,7 +323,7 @@
             justify-content: space-between;
             background: var(--glass-bg);
             border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
             border-radius: 12px;
             padding: 12px 15px;
             font-size: 12px;
@@ -461,7 +331,7 @@
             color: var(--text-muted);
         }
         .stats-bar span { display: flex; align-items: center; gap: 5px; }
-        .stat-value { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
+        .stat-value { color: var(--neon-blue); }
         .stat-icon { color: var(--gold); }
 
         .game-container {
@@ -472,8 +342,9 @@
             border-radius: 15px;
             overflow: hidden;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 25px rgba(157, 78, 221, 0.4);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.35);
             margin-bottom: 10px;
+            transform: translateZ(0);
         }
         #img-wrap {
             position: relative;
@@ -485,14 +356,12 @@
             width: 100%;
             height: 100%;
             object-fit: fill;
-            opacity: 0.9;
+            opacity: 0.95;
             transition: opacity 0.3s;
         }
-        .game-image.analyzing { opacity: 0.4; filter: blur(3px); }
+        .game-image.analyzing { opacity: 0.5; }
 
-        /* ============================================================
-           🟨 المربع الأصفر فقط للاستهداف (بدون أي دوائر)
-           ============================================================ */
+        /* 🟨 المربع الذهبي فقط للاستهداف */
         .marker {
             position: absolute;
             width: 58px;
@@ -501,18 +370,15 @@
             display: none;
             z-index: 100;
             pointer-events: none;
-            animation: markerPulse 1.8s ease-in-out infinite;
+            will-change: transform;
         }
 
-        /* زوايا المربع الذهبية الأربع */
         .marker .corner {
             position: absolute;
             width: 18px;
             height: 18px;
             border-color: var(--gold);
-            filter: 
-                drop-shadow(0 0 3px var(--gold))
-                drop-shadow(0 0 7px rgba(248, 192, 0, 0.75));
+            filter: drop-shadow(0 0 4px var(--gold));
         }
         .marker .corner.tl {
             top: 0; left: 0;
@@ -535,53 +401,31 @@
             border-right: 3px solid var(--gold);
         }
 
-        /* شُرَط صغيرة في منتصف كل ضلع */
-        .marker .edge-top {
+        .marker .edge-top, .marker .edge-bottom {
             position: absolute;
-            top: -1px;
             left: 50%;
             transform: translateX(-50%);
             width: 12px;
             height: 3px;
             background: var(--gold);
-            box-shadow: 0 0 6px var(--gold);
+            box-shadow: 0 0 5px var(--gold);
             border-radius: 2px;
         }
-        .marker .edge-bottom {
+        .marker .edge-top { top: -1px; }
+        .marker .edge-bottom { bottom: -1px; }
+        .marker .edge-left, .marker .edge-right {
             position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 3px;
-            background: var(--gold);
-            box-shadow: 0 0 6px var(--gold);
-            border-radius: 2px;
-        }
-        .marker .edge-left {
-            position: absolute;
-            left: -1px;
             top: 50%;
             transform: translateY(-50%);
             width: 3px;
             height: 12px;
             background: var(--gold);
-            box-shadow: 0 0 6px var(--gold);
+            box-shadow: 0 0 5px var(--gold);
             border-radius: 2px;
         }
-        .marker .edge-right {
-            position: absolute;
-            right: -1px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 12px;
-            background: var(--gold);
-            box-shadow: 0 0 6px var(--gold);
-            border-radius: 2px;
-        }
+        .marker .edge-left { left: -1px; }
+        .marker .edge-right { right: -1px; }
 
-        /* نقطة ذهبية مركزية */
         .marker .center-dot {
             position: absolute;
             top: 50%;
@@ -591,26 +435,8 @@
             transform: translate(-50%, -50%);
             background: var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--gold), 0 0 14px var(--gold);
-            animation: dotBlink 1.2s ease-in-out infinite;
+            box-shadow: 0 0 6px var(--gold);
         }
-
-        @keyframes markerPulse {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.08);
-                opacity: 0.85;
-            }
-        }
-
-        @keyframes dotBlink {
-            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.65); }
-        }
-        /* ============================================================ */
 
         .controls-container {
             display: flex;
@@ -629,27 +455,26 @@
             text-align: center;
             font-size: 16px;
             outline: none;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .modern-input::placeholder { color: #6A5A7E; }
         .modern-input:focus {
             border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
         }
 
         .start-btn {
             width: 100%;
             padding: 16px;
             background: linear-gradient(135deg, #00E676, #00B0FF, #F8C000);
-            background-size: 200% 200%;
             color: #000;
             border: none;
             border-radius: 30px;
             font-size: 18px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4), 0 0 10px rgba(248, 192, 0, 0.3);
-            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4);
+            transition: transform 0.2s ease;
         }
         .start-btn:active { transform: scale(0.97); }
         .start-btn:disabled {
@@ -688,19 +513,18 @@
             border-radius: 10px;
             padding: 10px;
             position: relative;
-            transition: transform 0.2s ease, border-color 0.3s;
+            transition: border-color 0.3s;
             cursor: pointer;
         }
-        .pred-card:active { transform: scale(0.97); }
         .pred-card.active-card {
             border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(248, 192, 0, 0.2);
+            box-shadow: 0 0 12px rgba(248, 192, 0, 0.2);
         }
         .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
         .pred-title { font-size: 18px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
         .pred-score { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
         .progress-track { width: 100%; height: 4px; background: #25163D; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
-        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 1s ease-in-out; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.8s ease; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
         .system-log {
@@ -719,7 +543,6 @@
         }
         .log-time { color: var(--text-muted); }
         .log-highlight { color: var(--success); }
-        .log-train { color: var(--neon-blue); font-weight: bold; }
 
         .analyzing-bar {
             display: none;
@@ -730,12 +553,6 @@
             color: var(--primary);
             font-weight: bold;
             font-size: 14px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; text-shadow: 0 0 10px var(--primary); }
-            100% { opacity: 0.6; }
         }
 
         .loader-spinner {
@@ -762,12 +579,187 @@
             align-items: center;
             gap: 4px;
             padding: 3px 8px;
-            background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(157,78,221,0.15));
+            background: rgba(0, 229, 255, 0.1);
             border: 1px solid var(--neon-blue);
             border-radius: 20px;
             font-size: 10px;
             color: var(--neon-blue);
             font-weight: 700;
+        }
+
+        /* ============================================================
+           🚫 نافذة الفاكهة الخاطئة
+           ============================================================ */
+        .wrong-fruit-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .wrong-fruit-overlay.show {
+            display: flex;
+            animation: overlayFade 0.25s ease;
+        }
+        @keyframes overlayFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .wrong-fruit-modal {
+            background: linear-gradient(145deg, #1a0b2e, #0d0616);
+            border: 2px solid var(--danger);
+            border-radius: 24px;
+            padding: 25px 20px 20px 20px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(255, 71, 87, 0.4);
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.85) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .wrong-fruit-modal::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--danger), var(--gold), var(--danger));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* رأس النافذة - أيقونة التحذير */
+        .warning-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .warning-icon {
+            width: 90px;
+            height: 90px;
+            filter: drop-shadow(0 0 15px rgba(255, 71, 87, 0.7));
+            animation: warningPulse 2s ease-in-out infinite;
+        }
+        @keyframes warningPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .wrong-fruit-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+
+        .wrong-fruit-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.7;
+            margin-bottom: 18px;
+            padding: 0 10px;
+        }
+
+        .wrong-fruit-entered {
+            display: block;
+            font-size: 15px;
+            color: var(--gold);
+            font-weight: 800;
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: rgba(248, 192, 0, 0.08);
+            border: 1px dashed rgba(248, 192, 0, 0.4);
+            border-radius: 10px;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .available-title {
+            text-align: center;
+            font-size: 13px;
+            color: var(--neon-blue);
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* شبكة الفواكه الصحيحة */
+        .fruits-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .fruit-item {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+        }
+        .fruit-item:active {
+            transform: scale(0.94);
+            border-color: var(--gold);
+        }
+
+        .fruit-svg-icon {
+            width: 38px;
+            height: 38px;
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.15));
+        }
+
+        .fruit-label {
+            font-size: 10px;
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .wrong-fruit-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #9D4EDD, #5A189A);
+            color: #FFF;
+            border: none;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.5);
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .wrong-fruit-close-btn:active {
+            transform: scale(0.96);
         }
     </style>
 </head>
@@ -824,7 +816,6 @@
 
         <p id="login-msg" class="login-msg"></p>
 
-        <!-- 💳 زر شراء الاشتراك (بدل زر واتساب) -->
         <a href="https://wa.me/+905424678123?text=مرحباً، أرغب في شراء اشتراك FawakihAI VIP 🚀" target="_blank" class="buy-subscription-btn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
@@ -854,7 +845,6 @@
             <div id="img-wrap">
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
 
-                <!-- 🟨 علامات الاستهداف الذهبية (مربع فقط بدون دوائر) -->
                 <div id="marker-1" class="marker">
                     <div class="corner tl"></div>
                     <div class="corner tr"></div>
@@ -912,7 +902,6 @@
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
-        <!-- حقل إدخال اسم الفاكهة + زر بدء الجولة (زر واحد فقط) -->
         <div class="controls-container">
             <input type="text" id="fruit-training-input" class="modern-input" placeholder="🧠 أدخل اسم الفاكهة (مثال: برتقال)">
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
@@ -944,6 +933,174 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- 🚫 نافذة الفاكهة الخاطئة (مخفية افتراضياً) -->
+    <div id="wrong-fruit-overlay" class="wrong-fruit-overlay" onclick="closeWrongFruitModal(event)">
+        <div class="wrong-fruit-modal" onclick="event.stopPropagation()">
+
+            <!-- أيقونة تحذير برمجية -->
+            <div class="warning-icon-wrapper">
+                <svg class="warning-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="warnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FF4757" />
+                            <stop offset="100%" style="stop-color:#FF6B81" />
+                        </linearGradient>
+                        <linearGradient id="warnInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1a0b2e" />
+                            <stop offset="100%" style="stop-color:#0d0616" />
+                        </linearGradient>
+                    </defs>
+                    <!-- مثلث تحذير -->
+                    <path d="M 50 8 L 94 88 L 6 88 Z" 
+                          fill="url(#warnGrad)" 
+                          stroke="#FFD54F" 
+                          stroke-width="2.5"
+                          stroke-linejoin="round"/>
+                    <path d="M 50 20 L 86 82 L 14 82 Z" 
+                          fill="url(#warnInner)" 
+                          opacity="0.4"/>
+                    <!-- علامة تعجب -->
+                    <rect x="47" y="38" width="6" height="28" rx="3" fill="#FFD54F"/>
+                    <circle cx="50" cy="75" r="4" fill="#FFD54F"/>
+                    <!-- حلقة خارجية نابضة -->
+                    <circle cx="50" cy="50" r="46" 
+                            fill="none" 
+                            stroke="#FF4757" 
+                            stroke-width="1" 
+                            stroke-dasharray="3 5"
+                            opacity="0.5"/>
+                </svg>
+            </div>
+
+            <div class="wrong-fruit-title">⚠️ اسم الفاكهة غير صحيح</div>
+            
+            <div class="wrong-fruit-message">
+                الذكاء الاصطناعي لم يتعرف على الاسم المُدخل
+                <span class="wrong-fruit-entered" id="wrong-fruit-name">"؟"</span>
+                يرجى استخدام أحد الأسماء الصحيحة التالية:
+            </div>
+
+            <div class="available-title">🍎 الأسماء المتاحة في قاعدة البيانات</div>
+
+            <!-- شبكة الفواكه الثمانية بأيقونات SVG -->
+            <div class="fruits-grid">
+
+                <!-- برتقال -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="24" r="12" fill="#FF8C00" stroke="#E67600" stroke-width="1.5"/>
+                        <ellipse cx="17" cy="20" rx="3" ry="2" fill="#FFB84D" opacity="0.7"/>
+                        <path d="M 20 12 Q 18 8 22 6 Q 24 8 22 12" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/>
+                    </svg>
+                    <span class="fruit-label">برتقال</span>
+                </div>
+
+                <!-- ليمون -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="20" cy="24" rx="11" ry="12" fill="#FFEB3B" stroke="#F9A825" stroke-width="1.5"/>
+                        <ellipse cx="17" cy="20" rx="2.5" ry="1.8" fill="#FFF59D" opacity="0.8"/>
+                        <path d="M 20 12 Q 22 9 20 7" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    </svg>
+                    <span class="fruit-label">ليمون</span>
+                </div>
+
+                <!-- عنب -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="16" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="24" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="20" cy="26" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="14" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="26" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="20" cy="33" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <path d="M 20 16 Q 20 10 24 8" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 24 8 Q 28 9 27 13 Q 25 14 23 11 Z" fill="#4CAF50"/>
+                    </svg>
+                    <span class="fruit-label">عنب</span>
+                </div>
+
+                <!-- تفاح -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 13 Q 12 11 9 20 Q 7 30 15 34 Q 18 35 20 33 Q 22 35 25 34 Q 33 30 31 20 Q 28 11 20 13 Z" 
+                              fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
+                        <ellipse cx="15" cy="19" rx="2.5" ry="3" fill="#FFCDD2" opacity="0.5"/>
+                        <path d="M 20 13 Q 20 8 22 6" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 20 9 Q 24 8 25 11 Q 24 14 21 12 Z" fill="#43A047"/>
+                    </svg>
+                    <span class="fruit-label">تفاح</span>
+                </div>
+
+                <!-- فراولة -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 36 Q 10 26 10 19 Q 10 13 20 13 Q 30 13 30 19 Q 30 26 20 36 Z" 
+                              fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
+                        <circle cx="16" cy="19" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="20" cy="17" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="24" cy="19" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="18" cy="23" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="22" cy="23" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="20" cy="28" r="0.9" fill="#FFEB3B"/>
+                        <path d="M 16 13 Q 20 8 24 13 Q 22 11 20 11 Q 18 11 16 13 Z" fill="#43A047"/>
+                    </svg>
+                    <span class="fruit-label">فراولة</span>
+                </div>
+
+                <!-- مانجو -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 14 Q 12 12 10 22 Q 8 32 18 34 Q 28 34 30 24 Q 31 14 22 14 Q 21 14 20 14 Z" 
+                              fill="#FFA726" stroke="#EF6C00" stroke-width="1.2"/>
+                        <ellipse cx="16" cy="21" rx="2.5" ry="3" fill="#FFE0B2" opacity="0.5"/>
+                        <path d="M 21 12 Q 22 8 25 7" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 22 10 Q 25 8 26 11 Q 24 13 22 11 Z" fill="#43A047"/>
+                    </svg>
+                    <span class="fruit-label">مانجو</span>
+                </div>
+
+                <!-- بطيخ -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 6 22 Q 20 38 34 22 Q 20 14 6 22 Z" fill="#E53935" stroke="#2E7D32" stroke-width="1.5"/>
+                        <path d="M 6 22 Q 20 14 34 22 Q 20 22 6 22 Z" fill="#2E7D32"/>
+                        <circle cx="14" cy="24" r="0.8" fill="#212121"/>
+                        <circle cx="20" cy="26" r="0.8" fill="#212121"/>
+                        <circle cx="26" cy="24" r="0.8" fill="#212121"/>
+                        <circle cx="17" cy="28" r="0.8" fill="#212121"/>
+                        <circle cx="23" cy="28" r="0.8" fill="#212121"/>
+                    </svg>
+                    <span class="fruit-label">بطيخ</span>
+                </div>
+
+                <!-- كرز -->
+                <div class="fruit-item">
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="15" cy="27" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
+                        <circle cx="26" cy="29" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
+                        <circle cx="13" cy="25" r="1.5" fill="#FFCDD2" opacity="0.6"/>
+                        <circle cx="24" cy="27" r="1.5" fill="#FFCDD2" opacity="0.6"/>
+                        <path d="M 15 21 Q 16 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 26 23 Q 24 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 22 10 Q 26 9 27 12 Q 25 14 22 12 Z" fill="#43A047"/>
+                    </svg>
+                    <span class="fruit-label">كرز</span>
+                </div>
+
+            </div>
+
+            <!-- زر الإغلاق -->
+            <button class="wrong-fruit-close-btn" onclick="closeWrongFruitModal()">
+                <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
+                    <path d="M9 16.17 L4.83 12 L3.41 13.41 L9 19 L21 7 L19.59 5.59 Z"/>
+                </svg>
+                فهمت، سأحاول مرة أخرى
+            </button>
+
+        </div>
     </div>
 
     <script>
@@ -1013,7 +1170,6 @@
             updateTrainedCount();
         };
 
-        // ✨ تحديث عداد عمليات التعلم في الواجهة
         function updateTrainedCount() {
             if (typeof getLearningStats === 'function') {
                 const stats = getLearningStats();
@@ -1022,11 +1178,9 @@
             }
         }
 
-        // ✨ دالة التعلم الداخلية - تُستدعى من زر بدء الجولة تلقائياً
+        // ✨ دالة التعلم - تُعيد true أو false
         function trainFromInput(fruitValue) {
-            if (!fruitValue || fruitValue.trim() === "") {
-                return false;
-            }
+            if (!fruitValue || fruitValue.trim() === "") return false;
 
             if (typeof trainAlgorithm !== 'function') {
                 addSystemLog(`❌ خطأ: ملف الخوارزمية لم يتم تحميله`, false);
@@ -1040,9 +1194,27 @@
                 updateTrainedCount();
                 return true;
             } else {
-                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}] - الفواكه المتاحة: برتقال، ليمون، عنب، كرز، تفاح، بطيخ، مانجو، فراولة`, false);
+                addSystemLog(`⚠️ اسم غير معروف: [${fruitValue.trim()}]`, false);
                 return false;
             }
+        }
+
+        // ============================================================
+        // 🚫 عرض نافذة الفاكهة الخاطئة
+        // ============================================================
+        function showWrongFruitModal(enteredName) {
+            const overlay = document.getElementById('wrong-fruit-overlay');
+            const nameEl = document.getElementById('wrong-fruit-name');
+            nameEl.innerText = `"${enteredName}"`;
+            overlay.classList.add('show');
+        }
+
+        function closeWrongFruitModal(event) {
+            if (event && event.target !== event.currentTarget && !event.target.classList.contains('wrong-fruit-close-btn')) {
+                // النقر داخل المحتوى لا يغلق النافذة، إلا إذا كان زر الإغلاق
+                return;
+            }
+            document.getElementById('wrong-fruit-overlay').classList.remove('show');
         }
 
         function listenToCurrentDeviceStatus() {
@@ -1278,22 +1450,26 @@
             });
         }
 
-        // 🚀 الدالة الموحدة: التعلم + بدء الجولة في زر واحد
+        // 🚀 الدالة الموحدة: التعلم + بدء الجولة
         function startNewRound() {
             if (!isGuessingAllowed) return;
 
-            // 1) أولاً: التعلم إن وُجد اسم فاكهة في الحقل
             const inputField = document.getElementById('fruit-training-input');
             const fruitValue = inputField.value.trim();
 
             if (fruitValue !== "") {
                 const learned = trainFromInput(fruitValue);
                 if (learned) {
-                    inputField.value = ""; // تصفير الحقل بعد التعلم الناجح
+                    // ✅ تعلم ناجح → امسح الحقل وابدأ الجولة
+                    inputField.value = "";
+                } else {
+                    // ❌ فشل التعلم → أظهر النافذة المنبثقة ولا تبدأ الجولة
+                    showWrongFruitModal(fruitValue);
+                    return;
                 }
             }
 
-            // 2) ثانياً: بدء الجولة كالمعتاد
+            // بدء الجولة
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
@@ -1325,7 +1501,6 @@
                 grid.style.display = 'grid';
                 renderPredictions(selectedSlots);
 
-                // 🟨 عرض علامات الاستهداف الذهبية على الفواكه المخمّنة
                 selectedSlots.forEach((slot, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     marker.style.top = slot.top;
@@ -1337,7 +1512,7 @@
                 addSystemLog("✅ تم استخراج التوقعات بنجاح", true);
                 
                 startActiveRoundTimer();
-            }, 1500);
+            }, 1200);
         }
 
         function resetEngineUI() {
@@ -1384,7 +1559,7 @@
             }
         }
 
-        // دعم زر Enter في حقل التعلم - يفعّل زر بدء الجولة (الذي بدوره يتعلم)
+        // دعم Enter
         document.addEventListener('DOMContentLoaded', () => {
             const trainInput = document.getElementById('fruit-training-input');
             if (trainInput) {
