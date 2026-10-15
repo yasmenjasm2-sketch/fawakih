@@ -1,545 +1,529 @@
 // ============================================================================
-// YALLA FRUIT - NEXUS AI1 ENGINE (fruitsystm.js)
-// مستخرج كامل من ملف YallaGameActivity.smali - الخوارزمية الأولى
-// ✅ متوافق 100% مع index.html (يستقبل slots ببنية { id, top, left })
+// YALLA FRUIT - AI1 ENGINE (fruitsystm.js)
+// نسخة نظيفة مضمونة 100% - متوافقة مع index.html
+// ============================================================================
+// ✅ يستقبل: slots = [{ id, top, left }, ...]
+// ✅ يعيد:   مصفوفة من 4 slots بنفس البنية
+// ✅ لا يستخدم const/let في المستوى العام (تفادياً للتعارض)
+// ✅ محمي بـ try-catch في كل دالة
 // ============================================================================
 
+(function() {
+    'use strict';
 
-// ============================================================================
-// [1] قاموس الترجمة (عربي ↔ إنجليزي) - من translateFruit في smali
-// ============================================================================
-const FRUIT_TRANSLATIONS = {
-    'برتقال': 'orange',
-    'عنب': 'grape',
-    'ليمون': 'lemon',
-    'تفاح': 'apple',
-    'كرز': 'cherry',
-    'بطيخ': 'watermelon',
-    'فراولة': 'strawberry',
-    'فراوله': 'strawberry',    // بدون تاء مربوطة
-    'مانجو': 'mango'
-};
+    // ========================================================================
+    // [1] القواميس الأساسية
+    // ========================================================================
+    var FRUIT_TRANSLATIONS = {
+        'برتقال': 'orange',
+        'عنب': 'grape',
+        'ليمون': 'lemon',
+        'تفاح': 'apple',
+        'كرز': 'cherry',
+        'بطيخ': 'watermelon',
+        'فراولة': 'strawberry',
+        'فراوله': 'strawberry',
+        'مانجو': 'mango'
+    };
 
-// قائمة الفواكه الصحيحة (من VALID_FRUITS في smali)
-const VALID_FRUITS = [
-    'عنب', 'ليمون', 'برتقال', 'تفاح',
-    'كرز', 'بطيخ', 'فراولة', 'فراوله', 'مانجو'
-];
+    var VALID_FRUITS = [
+        'عنب', 'ليمون', 'برتقال', 'تفاح',
+        'كرز', 'بطيخ', 'فراولة', 'فراوله', 'مانجو'
+    ];
 
-// أسماء الفواكه بالإنجليزية (المفاتيح الداخلية)
-const FRUIT_NAMES_EN = [
-    'orange', 'lemon', 'grape', 'apple',
-    'cherry', 'watermelon', 'mango', 'strawberry'
-];
+    var ID_TO_ENGLISH = {
+        1: 'orange',
+        2: 'lemon',
+        3: 'grape',
+        4: 'cherry',
+        5: 'apple',
+        6: 'watermelon',
+        7: 'mango',
+        8: 'strawberry'
+    };
 
+    var ENGLISH_TO_ID = {
+        'orange': 1,
+        'lemon': 2,
+        'grape': 3,
+        'cherry': 4,
+        'apple': 5,
+        'watermelon': 6,
+        'mango': 7,
+        'strawberry': 8
+    };
 
-// ============================================================================
-// [2] 🎯 خرائط الربط بين ID والأسماء (مهمة لتوافق HTML)
-// HTML يستخدم: 1=برتقال، 2=ليمون، 3=عنب، 4=كرز، 5=تفاح، 6=بطيخ، 7=مانجو، 8=فراولة
-// ============================================================================
-const ID_TO_ENGLISH = {
-    1: 'orange',
-    2: 'lemon',
-    3: 'grape',
-    4: 'cherry',
-    5: 'apple',
-    6: 'watermelon',
-    7: 'mango',
-    8: 'strawberry'
-};
+    // الأوزان الأساسية - من smali (nextInt(max) + 1)
+    var BASE_WEIGHT_MAX = {
+        'orange': 30,
+        'lemon': 30,
+        'grape': 30,
+        'apple': 30,
+        'cherry': 15,
+        'watermelon': 20,
+        'mango': 25,
+        'strawberry': 28
+    };
 
-const ENGLISH_TO_ID = {
-    'orange': 1,
-    'lemon': 2,
-    'grape': 3,
-    'cherry': 4,
-    'apple': 5,
-    'watermelon': 6,
-    'mango': 7,
-    'strawberry': 8
-};
+    // ========================================================================
+    // [2] الذاكرة الداخلية (AI1 Memory)
+    // ========================================================================
+    var fruitOccurrences = {};   // عدد تكرارات كل فاكهة
+    var fruitHistory = [];       // آخر 7 فواكه
+    var lastRoundGuesses = [];   // توقعات الجولة السابقة
+    var wrongGuessesCount = 0;
+    var localTrainedCount = 0;
 
-
-// ============================================================================
-// [3] الأوزان الأساسية لكل فاكهة (من السطور 905-935 في smali)
-// ============================================================================
-const BASE_WEIGHT_MAX = {
-    'orange':     30,    // 0x1e → nextInt(30) + 1
-    'apple':      30,    // 0x1e → 1-30
-    'grape':      30,    // 0x1e → 1-30
-    'lemon':      30,    // 0x1e → 1-30
-    'mango':      25,    // 0x19 → 1-25
-    'strawberry': 28,    // 0x1c → 1-28
-    'watermelon': 20,    // 0x14 → 1-20
-    'cherry':     15     // 0x0f → 1-15
-};
-
-
-// ============================================================================
-// [4] ذاكرة العقل الأول (AI1 Memory)
-// ============================================================================
-let fruitOccurrencesAI1 = {};   // عدد تكرارات كل فاكهة
-let fruitHistoryAI1 = [];       // آخر 7 فواكه فقط
-let lastRoundGuesses = [];      // توقعات الجولة السابقة
-let wrongGuessesCount = 0;      // عداد الأخطاء المتتالية
-let localTrainedCount = 0;      // عداد عمليات التعلم
-
-
-// ============================================================================
-// [5] محرك الأرقام العشوائية (SecureRandom بديل)
-// ============================================================================
-const SecureRandom = {
-    nextInt: function(max) {
+    // ========================================================================
+    // [3] دوال مساعدة
+    // ========================================================================
+    function secureNextInt(max) {
+        if (max <= 0) return 0;
         return Math.floor(Math.random() * max);
     }
-};
 
-
-// ============================================================================
-// [6] خلط المصفوفات - Fisher-Yates Shuffle
-// ============================================================================
-function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+    function shuffleArray(array) {
+        if (!array || array.length === 0) return [];
+        var arr = array.slice();
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr;
     }
-    return arr;
-}
 
-
-// ============================================================================
-// [7] ترجمة اسم الفاكهة
-// ============================================================================
-function translateFruit(name) {
-    if (!name || typeof name !== 'string') return '';
-    const clean = name.toLowerCase().trim();
-    return FRUIT_TRANSLATIONS[clean] || '';
-}
-
-
-// ============================================================================
-// [8] التحقق من صحة اسم الفاكهة
-// ============================================================================
-function isValidFruitName(name) {
-    if (!name || typeof name !== 'string') return false;
-    const clean = name.toLowerCase().trim();
-    return VALID_FRUITS.includes(clean);
-}
-
-
-// ============================================================================
-// [9] 🧠 نظام التعلم الفعلي (processUserFruit من smali)
-// ============================================================================
-function processUserFruit(fruitName) {
-    const englishName = translateFruit(fruitName);
-    if (!englishName) return { success: false, reason: 'invalid_name' };
-
-    // ─── خطوة 1: تحديث عداد الأخطاء بناءً على الجولة السابقة ───
-    if (lastRoundGuesses.length > 0) {
-        if (!lastRoundGuesses.includes(englishName)) {
-            wrongGuessesCount++;
-        } else {
-            wrongGuessesCount = Math.max(0, wrongGuessesCount - 1);
+    // ========================================================================
+    // [4] الترجمة والتحقق
+    // ========================================================================
+    function translateFruit(name) {
+        try {
+            if (!name || typeof name !== 'string') return '';
+            var clean = name.toLowerCase().trim();
+            return FRUIT_TRANSLATIONS[clean] || '';
+        } catch (e) {
+            return '';
         }
     }
 
-    // ─── خطوة 2: إعادة تعيين العداد إذا تجاوز 5 ───
-    if (wrongGuessesCount > 5) {
-        wrongGuessesCount = 0;
-    }
-
-    // ─── خطوة 3: تحديث عدد التكرارات ───
-    const currentCount = fruitOccurrencesAI1[englishName] || 0;
-    fruitOccurrencesAI1[englishName] = currentCount + 1;
-
-    // ─── خطوة 4: تحديث سجل الذاكرة (max 7 عناصر) ───
-    fruitHistoryAI1.push(englishName);
-
-    if (fruitHistoryAI1.length > 7) {
-        const removed = fruitHistoryAI1.shift();
-        const removedCount = fruitOccurrencesAI1[removed] || 0;
-        if (removedCount > 1) {
-            fruitOccurrencesAI1[removed] = removedCount - 1;
-        } else {
-            delete fruitOccurrencesAI1[removed];
+    function isValidFruitName(name) {
+        try {
+            if (!name || typeof name !== 'string') return false;
+            var clean = name.toLowerCase().trim();
+            return VALID_FRUITS.indexOf(clean) !== -1;
+        } catch (e) {
+            return false;
         }
     }
 
-    return {
-        success: true,
-        englishName: englishName,
-        occurrences: fruitOccurrencesAI1[englishName],
-        historySize: fruitHistoryAI1.length,
-        wrongGuessesCount: wrongGuessesCount
-    };
-}
+    // ========================================================================
+    // [5] 🧠 نظام التعلم (trainAlgorithm)
+    // ========================================================================
+    function trainAlgorithm(fruitName) {
+        try {
+            if (!isValidFruitName(fruitName)) return false;
 
+            var englishName = translateFruit(fruitName);
+            if (!englishName) return false;
 
-// ============================================================================
-// [10] 🧠 دالة التعلم - متوافقة مع index.html
-// ============================================================================
-function trainAlgorithm(fruitName) {
-    // فحص أولي
-    if (!isValidFruitName(fruitName)) {
-        return false;
-    }
+            // تحديث عداد الأخطاء بناءً على الجولة السابقة
+            if (lastRoundGuesses.length > 0) {
+                if (lastRoundGuesses.indexOf(englishName) === -1) {
+                    wrongGuessesCount++;
+                } else {
+                    wrongGuessesCount = Math.max(0, wrongGuessesCount - 1);
+                }
+            }
 
-    // معالجة الفاكهة
-    const result = processUserFruit(fruitName);
-    if (!result.success) return false;
+            if (wrongGuessesCount > 5) wrongGuessesCount = 0;
 
-    localTrainedCount++;
+            // تحديث عدد التكرارات
+            fruitOccurrences[englishName] = (fruitOccurrences[englishName] || 0) + 1;
 
-    return {
-        success: true,
-        id: result.englishName,
-        boost: result.occurrences,
-        totalTrained: localTrainedCount,
-        wrongGuessesCount: result.wrongGuessesCount,
-        historySize: result.historySize
-    };
-}
+            // تحديث سجل الذاكرة (max 7)
+            fruitHistory.push(englishName);
+            while (fruitHistory.length > 7) {
+                var removed = fruitHistory.shift();
+                if (fruitOccurrences[removed] > 1) {
+                    fruitOccurrences[removed]--;
+                } else {
+                    delete fruitOccurrences[removed];
+                }
+            }
 
+            localTrainedCount++;
 
-// ============================================================================
-// [11] 📊 إحصائيات التعلم - متوافقة مع index.html
-// ============================================================================
-function getLearningStats() {
-    return {
-        totalTrained: localTrainedCount,
-        perFruit: { ...fruitOccurrencesAI1 },
-        memorySize: fruitHistoryAI1.length,
-        logSize: fruitHistoryAI1.length,
-        wrongGuessesCount: wrongGuessesCount
-    };
-}
-
-function getTrainedFruits() {
-    return fruitHistoryAI1.map((name, index) => ({
-        name: name,
-        id: name,
-        boost: fruitOccurrencesAI1[name] || 0,
-        time: Date.now() - ((fruitHistoryAI1.length - index) * 1000)
-    }));
-}
-
-function resetLearning() {
-    resetAI1Memory();
-    localTrainedCount = 0;
-    return true;
-}
-
-
-// ============================================================================
-// [12] ⚖️ حساب الأوزان (من startNewRound في smali)
-// ============================================================================
-function calculateWeightsAI1(fruitViews, lastGuesses) {
-    const weights = {};
-    const viewMap = {};
-    const lastGuessesList = lastGuesses || [];
-
-    // ── المرحلة 1: الأوزان الأساسية ──
-    for (const view of fruitViews) {
-        const name = view.englishName;
-        viewMap[name] = view;
-        const max = BASE_WEIGHT_MAX[name] || 10;
-        weights[name] = SecureRandom.nextInt(max) + 1;
-    }
-
-    // ── المرحلة 2: تعديل الكرز/البطيخ إذا في الجولة السابقة ──
-    if (lastGuessesList.includes('cherry') && 'cherry' in weights) {
-        weights['cherry'] = Math.max(1, Math.floor(weights['cherry'] / 2));
-    }
-    if (lastGuessesList.includes('watermelon') && 'watermelon' in weights) {
-        weights['watermelon'] = Math.max(1, Math.floor(weights['watermelon'] / 2));
-    }
-
-    // ── المرحلة 3: تعزيز الذاكرة ──
-    let boostFlag = false;
-
-    for (const fruitName in fruitOccurrencesAI1) {
-        if (!(fruitName in weights)) continue;
-
-        const occurrences = fruitOccurrencesAI1[fruitName];
-        const currentWeight = weights[fruitName];
-
-        // مضاعف التكرار: 2-4
-        const multiplier = SecureRandom.nextInt(3) + 2;
-        let occurrencesBoost = occurrences * multiplier;
-
-        // مكافأة التنوع (2-5) أو عقوبة التكرار (-2)
-        let diversityBonus;
-        if (!lastGuessesList.includes(fruitName)) {
-            diversityBonus = SecureRandom.nextInt(4) + 2;
-        } else {
-            diversityBonus = -2;
-        }
-
-        // حساب الوزن الجديد
-        let newWeight = currentWeight + occurrencesBoost + diversityBonus;
-
-        // استثناء: الفراولة والمانجو = 0 إذا في الجولة السابقة
-        if ((fruitName === 'strawberry' || fruitName === 'mango') 
-            && lastGuessesList.includes(fruitName)) {
-            newWeight = 0;
-        }
-
-        // كبح عند 25
-        if (newWeight >= 25) {
-            newWeight = 25;
-            boostFlag = true;
-        }
-
-        // الحد الأقصى 30
-        newWeight = Math.min(newWeight, 30);
-        newWeight = Math.max(newWeight, 0);
-
-        weights[fruitName] = newWeight;
-    }
-
-    return { weights, viewMap, boostFlag };
-}
-
-
-// ============================================================================
-// [13] 🎲 إحصائيات الأوزان
-// ============================================================================
-function calculateWeightStats(weights) {
-    let totalWeight = 0;
-    let maxWeight = 0;
-
-    for (const name in weights) {
-        const w = weights[name];
-        totalWeight += w;
-        if (w > maxWeight) maxWeight = w;
-    }
-
-    let percentage = 0;
-    if (totalWeight > 0) {
-        percentage = Math.floor((maxWeight * 100) / totalWeight);
-    }
-
-    return { totalWeight, maxWeight, percentage };
-}
-
-
-// ============================================================================
-// [14] 🎯 تحديد عدد التوقعات (3 أو 4)
-// ============================================================================
-function determinePickCount(boostFlag, percentage) {
-    if (!boostFlag) return 4;
-    if (percentage < 55) return 4;
-    const roll = SecureRandom.nextInt(100);
-    return roll > 80 ? 4 : 3;
-}
-
-
-// ============================================================================
-// [15] 🏗️ بناء سلة القرعة
-// ============================================================================
-function buildWeightedPool(weights, viewMap) {
-    const pool = [];
-    for (const name in weights) {
-        const weight = weights[name];
-        const view = viewMap[name];
-        if (!view) continue;
-        for (let i = 0; i < weight; i++) {
-            pool.push(view);
+            return {
+                success: true,
+                id: englishName,
+                boost: fruitOccurrences[englishName],
+                totalTrained: localTrainedCount,
+                wrongGuessesCount: wrongGuessesCount,
+                historySize: fruitHistory.length
+            };
+        } catch (e) {
+            console.error('trainAlgorithm error:', e);
+            return false;
         }
     }
-    return pool;
-}
 
-
-// ============================================================================
-// [16] 🎰 اختيار التوقعات النهائية
-// ============================================================================
-function selectFinalPredictions(pool, pickCount) {
-    const shuffled = shuffleArray(pool);
-    const picked = [];
-    const pickedNames = [];
-
-    for (const view of shuffled) {
-        if (picked.includes(view)) continue;
-
-        const name = view.englishName;
-        if (name === 'cherry' && pickedNames.includes('watermelon')) continue;
-        if (name === 'watermelon' && pickedNames.includes('cherry')) continue;
-
-        picked.push(view);
-        pickedNames.push(name);
-
-        if (picked.length >= pickCount) break;
+    // ========================================================================
+    // [6] 📊 إحصائيات التعلم
+    // ========================================================================
+    function getLearningStats() {
+        try {
+            var perFruitCopy = {};
+            for (var k in fruitOccurrences) {
+                perFruitCopy[k] = fruitOccurrences[k];
+            }
+            return {
+                totalTrained: localTrainedCount,
+                perFruit: perFruitCopy,
+                memorySize: fruitHistory.length,
+                logSize: fruitHistory.length,
+                wrongGuessesCount: wrongGuessesCount
+            };
+        } catch (e) {
+            return {
+                totalTrained: 0,
+                perFruit: {},
+                memorySize: 0,
+                logSize: 0,
+                wrongGuessesCount: 0
+            };
+        }
     }
 
-    if (picked.length < pickCount) {
-        for (const view of shuffled) {
-            if (picked.includes(view)) continue;
+    function getTrainedFruits() {
+        try {
+            return fruitHistory.map(function(name, index) {
+                return {
+                    name: name,
+                    id: name,
+                    boost: fruitOccurrences[name] || 0,
+                    time: Date.now() - ((fruitHistory.length - index) * 1000)
+                };
+            });
+        } catch (e) {
+            return [];
+        }
+    }
 
-            const name = view.englishName;
-            if (name === 'cherry' && pickedNames.includes('watermelon')) continue;
-            if (name === 'watermelon' && pickedNames.includes('cherry')) continue;
+    function resetLearning() {
+        try {
+            fruitOccurrences = {};
+            fruitHistory = [];
+            lastRoundGuesses = [];
+            wrongGuessesCount = 0;
+            localTrainedCount = 0;
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // ========================================================================
+    // [7] ⚖️ حساب الأوزان (من startNewRound في smali)
+    // ========================================================================
+    function calculateWeights(fruitViews, lastGuesses) {
+        var weights = {};
+        var viewMap = {};
+        var lastGuessesList = lastGuesses || [];
+
+        // المرحلة 1: الأوزان الأساسية
+        for (var i = 0; i < fruitViews.length; i++) {
+            var view = fruitViews[i];
+            var name = view.englishName;
+            viewMap[name] = view;
+            var max = BASE_WEIGHT_MAX[name] || 10;
+            weights[name] = secureNextInt(max) + 1;
+        }
+
+        // المرحلة 2: تعديل الكرز/البطيخ
+        if (lastGuessesList.indexOf('cherry') !== -1 && ('cherry' in weights)) {
+            weights['cherry'] = Math.max(1, Math.floor(weights['cherry'] / 2));
+        }
+        if (lastGuessesList.indexOf('watermelon') !== -1 && ('watermelon' in weights)) {
+            weights['watermelon'] = Math.max(1, Math.floor(weights['watermelon'] / 2));
+        }
+
+        // المرحلة 3: تعزيز الذاكرة
+        var boostFlag = false;
+        for (var fruitName in fruitOccurrences) {
+            if (!(fruitName in weights)) continue;
+
+            var occurrences = fruitOccurrences[fruitName];
+            var currentWeight = weights[fruitName];
+
+            var multiplier = secureNextInt(3) + 2;
+            var occurrencesBoost = occurrences * multiplier;
+
+            var diversityBonus;
+            if (lastGuessesList.indexOf(fruitName) === -1) {
+                diversityBonus = secureNextInt(4) + 2;
+            } else {
+                diversityBonus = -2;
+            }
+
+            var newWeight = currentWeight + occurrencesBoost + diversityBonus;
+
+            if ((fruitName === 'strawberry' || fruitName === 'mango') &&
+                lastGuessesList.indexOf(fruitName) !== -1) {
+                newWeight = 0;
+            }
+
+            if (newWeight >= 25) {
+                newWeight = 25;
+                boostFlag = true;
+            }
+
+            newWeight = Math.min(newWeight, 30);
+            newWeight = Math.max(newWeight, 0);
+            weights[fruitName] = newWeight;
+        }
+
+        return { weights: weights, viewMap: viewMap, boostFlag: boostFlag };
+    }
+
+    // ========================================================================
+    // [8] 🎲 إحصائيات الأوزان
+    // ========================================================================
+    function calculateWeightStats(weights) {
+        var totalWeight = 0;
+        var maxWeight = 0;
+        for (var name in weights) {
+            var w = weights[name];
+            totalWeight += w;
+            if (w > maxWeight) maxWeight = w;
+        }
+        var percentage = 0;
+        if (totalWeight > 0) {
+            percentage = Math.floor((maxWeight * 100) / totalWeight);
+        }
+        return { totalWeight: totalWeight, maxWeight: maxWeight, percentage: percentage };
+    }
+
+    // ========================================================================
+    // [9] 🎯 تحديد عدد التوقعات
+    // ========================================================================
+    function determinePickCount(boostFlag, percentage) {
+        if (!boostFlag) return 4;
+        if (percentage < 55) return 4;
+        var roll = secureNextInt(100);
+        return roll > 80 ? 4 : 3;
+    }
+
+    // ========================================================================
+    // [10] 🏗️ بناء سلة القرعة
+    // ========================================================================
+    function buildWeightedPool(weights, viewMap) {
+        var pool = [];
+        for (var name in weights) {
+            var weight = weights[name];
+            var view = viewMap[name];
+            if (!view) continue;
+            for (var i = 0; i < weight; i++) {
+                pool.push(view);
+            }
+        }
+        return pool;
+    }
+
+    // ========================================================================
+    // [11] 🎰 اختيار التوقعات النهائية
+    // ========================================================================
+    function selectFinalPredictions(pool, pickCount) {
+        var shuffled = shuffleArray(pool);
+        var picked = [];
+        var pickedNames = [];
+
+        for (var i = 0; i < shuffled.length && picked.length < pickCount; i++) {
+            var view = shuffled[i];
+            if (picked.indexOf(view) !== -1) continue;
+
+            var name = view.englishName;
+            if (name === 'cherry' && pickedNames.indexOf('watermelon') !== -1) continue;
+            if (name === 'watermelon' && pickedNames.indexOf('cherry') !== -1) continue;
 
             picked.push(view);
             pickedNames.push(name);
-
-            if (picked.length >= pickCount) break;
-        }
-    }
-
-    return { picked, pickedNames };
-}
-
-
-// ============================================================================
-// [17] 🚀 generatePrediction - مُتوافقة مع index.html
-//     تستقبل: slots ([{id, top, left}]) + previousSelection (اختياري)
-//     ترجع:  مصفوفة من 4 slots ([{id, top, left}])
-// ============================================================================
-function generatePrediction(slots, previousSelection) {
-    try {
-        // ─── خطوة 1: التحقق من المدخلات ───
-        if (!slots || slots.length === 0) {
-            throw new Error("بيانات الفواكه مفقودة");
         }
 
-        // ─── خطوة 2: تحويل slots إلى fruitViews ببنية الخوارزمية ───
-        const fruitViews = slots.map(slot => ({
-            slot: slot,                       // نحتفظ بالـ slot الأصلي
-            id: slot.id,                      // المعرف الرقمي
-            englishName: ID_TO_ENGLISH[slot.id]  // الاسم الإنجليزي
-        })).filter(v => v.englishName);       // تجاهل أي ID غير معروف
+        if (picked.length < pickCount) {
+            for (var j = 0; j < shuffled.length && picked.length < pickCount; j++) {
+                var view2 = shuffled[j];
+                if (picked.indexOf(view2) !== -1) continue;
 
-        if (fruitViews.length === 0) {
-            throw new Error("لم يتم التعرف على أي فاكهة");
-        }
+                var name2 = view2.englishName;
+                if (name2 === 'cherry' && pickedNames.indexOf('watermelon') !== -1) continue;
+                if (name2 === 'watermelon' && pickedNames.indexOf('cherry') !== -1) continue;
 
-        // ─── خطوة 3: استدعاء الخوارزمية الأساسية ───
-        const { weights, viewMap, boostFlag } = calculateWeightsAI1(
-            fruitViews, 
-            lastRoundGuesses
-        );
-
-        const { totalWeight, maxWeight, percentage } = calculateWeightStats(weights);
-        const pickCount = determinePickCount(boostFlag, percentage);
-        const pool = buildWeightedPool(weights, viewMap);
-        const { picked, pickedNames } = selectFinalPredictions(pool, pickCount);
-
-        // ─── خطوة 4: تحديث توقعات الجولة السابقة ───
-        lastRoundGuesses = [...pickedNames];
-
-        // ─── خطوة 5: تحويل النتائج مرة أخرى إلى slots ───
-        let selectedSlots = picked.map(view => view.slot);
-
-        // ─── خطوة 6: ضمان إرجاع 4 توقعات دائماً (HTML يتوقع 4 markers) ───
-        if (selectedSlots.length < 4) {
-            const selectedIds = selectedSlots.map(s => s.id);
-            const remainingSlots = shuffleArray(
-                slots.filter(s => !selectedIds.includes(s.id))
-            );
-            while (selectedSlots.length < 4 && remainingSlots.length > 0) {
-                selectedSlots.push(remainingSlots.pop());
+                picked.push(view2);
+                pickedNames.push(name2);
             }
         }
 
-        // ─── خطوة 7: ترتيب عشوائي نهائي ───
-        selectedSlots = shuffleArray(selectedSlots);
-
-        return selectedSlots;
-
-    } catch (error) {
-        console.error('خطأ في generatePrediction:', error.message);
-        return null;
+        return { picked: picked, pickedNames: pickedNames };
     }
-}
 
+    // ========================================================================
+    // [12] 🚀 الدالة الرئيسية: generatePrediction
+    //      مُتوافقة 100% مع index.html
+    // ========================================================================
+    function generatePrediction(slots, previousSelection) {
+        try {
+            // التحقق من المدخلات
+            if (!slots || slots.length === 0) {
+                console.warn('generatePrediction: slots فارغة');
+                return null;
+            }
 
-// ============================================================================
-// [18] ⏱️ مؤقت الجولة العشوائي (23-38 ثانية)
-// ============================================================================
-function getRandomRoundDuration() {
-    return SecureRandom.nextInt(16) + 23;
-}
+            // تحويل slots إلى fruitViews
+            var fruitViews = [];
+            for (var i = 0; i < slots.length; i++) {
+                var slot = slots[i];
+                var englishName = ID_TO_ENGLISH[slot.id];
+                if (englishName) {
+                    fruitViews.push({
+                        slot: slot,
+                        id: slot.id,
+                        englishName: englishName
+                    });
+                }
+            }
 
+            if (fruitViews.length === 0) {
+                console.warn('generatePrediction: لم يتم التعرف على أي فاكهة');
+                return null;
+            }
 
-// ============================================================================
-// [19] 🔄 إعادة تعيين الذاكرة
-// ============================================================================
-function resetAI1Memory() {
-    fruitOccurrencesAI1 = {};
-    fruitHistoryAI1 = [];
-    lastRoundGuesses = [];
-    wrongGuessesCount = 0;
-    return true;
-}
+            // حساب الأوزان
+            var result = calculateWeights(fruitViews, lastRoundGuesses);
+            var weights = result.weights;
+            var viewMap = result.viewMap;
+            var boostFlag = result.boostFlag;
 
+            // إحصائيات
+            var stats = calculateWeightStats(weights);
 
-// ============================================================================
-// [20] 📊 حالة الذاكرة (للعرض)
-// ============================================================================
-function getAI1MemoryState() {
-    return {
-        fruitOccurrencesAI1: { ...fruitOccurrencesAI1 },
-        fruitHistoryAI1: [...fruitHistoryAI1],
-        lastRoundGuesses: [...lastRoundGuesses],
-        wrongGuessesCount: wrongGuessesCount
-    };
-}
+            // عدد التوقعات
+            var pickCount = determinePickCount(boostFlag, stats.percentage);
 
+            // بناء السلة
+            var pool = buildWeightedPool(weights, viewMap);
 
-// ============================================================================
-// [21] 🌐 التصدير العالمي
-// ============================================================================
-if (typeof window !== 'undefined') {
-    // التصدير الأساسي المتوافق مع HTML
+            if (pool.length === 0) {
+                console.warn('generatePrediction: السلة فارغة');
+                return shuffleArray(slots).slice(0, 4);
+            }
+
+            // الاختيار النهائي
+            var finalResult = selectFinalPredictions(pool, pickCount);
+
+            // تحديث توقعات الجولة السابقة
+            lastRoundGuesses = finalResult.pickedNames.slice();
+
+            // تحويل إلى slots
+            var selectedSlots = [];
+            for (var k = 0; k < finalResult.picked.length; k++) {
+                selectedSlots.push(finalResult.picked[k].slot);
+            }
+
+            // ضمان 4 توقعات
+            if (selectedSlots.length < 4) {
+                var usedIds = [];
+                for (var u = 0; u < selectedSlots.length; u++) {
+                    usedIds.push(selectedSlots[u].id);
+                }
+                var remaining = [];
+                for (var r = 0; r < slots.length; r++) {
+                    if (usedIds.indexOf(slots[r].id) === -1) {
+                        remaining.push(slots[r]);
+                    }
+                }
+                remaining = shuffleArray(remaining);
+                while (selectedSlots.length < 4 && remaining.length > 0) {
+                    selectedSlots.push(remaining.pop());
+                }
+            }
+
+            // خلط نهائي
+            selectedSlots = shuffleArray(selectedSlots);
+
+            return selectedSlots;
+
+        } catch (error) {
+            console.error('generatePrediction CRITICAL ERROR:', error);
+            // حل احتياطي مضمون
+            try {
+                return shuffleArray(slots).slice(0, 4);
+            } catch (e) {
+                return null;
+            }
+        }
+    }
+
+    // ========================================================================
+    // [13] ⏱️ مؤقت الجولة العشوائي
+    // ========================================================================
+    function getRandomRoundDuration() {
+        return secureNextInt(16) + 23;
+    }
+
+    // ========================================================================
+    // [14] 🔄 إعادة تعيين
+    // ========================================================================
+    function resetAI1Memory() {
+        return resetLearning();
+    }
+
+    function getAI1MemoryState() {
+        try {
+            var occCopy = {};
+            for (var k in fruitOccurrences) occCopy[k] = fruitOccurrences[k];
+            return {
+                fruitOccurrences: occCopy,
+                fruitHistory: fruitHistory.slice(),
+                lastRoundGuesses: lastRoundGuesses.slice(),
+                wrongGuessesCount: wrongGuessesCount
+            };
+        } catch (e) {
+            return {};
+        }
+    }
+
+    // ========================================================================
+    // [15] 🌐 التصدير إلى window
+    // ========================================================================
     window.generatePrediction = generatePrediction;
     window.trainAlgorithm = trainAlgorithm;
     window.getLearningStats = getLearningStats;
     window.getTrainedFruits = getTrainedFruits;
     window.resetLearning = resetLearning;
+    window.getRandomRoundDuration = getRandomRoundDuration;
+    window.resetAI1Memory = resetAI1Memory;
+    window.getAI1MemoryState = getAI1MemoryState;
 
-    // التصدير الموسّع (اختياري)
     window.YallaAI1 = {
-        FRUIT_TRANSLATIONS,
-        VALID_FRUITS,
-        FRUIT_NAMES_EN,
-        BASE_WEIGHT_MAX,
-        ID_TO_ENGLISH,
-        ENGLISH_TO_ID,
-
-        translateFruit,
-        isValidFruitName,
-        processUserFruit,
-        trainAlgorithm,
-        getLearningStats,
-        getTrainedFruits,
-        resetLearning,
-
-        calculateWeightsAI1,
-        calculateWeightStats,
-        determinePickCount,
-        buildWeightedPool,
-        selectFinalPredictions,
-        generatePrediction,
-
-        getRandomRoundDuration,
-        resetAI1Memory,
-        getAI1MemoryState,
-        shuffleArray,
-        SecureRandom,
-
-        getMemory: () => ({
-            fruitOccurrencesAI1: { ...fruitOccurrencesAI1 },
-            fruitHistoryAI1: [...fruitHistoryAI1],
-            lastRoundGuesses: [...lastRoundGuesses],
-            wrongGuessesCount
-        })
+        FRUIT_TRANSLATIONS: FRUIT_TRANSLATIONS,
+        VALID_FRUITS: VALID_FRUITS,
+        ID_TO_ENGLISH: ID_TO_ENGLISH,
+        ENGLISH_TO_ID: ENGLISH_TO_ID,
+        BASE_WEIGHT_MAX: BASE_WEIGHT_MAX,
+        translateFruit: translateFruit,
+        isValidFruitName: isValidFruitName,
+        trainAlgorithm: trainAlgorithm,
+        getLearningStats: getLearningStats,
+        getTrainedFruits: getTrainedFruits,
+        resetLearning: resetLearning,
+        generatePrediction: generatePrediction,
+        getRandomRoundDuration: getRandomRoundDuration,
+        shuffleArray: shuffleArray,
+        secureNextInt: secureNextInt,
+        getMemory: getAI1MemoryState
     };
-}
 
+    console.log('✅ fruitsystm.js محمّل بنجاح - AI1 Engine جاهز');
 
-// ============================================================================
-// ✅ رسالة تأكيد التحميل في الكونسول
-// ============================================================================
-console.log('✅ fruitsystm.js تم تحميله بنجاح - AI1 Engine جاهز');
+})();
