@@ -36,7 +36,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ⚡ تخفيف الحركات على الهاتف */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -45,7 +44,6 @@
             }
         }
 
-        /* ⚡ خلفية ثابتة خفيفة (بدل المتحركة الثقيلة) */
         body {
             background: #0B0612;
             background-image: 
@@ -64,8 +62,6 @@
             transform: translateZ(0);
             -webkit-font-smoothing: antialiased;
         }
-
-        /* ⚡ تم إزالة background animation الثقيل */
 
         /* قسم المبرمج */
         #dev-logo {
@@ -245,7 +241,6 @@
             border-radius: 10px;
         }
 
-        /* 💳 زر شراء الاشتراك */
         .buy-subscription-btn {
             margin-top: 20px;
             border-radius: 16px;
@@ -308,6 +303,7 @@
             text-align: center;
             margin-bottom: 5px;
             margin-top: 40px;
+            position: relative;
         }
         .app-header h1 {
             font-size: 24px;
@@ -329,10 +325,36 @@
             font-size: 12px;
             font-weight: bold;
             color: var(--text-muted);
+            gap: 6px;
         }
         .stats-bar span { display: flex; align-items: center; gap: 5px; }
         .stat-value { color: var(--neon-blue); }
         .stat-icon { color: var(--gold); }
+
+        /* ⚙️ زر الترس الخاص بالحساب */
+        .gear-stat-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font: inherit;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0;
+            transition: color 0.2s;
+        }
+        .gear-stat-btn:active { color: var(--gold); }
+        .gear-stat-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--gold);
+            filter: drop-shadow(0 0 4px rgba(248, 192, 0, 0.4));
+            transition: transform 0.6s ease;
+        }
+        .gear-stat-btn:hover svg { transform: rotate(90deg); }
 
         .game-container {
             position: relative;
@@ -361,7 +383,6 @@
         }
         .game-image.analyzing { opacity: 0.5; }
 
-        /* 🟨 المربع الذهبي فقط للاستهداف */
         .marker {
             position: absolute;
             width: 58px;
@@ -642,7 +663,6 @@
             pointer-events: none;
         }
 
-        /* رأس النافذة - أيقونة التحذير */
         .warning-icon-wrapper {
             display: flex;
             justify-content: center;
@@ -701,7 +721,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* شبكة الفواكه الصحيحة */
         .fruits-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -760,6 +779,204 @@
         }
         .wrong-fruit-close-btn:active {
             transform: scale(0.96);
+        }
+
+        /* ============================================================
+           ⚙️ نافذة معلومات الحساب (الترس)
+           ============================================================ */
+        .account-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .account-overlay.show {
+            display: flex;
+            animation: overlayFade 0.25s ease;
+        }
+
+        .account-modal {
+            background: linear-gradient(145deg, #1a0b2e, #0d0616);
+            border: 2px solid var(--neon-blue);
+            border-radius: 24px;
+            padding: 0;
+            max-width: 440px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(0, 229, 255, 0.35);
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .account-modal::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--gold), var(--primary), var(--neon-blue));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 229, 255, 0.05);
+            border-radius: 22px 22px 0 0;
+        }
+
+        .account-gear-icon {
+            width: 40px;
+            height: 40px;
+            fill: var(--gold);
+            animation: gearSpin 12s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(248, 192, 0, 0.55));
+            flex-shrink: 0;
+        }
+
+        @keyframes gearSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .account-header h2 {
+            font-size: 18px;
+            color: var(--gold);
+            font-weight: 900;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(248, 192, 0, 0.35);
+        }
+
+        .account-close-btn {
+            margin-right: auto;
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            color: var(--danger);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+        .account-close-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 71, 87, 0.3);
+        }
+
+        .account-body {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .account-field {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .account-field.highlight {
+            border-color: var(--gold);
+            background: rgba(248, 192, 0, 0.08);
+            box-shadow: 0 0 12px rgba(248, 192, 0, 0.15);
+        }
+
+        .account-field.danger {
+            border-color: var(--danger);
+            background: rgba(255, 71, 87, 0.08);
+            box-shadow: 0 0 12px rgba(255, 71, 87, 0.15);
+        }
+
+        .account-field-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .account-field-label svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--neon-blue);
+            flex-shrink: 0;
+        }
+
+        .account-field.highlight .account-field-label svg { fill: var(--gold); }
+        .account-field.danger .account-field-label svg { fill: var(--danger); }
+
+        .account-field-value {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            letter-spacing: 0.3px;
+            direction: ltr;
+            text-align: right;
+        }
+
+        .account-field.highlight .account-field-value {
+            color: var(--gold);
+        }
+
+        .account-field.danger .account-field-value {
+            color: var(--danger);
+        }
+
+        .account-footer {
+            padding: 0 22px 20px 22px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .account-footer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.4);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        .account-footer-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--success);
         }
     </style>
 </head>
@@ -898,7 +1115,12 @@
 
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
-            <span><span class="stat-icon">⏳</span> الاشتراك: <span class="stat-value" id="sub-remaining">--</span></span>
+            <button class="gear-stat-btn" onclick="toggleAccountPanel()" title="معلومات الحساب">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+                <span>الحساب: <span class="stat-value" id="sub-remaining">--</span></span>
+            </button>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
@@ -939,7 +1161,6 @@
     <div id="wrong-fruit-overlay" class="wrong-fruit-overlay" onclick="closeWrongFruitModal(event)">
         <div class="wrong-fruit-modal" onclick="event.stopPropagation()">
 
-            <!-- أيقونة تحذير برمجية -->
             <div class="warning-icon-wrapper">
                 <svg class="warning-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -952,7 +1173,6 @@
                             <stop offset="100%" style="stop-color:#0d0616" />
                         </linearGradient>
                     </defs>
-                    <!-- مثلث تحذير -->
                     <path d="M 50 8 L 94 88 L 6 88 Z" 
                           fill="url(#warnGrad)" 
                           stroke="#FFD54F" 
@@ -961,10 +1181,8 @@
                     <path d="M 50 20 L 86 82 L 14 82 Z" 
                           fill="url(#warnInner)" 
                           opacity="0.4"/>
-                    <!-- علامة تعجب -->
                     <rect x="47" y="38" width="6" height="28" rx="3" fill="#FFD54F"/>
                     <circle cx="50" cy="75" r="4" fill="#FFD54F"/>
-                    <!-- حلقة خارجية نابضة -->
                     <circle cx="50" cy="50" r="46" 
                             fill="none" 
                             stroke="#FF4757" 
@@ -982,13 +1200,11 @@
                 يرجى استخدام أحد الأسماء الصحيحة التالية:
             </div>
 
-            <div class="available-title">🍎 الأسماء المتاحة في قاعدة البيانات</div>
+            <div class="available-title">🍎 اضغط على الفاكهة لاختيارها تلقائياً</div>
 
-            <!-- شبكة الفواكه الثمانية بأيقونات SVG -->
             <div class="fruits-grid">
 
-                <!-- برتقال -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('برتقال')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="20" cy="24" r="12" fill="#FF8C00" stroke="#E67600" stroke-width="1.5"/>
                         <ellipse cx="17" cy="20" rx="3" ry="2" fill="#FFB84D" opacity="0.7"/>
@@ -997,8 +1213,7 @@
                     <span class="fruit-label">برتقال</span>
                 </div>
 
-                <!-- ليمون -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('ليمون')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <ellipse cx="20" cy="24" rx="11" ry="12" fill="#FFEB3B" stroke="#F9A825" stroke-width="1.5"/>
                         <ellipse cx="17" cy="20" rx="2.5" ry="1.8" fill="#FFF59D" opacity="0.8"/>
@@ -1007,8 +1222,7 @@
                     <span class="fruit-label">ليمون</span>
                 </div>
 
-                <!-- عنب -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('عنب')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="16" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
                         <circle cx="24" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
@@ -1022,8 +1236,7 @@
                     <span class="fruit-label">عنب</span>
                 </div>
 
-                <!-- تفاح -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('تفاح')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <path d="M 20 13 Q 12 11 9 20 Q 7 30 15 34 Q 18 35 20 33 Q 22 35 25 34 Q 33 30 31 20 Q 28 11 20 13 Z" 
                               fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
@@ -1034,8 +1247,7 @@
                     <span class="fruit-label">تفاح</span>
                 </div>
 
-                <!-- فراولة -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('فراولة')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <path d="M 20 36 Q 10 26 10 19 Q 10 13 20 13 Q 30 13 30 19 Q 30 26 20 36 Z" 
                               fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
@@ -1050,8 +1262,7 @@
                     <span class="fruit-label">فراولة</span>
                 </div>
 
-                <!-- مانجو -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('مانجو')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <path d="M 20 14 Q 12 12 10 22 Q 8 32 18 34 Q 28 34 30 24 Q 31 14 22 14 Q 21 14 20 14 Z" 
                               fill="#FFA726" stroke="#EF6C00" stroke-width="1.2"/>
@@ -1062,8 +1273,7 @@
                     <span class="fruit-label">مانجو</span>
                 </div>
 
-                <!-- بطيخ -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('بطيخ')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <path d="M 6 22 Q 20 38 34 22 Q 20 14 6 22 Z" fill="#E53935" stroke="#2E7D32" stroke-width="1.5"/>
                         <path d="M 6 22 Q 20 14 34 22 Q 20 22 6 22 Z" fill="#2E7D32"/>
@@ -1076,8 +1286,7 @@
                     <span class="fruit-label">بطيخ</span>
                 </div>
 
-                <!-- كرز -->
-                <div class="fruit-item">
+                <div class="fruit-item" onclick="selectFruitName('كرز')">
                     <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="15" cy="27" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
                         <circle cx="26" cy="29" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
@@ -1092,13 +1301,84 @@
 
             </div>
 
-            <!-- زر الإغلاق -->
             <button class="wrong-fruit-close-btn" onclick="closeWrongFruitModal()">
                 <svg class="zodiac-icon-btn" viewBox="0 0 24 24">
                     <path d="M9 16.17 L4.83 12 L3.41 13.41 L9 19 L21 7 L19.59 5.59 Z"/>
                 </svg>
                 فهمت، سأحاول مرة أخرى
             </button>
+
+        </div>
+    </div>
+
+    <!-- ⚙️ نافذة معلومات الحساب (الترس) -->
+    <div id="account-overlay" class="account-overlay" onclick="closeAccountPanel(event)">
+        <div class="account-modal" onclick="event.stopPropagation()">
+
+            <div class="account-header">
+                <svg class="account-gear-icon" viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                </svg>
+                <h2>معلومات الحساب</h2>
+                <button class="account-close-btn" onclick="toggleAccountPanel()">✕</button>
+            </div>
+
+            <div class="account-body">
+
+                <!-- المعرف الفريد -->
+                <div class="account-field">
+                    <div class="account-field-label">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <span>المعرف الفريد (اسم الحساب)</span>
+                    </div>
+                    <div class="account-field-value" id="acct-id">--</div>
+                </div>
+
+                <!-- تاريخ بدء الاشتراك -->
+                <div class="account-field">
+                    <div class="account-field-label">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
+                        <span>تاريخ بدء الاشتراك</span>
+                    </div>
+                    <div class="account-field-value" id="acct-start">--</div>
+                </div>
+
+                <!-- تاريخ انتهاء الاشتراك -->
+                <div class="account-field">
+                    <div class="account-field-label">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-9-2l4-4-1.41-1.41L9 15.17l-2.59-2.58L5 14l4 4z"/>
+                        </svg>
+                        <span>تاريخ انتهاء الاشتراك</span>
+                    </div>
+                    <div class="account-field-value" id="acct-expiry">--</div>
+                </div>
+
+                <!-- الوقت المتبقي -->
+                <div class="account-field highlight" id="acct-remaining-field">
+                    <div class="account-field-label">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
+                        </svg>
+                        <span>الوقت المتبقي</span>
+                    </div>
+                    <div class="account-field-value" id="acct-remaining">--</div>
+                </div>
+
+            </div>
+
+            <div class="account-footer">
+                <div class="account-footer-badge">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
+                    <span>حساب موثق - VIP</span>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -1137,6 +1417,7 @@
         let subscriptionCheckInterval = null;
         let codeRequestCount = 0; 
         let codeTimerInterval = null;
+        let currentDeviceData = null;
 
         const slots = [
             { id: 1, top: '17%', left: '17%' },
@@ -1178,7 +1459,6 @@
             }
         }
 
-        // ✨ دالة التعلم - تُعيد true أو false
         function trainFromInput(fruitValue) {
             if (!fruitValue || fruitValue.trim() === "") return false;
 
@@ -1200,7 +1480,7 @@
         }
 
         // ============================================================
-        // 🚫 عرض نافذة الفاكهة الخاطئة
+        // 🚫 عرض / إغلاق نافذة الفاكهة الخاطئة
         // ============================================================
         function showWrongFruitModal(enteredName) {
             const overlay = document.getElementById('wrong-fruit-overlay');
@@ -1210,16 +1490,100 @@
         }
 
         function closeWrongFruitModal(event) {
-            if (event && event.target !== event.currentTarget && !event.target.classList.contains('wrong-fruit-close-btn')) {
-                // النقر داخل المحتوى لا يغلق النافذة، إلا إذا كان زر الإغلاق
-                return;
+            if (event) {
+                const isOverlay = event.target.id === 'wrong-fruit-overlay';
+                const isCloseBtn = event.target.closest && event.target.closest('.wrong-fruit-close-btn');
+                if (!isOverlay && !isCloseBtn) return;
             }
             document.getElementById('wrong-fruit-overlay').classList.remove('show');
         }
 
+        // ✅ اختيار فاكهة صحيحة من النافذة → ملء الحقل وإغلاق النافذة وبدء الجولة تلقائياً
+        function selectFruitName(name) {
+            const inputField = document.getElementById('fruit-training-input');
+            inputField.value = name;
+            closeWrongFruitModal();
+            setTimeout(() => startNewRound(), 120);
+        }
+
+        // ============================================================
+        // ⚙️ نافذة الحساب (الترس)
+        // ============================================================
+        function toggleAccountPanel() {
+            const overlay = document.getElementById('account-overlay');
+            if (overlay.classList.contains('show')) {
+                overlay.classList.remove('show');
+            } else {
+                updateAccountPanel();
+                overlay.classList.add('show');
+            }
+        }
+
+        function closeAccountPanel(event) {
+            if (event && event.target.id !== 'account-overlay') return;
+            document.getElementById('account-overlay').classList.remove('show');
+        }
+
+        function formatArabicDate(ts) {
+            if (!ts) return 'غير محدد';
+            try {
+                const d = new Date(ts);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mi = String(d.getMinutes()).padStart(2, '0');
+                return `${yyyy}/${mm}/${dd} - ${hh}:${mi}`;
+            } catch (e) {
+                return 'غير محدد';
+            }
+        }
+
+        function formatRemaining(ms) {
+            if (ms <= 0) return 'منتهي ❌';
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            let parts = [];
+            if (days > 0) parts.push(`${days} يوم`);
+            if (hours > 0) parts.push(`${hours} ساعة`);
+            if (minutes > 0 && days === 0) parts.push(`${minutes} دقيقة`);
+            return parts.length ? parts.join(' و ') : 'أقل من دقيقة';
+        }
+
+        function updateAccountPanel() {
+            const data = currentDeviceData || {};
+            document.getElementById('acct-id').textContent = deviceId;
+            
+            const startTs = data.startTimestamp || data.timestamp || null;
+            document.getElementById('acct-start').textContent = formatArabicDate(startTs);
+            document.getElementById('acct-expiry').textContent = formatArabicDate(data.expiryTimestamp);
+            
+            const remainingEl = document.getElementById('acct-remaining');
+            const remainingField = document.getElementById('acct-remaining-field');
+            
+            if (data.expiryTimestamp) {
+                const diff = data.expiryTimestamp - Date.now();
+                remainingEl.textContent = formatRemaining(diff);
+                if (diff <= 0) {
+                    remainingField.classList.remove('highlight');
+                    remainingField.classList.add('danger');
+                } else {
+                    remainingField.classList.add('highlight');
+                    remainingField.classList.remove('danger');
+                }
+            } else {
+                remainingEl.textContent = 'غير محدد';
+            }
+        }
+
+        // ============================================================
+        // 🔥 Firebase - مراقبة الحالة
+        // ============================================================
         function listenToCurrentDeviceStatus() {
             db.ref('requests/' + deviceId).on('value', (snapshot) => {
                 const data = snapshot.val();
+                currentDeviceData = data;
                 handleDeviceStatusData(data);
             });
         }
@@ -1232,6 +1596,10 @@
 
             if (data.status === 'approved') {
                 const now = Date.now();
+                // حفظ تاريخ بداية الاشتراك إن لم يكن محفوظاً
+                if (!data.startTimestamp && data.timestamp) {
+                    db.ref('requests/' + deviceId).update({ startTimestamp: data.timestamp });
+                }
                 if (data.expiryTimestamp && now >= data.expiryTimestamp) {
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
                     showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد للتجديد.");
@@ -1278,6 +1646,12 @@
 
                 const subElem = document.getElementById('sub-remaining');
                 if (subElem) subElem.innerText = remainingStr;
+
+                // تحديث نافذة الحساب إن كانت مفتوحة
+                const accOverlay = document.getElementById('account-overlay');
+                if (accOverlay && accOverlay.classList.contains('show')) {
+                    updateAccountPanel();
+                }
             }
 
             updateRemainingDisplay();
@@ -1450,7 +1824,6 @@
             });
         }
 
-        // 🚀 الدالة الموحدة: التعلم + بدء الجولة
         function startNewRound() {
             if (!isGuessingAllowed) return;
 
@@ -1460,16 +1833,13 @@
             if (fruitValue !== "") {
                 const learned = trainFromInput(fruitValue);
                 if (learned) {
-                    // ✅ تعلم ناجح → امسح الحقل وابدأ الجولة
                     inputField.value = "";
                 } else {
-                    // ❌ فشل التعلم → أظهر النافذة المنبثقة ولا تبدأ الجولة
                     showWrongFruitModal(fruitValue);
                     return;
                 }
             }
 
-            // بدء الجولة
             const mainImg = document.getElementById('main-image');
             const btn = document.getElementById('start-round-btn');
             const grid = document.getElementById('predictions-grid');
@@ -1559,7 +1929,6 @@
             }
         }
 
-        // دعم Enter
         document.addEventListener('DOMContentLoaded', () => {
             const trainInput = document.getElementById('fruit-training-input');
             if (trainInput) {
