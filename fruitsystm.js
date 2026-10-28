@@ -32,6 +32,15 @@ function shuffleArray(array) {
     return newArray;
 }
 
+// 3.1 دالة خلط قوية متعدد المرات لضمان عشوائية حقيقية
+function strongShuffle(array, passes = 3) {
+    let result = [...array];
+    for (let p = 0; p < passes; p++) {
+        result = shuffleArray(result);
+    }
+    return result;
+}
+
 // 4. تحديث الذاكرة قصيرة المدى
 function updateAIMemory(winningIds) {
     if (!winningIds || winningIds.length === 0) return;
@@ -122,11 +131,27 @@ function calculateFruitWeight(slot, previousSelection) {
         weight += 3;
     }
 
+    // ============================================================
+    // 🔻 تقليل ظهور الكرز (4) والبطيخ (6) بشكل قوي
+    // - تخفيض الوزن بنسبة 75% ثم خصم إضافي عشوائي
+    // - هذا يجعل ظهورهما نادرًا جدًا دون إلغاء كامل
+    // ============================================================
+    if (slotId === 4 || slotId === 6) {
+        weight = Math.floor(weight * 0.25);          // تخفيض 75%
+        weight = Math.max(0, weight - (Math.floor(Math.random() * 2) + 1)); // خصم إضافي 1-2
+    }
+
     // استثناءات وتخفيض أوزان بعض العناصر بناءً على الجولة السابقة
     let prevIds = previousSelection || [];
     if ((slotId === 8 || slotId === 7) && prevIds.includes(slotId)) {
         weight = 0;
     }
+
+    // ============================================================
+    // 🎲 تقوية العشوائية: إضافة "Jitter" عشوائي على كل وزن
+    // هذا يمنع الجمود ويجعل التوزيع غير متوقع حتى مع وجود التعلم
+    // ============================================================
+    weight += Math.random() * 7;   // ضجيج عشوائي قوي (0 - 7)
 
     // سقف الأوزان بحد أقصى 45 وضمان عدم نزوله عن 0
     weight = Math.min(weight, 45);
@@ -144,21 +169,40 @@ function generatePrediction(slots, previousSelection) {
             updateAIMemory(previousSelection);
         }
 
-        let lotteryPool = [];
+        // ============================================================
+        // بناء قائمة مرجّحة مع مفتاح عشوائي لكل عنصر
+        // ============================================================
         let weightedSlots = slots.map(slot => {
             let w = calculateFruitWeight(slot, previousSelection);
-            return { slot: slot, weight: w };
+            return {
+                slot: slot,
+                weight: w,
+                randomKey: Math.random()   // مفتاح عشوائي إضافي لكسر التعادل
+            };
         });
 
+        // خلط قوي متعدد المرات لقائمة الأوزان نفسها
+        weightedSlots = strongShuffle(weightedSlots, 4);
+
+        // ترتيب عشوائي مرجّح: الوزن + ضجيج عشوائي قوي
+        weightedSlots.sort((a, b) => {
+            let scoreA = a.weight + (a.randomKey * 8);
+            let scoreB = b.weight + (b.randomKey * 8);
+            return scoreB - scoreA;
+        });
+
+        // ============================================================
         // بناء مجمع اليانصيب (Lottery Pool) بناءً على الأوزان المحسوبة
+        // ============================================================
+        let lotteryPool = [];
         weightedSlots.forEach(item => {
             for (let i = 0; i < item.weight; i++) {
                 lotteryPool.push(item.slot);
             }
         });
 
-        // خلط المجمع بعشوائية نظيفة
-        lotteryPool = shuffleArray(lotteryPool);
+        // خلط المجمع بقوة عشوائية عالية (5 مرات متتالية)
+        lotteryPool = strongShuffle(lotteryPool, 5);
 
         let selectedSlots = [];
         for (let slot of lotteryPool) {
@@ -168,19 +212,26 @@ function generatePrediction(slots, previousSelection) {
             if (selectedSlots.length === 4) break;
         }
 
+        // ============================================================
         // استكمال النقص إن وجد بعناصر عشوائية غير مكررة
+        // (بدون استبعاد صريح للكرز/البطيخ — الوزن المنخفض يتكفل بالتقليل)
+        // ============================================================
         if (selectedSlots.length < 4) {
-            let remainingSlots = slots.filter(s => 
-                !selectedSlots.some(sel => sel.id === s.id) && 
-                s.id !== 4 && s.id !== 6
+            let remainingSlots = slots.filter(s =>
+                !selectedSlots.some(sel => sel.id === s.id)
             );
-            remainingSlots = shuffleArray(remainingSlots);
+            remainingSlots = strongShuffle(remainingSlots, 3);
             while (selectedSlots.length < 4 && remainingSlots.length > 0) {
-                selectedSlots.push(remainingSlots.pop());
+                // اختيار عشوائي حقيقي من المتبقي
+                let randIdx = Math.floor(Math.random() * remainingSlots.length);
+                selectedSlots.push(remainingSlots.splice(randIdx, 1)[0]);
             }
         }
 
-        selectedSlots = shuffleArray(selectedSlots);
+        // ============================================================
+        // خلط نهائي قوي جداً لترتيب التوقعات (توزيع عشوائي كامل)
+        // ============================================================
+        selectedSlots = strongShuffle(selectedSlots, 5);
 
         if (selectedSlots.length !== 4) {
             throw new Error("فشل استخراج 4 توقعات.");
