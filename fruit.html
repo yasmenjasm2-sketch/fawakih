@@ -321,7 +321,7 @@
         }
 
         /* ============================================================
-           📸 لقطات الشاشة المتحركة (صورتان تدوران حول بعضهما)
+           📸 لقطات الشاشة كإعلان متحرك (Marquee من اليسار لليمين)
            ============================================================ */
         .screenshots-label {
             font-size: 12px;
@@ -329,82 +329,70 @@
             font-weight: 700;
             text-align: center;
             margin-top: 25px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             letter-spacing: 0.5px;
         }
 
-        .screenshots-container {
+        .screenshots-marquee {
             position: relative;
-            width: 220px;
+            width: 100%;
             height: 240px;
+            overflow: hidden;
+            border-radius: 18px;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 
+                0 0 22px rgba(0, 229, 255, 0.4),
+                inset 0 0 22px rgba(157, 78, 221, 0.15);
+            background: linear-gradient(135deg, rgba(19, 9, 34, 0.95), rgba(11, 6, 18, 0.95));
             margin: 0 auto 5px auto;
         }
 
-        .screenshots-container::before {
+        .screenshots-marquee::before,
+        .screenshots-marquee::after {
             content: '';
             position: absolute;
-            inset: -15px;
-            background: radial-gradient(circle, rgba(0, 229, 255, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 3;
             pointer-events: none;
-            animation: glowPulse 3s ease-in-out infinite;
-            z-index: 0;
+        }
+        .screenshots-marquee::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(11, 6, 18, 0.95), transparent);
+        }
+        .screenshots-marquee::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(11, 6, 18, 0.95), transparent);
         }
 
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-        }
-
-        .screenshot-orbit {
-            position: absolute;
-            inset: 0;
-            animation: orbitSpin 12s linear infinite;
-            will-change: transform;
-            transform-origin: center center;
-            z-index: 1;
-        }
-
-        .screenshot-slot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 60px;
-            height: 100px;
-            margin-top: -50px;
-            margin-left: -30px;
-        }
-
-        .slot-1 {
-            transform: translateX(-50px);
-        }
-
-        .slot-2 {
-            transform: translateX(50px);
-        }
-
-        .screenshot-img {
-            display: block;
-            width: 100%;
+        .screenshots-track {
+            display: flex;
+            align-items: center;
             height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.55);
-            animation: imageCounterSpin 12s linear infinite;
+            padding: 14px 0;
+            width: max-content;
+            direction: ltr;
+            animation: marqueeLTR 22s linear infinite;
             will-change: transform;
-            transform-origin: center center;
+        }
+
+        @keyframes marqueeLTR {
+            from { transform: translateX(-50%); }
+            to { transform: translateX(0%); }
+        }
+
+        .screenshot-img-ad {
+            height: 100%;
+            width: 150px;
+            margin-right: 14px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 16px rgba(248, 192, 0, 0.5);
             background: rgba(0, 0, 0, 0.5);
-        }
-
-        @keyframes orbitSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes imageCounterSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(-360deg); }
+            flex-shrink: 0;
+            display: block;
         }
 
         /* زر الشراء القديم (محتفظ به للتوافق) */
@@ -1320,16 +1308,16 @@
             </a>
         </div>
 
-        <!-- 📸 لقطات الشاشة المتحركة (تدور حول بعضها) -->
+        <!-- 📸 لقطات الشاشة كإعلان متحرك (تمرير من اليسار لليمين) -->
         <div class="screenshots-label">📸 لقطات من داخل التطبيق</div>
-        <div class="screenshots-container">
-            <div class="screenshot-orbit">
-                <div class="screenshot-slot slot-1">
-                    <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img">
-                </div>
-                <div class="screenshot-slot slot-2">
-                    <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img">
-                </div>
+        <div class="screenshots-marquee">
+            <div class="screenshots-track">
+                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
+                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
+                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
+                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
+                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
+                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
             </div>
         </div>
     </div>
