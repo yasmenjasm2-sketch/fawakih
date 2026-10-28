@@ -118,7 +118,7 @@
                 0 0 25px rgba(157, 78, 221, 0.3);
             width: 100%;
             max-width: 420px;
-            margin-top: 8vh;
+            margin-top: 6vh;
             text-align: center;
             position: relative;
         }
@@ -240,6 +240,174 @@
             border-radius: 10px;
         }
 
+        /* ============================================================
+           🎨 أزرار التواصل والدعم الفني الجديدة
+           ============================================================ */
+        .action-buttons-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 8px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 12px;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 2px solid transparent;
+            min-height: 78px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .action-btn svg {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn:active svg {
+            transform: scale(1.15);
+        }
+
+        /* زر الواتساب (أزرق كما طُلب) */
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .whatsapp-btn svg {
+            fill: #FFFFFF;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        }
+
+        .whatsapp-btn:active {
+            box-shadow: 0 2px 8px rgba(21, 101, 192, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        /* زر الدعم الفني (بنفسجي متوهج) */
+        .support-btn {
+            background: linear-gradient(135deg, #9D4EDD 0%, #5A189A 100%);
+            color: #FFFFFF;
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .support-btn svg {
+            fill: #FFFFFF;
+            filter: drop-shadow(0 0 6px rgba(248, 192, 0, 0.4));
+        }
+
+        .support-btn:active {
+            box-shadow: 0 2px 8px rgba(157, 78, 221, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        /* ============================================================
+           📸 لقطات الشاشة المتحركة (صورتان تدوران حول بعضهما)
+           ============================================================ */
+        .screenshots-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .screenshots-container {
+            position: relative;
+            width: 220px;
+            height: 240px;
+            margin: 0 auto 5px auto;
+        }
+
+        .screenshots-container::before {
+            content: '';
+            position: absolute;
+            inset: -15px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: glowPulse 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .screenshot-orbit {
+            position: absolute;
+            inset: 0;
+            animation: orbitSpin 12s linear infinite;
+            will-change: transform;
+            transform-origin: center center;
+            z-index: 1;
+        }
+
+        .screenshot-slot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 100px;
+            margin-top: -50px;
+            margin-left: -30px;
+        }
+
+        .slot-1 {
+            transform: translateX(-50px);
+        }
+
+        .slot-2 {
+            transform: translateX(50px);
+        }
+
+        .screenshot-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.55);
+            animation: imageCounterSpin 12s linear infinite;
+            will-change: transform;
+            transform-origin: center center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes orbitSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes imageCounterSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* زر الشراء القديم (محتفظ به للتوافق) */
         .buy-subscription-btn {
             margin-top: 20px;
             border-radius: 16px;
@@ -456,9 +624,6 @@
             box-shadow: 0 0 6px var(--gold);
         }
 
-        /* ============================================================
-           🔴 الماركر الخامس المميز (أحمر متوهج + وميض)
-           ============================================================ */
         .marker.marker-special .corner.tl {
             border-top-color: var(--danger);
             border-left-color: var(--danger);
@@ -492,7 +657,6 @@
             box-shadow: 0 0 10px var(--danger);
         }
         
-        /* أنيميشن الوميض للماركر الخامس */
         .marker.marker-special {
             animation: markerFlash 1.2s ease-in-out infinite;
         }
@@ -561,9 +725,6 @@
             color: var(--primary);
         }
         
-        /* ============================================================
-           🎯 شبكة التوقعات: استخدام Flexbox لضمان ظهور 5 كروت دائماً
-           ============================================================ */
         .predictions-grid {
             display: flex;
             flex-wrap: wrap;
@@ -582,13 +743,11 @@
             box-sizing: border-box;
         }
 
-        /* الكروت الصغيرة (1,2,3) → تأخذ ثلث العرض = 3 في صف */
         .pred-card.small-card {
             flex: 0 0 calc(33.333% - 7px);
             max-width: calc(33.333% - 7px);
         }
 
-        /* الكروت الكبيرة (4,5) → تأخذ نصف العرض = 2 في صف */
         .pred-card.big-card {
             flex: 0 0 calc(50% - 5px);
             max-width: calc(50% - 5px);
@@ -599,9 +758,6 @@
             box-shadow: 0 0 12px rgba(248, 192, 0, 0.2);
         }
 
-        /* ============================================================
-           🔴 كارت التوقع الخامس المميز (أحمر متوهج + وميض مستمر)
-           ============================================================ */
         .pred-card.big-card.special-red {
             border: 2px solid var(--danger);
             background: linear-gradient(145deg, rgba(255, 71, 87, 0.18), rgba(255, 71, 87, 0.05));
@@ -1148,15 +1304,34 @@
 
         <p id="login-msg" class="login-msg"></p>
 
-        <a href="https://wa.me/+905424678123?text=مرحباً، أرغب في شراء اشتراك FawakihAI VIP 🚀" target="_blank" class="buy-subscription-btn">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-            </svg>
-            <div class="buy-text-wrapper">
-                <span class="buy-title">💎 شراء اشتراك VIP</span>
-                <span class="buy-sub">تفعيل فوري عبر واتساب</span>
+        <!-- ✅ أزرار التواصل والدعم الفني (واتساب أزرق + الدعم بجانبه) -->
+        <div class="action-buttons-row">
+            <a href="https://wa.me/+905424678123?text=مرحباً، أرغب في شراء اشتراك FawakihAI VIP 🚀" target="_blank" class="action-btn whatsapp-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                </svg>
+                <span>اشتراك VIP</span>
+            </a>
+            <a href="https://yasmenjasm2-sketch.github.io/fawakihAI2/jmal.html" target="_blank" class="action-btn support-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/>
+                </svg>
+                <span>الدعم الفني</span>
+            </a>
+        </div>
+
+        <!-- 📸 لقطات الشاشة المتحركة (تدور حول بعضها) -->
+        <div class="screenshots-label">📸 لقطات من داخل التطبيق</div>
+        <div class="screenshots-container">
+            <div class="screenshot-orbit">
+                <div class="screenshot-slot slot-1">
+                    <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img">
+                </div>
+                <div class="screenshot-slot slot-2">
+                    <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img">
+                </div>
             </div>
-        </a>
+        </div>
     </div>
 
     <!-- شاشة الانتظار -->
@@ -1910,9 +2085,6 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // ============================================================
-        // 🎯 عرض التوقعات: الخانة الخامسة مخفية وبرمجياً
-        // ============================================================
         function renderPredictions(predictions) {
             const grid = document.getElementById('predictions-grid');
             grid.innerHTML = '';
@@ -1942,7 +2114,6 @@
                     ? '<div class="special-badge">🔥 توقع مميز</div>'
                     : '';
 
-                // إخفاء الكارت الخامس مبدئياً باستخدام display: none
                 const cardId = isFifth ? 'id="pred-card-5"' : '';
                 const hiddenStyle = isFifth ? 'display: none;' : '';
 
@@ -1982,7 +2153,6 @@
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
             
-            // إخفاء الماركرات الخمسة
             for(let i=1; i<=5; i++) {
                 const m = document.getElementById('marker-'+i);
                 if (m) m.style.display = 'none';
@@ -2014,14 +2184,13 @@
                 grid.style.display = 'flex';
                 renderPredictions(predictions);
 
-                // عرض الماركرات الأربعة الأولى فقط، وإخفاء الخامس
                 predictions.forEach((pred, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     if (marker) {
                         marker.style.top = pred.top;
                         marker.style.left = pred.left;
                         if (index === 4) {
-                            marker.style.display = 'none'; // إخفاء المؤشر الخامس مبدئياً
+                            marker.style.display = 'none';
                         } else {
                             marker.style.display = 'block';
                         }
@@ -2031,7 +2200,6 @@
                 mainImg.classList.remove('analyzing');
                 addSystemLog("✅ تم استخراج التوقعات الأساسية", true);
                 
-                // تحديد وقت عشوائي لظهور الخانة الخامسة (3 أو 5 أو 7 ثواني)
                 const delays = [3000, 5000, 7000];
                 const randomDelay = delays[Math.floor(Math.random() * delays.length)];
                 
