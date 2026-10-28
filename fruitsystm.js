@@ -1,11 +1,12 @@
 /**
  * ============================================================================
- * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - v8.0
- * 5 تخمينات: 3 فواكه صغيرة + 2 فواكه كبيرة | الخامسة مميزة بالأحمر المتوهج
+ * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1)
+ * النظام الكامل للخوارزمية الأولى: الأوزان، الذاكرة قصيرة المدى، التعلم، والعشوائية
+ * + 5 توقعات: 3 فواكه صغيرة + 2 فواكه كبيرة (الخامسة مميزة)
  * ============================================================================
  */
 
-// 1. قاموس ربط الأسماء بالأرقام
+// 1. قاموس ربط أسماء الفواكه بالأرقام التعريفية (عربي + إنجليزي + اختصارات)
 const fruitNameToIdMap = {
     'برتقال': 1, 'ليمون': 2, 'عنب': 3, 'كرز': 4,
     'تفاح': 5, 'بطيخ': 6, 'مانجو': 7, 'فراولة': 8,
@@ -15,18 +16,22 @@ const fruitNameToIdMap = {
     'تفاحة': 5, 'بطيخة': 6, 'مانجة': 7, 'فراوله': 8
 };
 
-// 2. تصنيف الفواكه (الصغيرة والكبيرة)
-const SMALL_FRUIT_IDS = [1, 2, 3, 5];   // برتقال، ليمون، عنب، تفاح
-const BIG_FRUIT_IDS = [4, 6, 7, 8];     // كرز، بطيخ، مانجو، فراولة
+// 2. متغيرات الذاكرة ونظام التعلم
+let ai1History = [];            // الذاكرة قصيرة المدى (تتسع لآخر 7 عناصر)
+let ai1Occurrences = {};        // تكرارات الفواكه داخل الذاكرة
+let learningBoost = {};         // نقاط التعزيز الخاصة بخاصية التعلم اليدوي/التلقائي
+let totalTrained = 0;           // عداد عمليات التدريب الكلية
+let trainedFruitsLog = [];      // سجل تفصيلي لجميع الفواكه المتعلمة
 
-// 3. متغيرات الذاكرة ونظام التعلم
-let ai1History = [];
-let ai1Occurrences = {};
-let learningBoost = {};
-let totalTrained = 0;
-let trainedFruitsLog = [];
+// ============================================================
+// 3. تصنيف الفواكه: صغيرة (SMALL) وكبيرة (BIG)
+// الصغيرة: برتقال(1), ليمون(2), عنب(3), تفاح(5)
+// الكبيرة: كرز(4), بطيخ(6), مانجو(7), فراولة(8)
+// ============================================================
+const SMALL_FRUIT_IDS = [1, 2, 3, 5];
+const BIG_FRUIT_IDS = [4, 6, 7, 8];
 
-// 4. العشوائية (Fisher-Yates)
+// 4. طريقة عمل العشوائية (Fisher-Yates Shuffle Algorithm)
 function shuffleArray(array) {
     let newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -36,6 +41,15 @@ function shuffleArray(array) {
     return newArray;
 }
 
+// 4.1 دالة خلط قوية متعدد المرات لضمان عشوائية حقيقية
+function strongShuffle(array, passes = 3) {
+    let result = [...array];
+    for (let p = 0; p < passes; p++) {
+        result = shuffleArray(result);
+    }
+    return result;
+}
+
 // 5. تحديث الذاكرة قصيرة المدى
 function updateAIMemory(winningIds) {
     if (!winningIds || winningIds.length === 0) return;
@@ -43,7 +57,7 @@ function updateAIMemory(winningIds) {
         let numericId = Number(id);
         ai1History.push(numericId);
         ai1Occurrences[numericId] = (ai1Occurrences[numericId] || 0) + 1;
-
+        
         if (ai1History.length > 7) {
             let forgottenId = ai1History.shift();
             if (ai1Occurrences[forgottenId] > 1) {
@@ -55,10 +69,10 @@ function updateAIMemory(winningIds) {
     });
 }
 
-// 6. خاصية التعلم
+// 6. خاصية التعلم (Train Algorithm)
 function trainAlgorithm(fruitName) {
     if (!fruitName || typeof fruitName !== 'string') return false;
-
+    
     const cleanName = fruitName.trim().toLowerCase().replace(/\s+/g, '');
     if (cleanName === '') return false;
 
@@ -91,22 +105,24 @@ function trainAlgorithm(fruitName) {
     };
 }
 
-// 7. حساب وزن الفاكهة
+// 7. حساب الأوزان لكل فاكهة بناءً على المعايير الخوارزمية
 function calculateFruitWeight(slot, previousSelection) {
-    const slotId = slot.id;
+    let slotId = slot.id;
 
-    // وزن عشوائي أساسي
+    // الوزن الأساسي العشوائي البسيط (بين 1 و 8)
     let weight = Math.floor(Math.random() * 8) + 1;
 
-    // مكافأة التعلم
-    weight += (learningBoost[slotId] || 0) * 5;
+    // إضافة وزن خاصية التعلم
+    let trainBoost = learningBoost[slotId] || 0;
+    weight += trainBoost * 5;
 
-    // مكافأة التكرار في الذاكرة
-    weight += (ai1Occurrences[slotId] || 0) * 3;
+    // إضافة وزن التكرار داخل الذاكرة قصيرة المدى
+    let count = ai1Occurrences[slotId] || 0;
+    weight += count * 3;
 
-    // انتقال ماركوف
+    // تسلسل انتقال ماركوف
     if (ai1History.length >= 2) {
-        const lastWinner = ai1History[ai1History.length - 1];
+        let lastWinner = ai1History[ai1History.length - 1];
         for (let i = 0; i < ai1History.length - 1; i++) {
             if (ai1History[i] === lastWinner && ai1History[i + 1] === slotId) {
                 weight += 4;
@@ -116,53 +132,99 @@ function calculateFruitWeight(slot, previousSelection) {
     }
 
     // مكافأة التنوع
-    const lastThree = ai1History.slice(-3);
+    let lastThree = ai1History.slice(-3);
     if (!lastThree.includes(slotId)) {
         weight += 3;
     }
 
-    // ضمان وزن إيجابي دائمًا (إصلاح مشكلة الوزن الصفري)
-    weight = Math.max(1, Math.min(weight, 50));
-    return weight;
-}
-
-// 8. اختيار موزون (بدون تكرار) - الإصلاح الأساسي لمشاكل التخمين
-function weightedSelect(poolSlots, count, previousSelection) {
-    if (!poolSlots || poolSlots.length === 0) return [];
-
-    const selected = [];
-    let available = [...poolSlots];
-    const target = Math.min(count, available.length);
-
-    for (let i = 0; i < target; i++) {
-        const weighted = available.map(slot => ({
-            slot,
-            weight: calculateFruitWeight(slot, previousSelection)
-        }));
-
-        // بناء مجمع اليانصيب
-        let lotteryPool = [];
-        weighted.forEach(item => {
-            for (let w = 0; w < item.weight; w++) {
-                lotteryPool.push(item.slot);
-            }
-        });
-
-        if (lotteryPool.length === 0) {
-            lotteryPool = available.slice();
-        }
-
-        lotteryPool = shuffleArray(lotteryPool);
-        const chosen = lotteryPool[0];
-
-        selected.push(chosen);
-        available = available.filter(s => s.id !== chosen.id);
+    // ============================================================
+    // 🔻 تقليل ظهور الكرز(4) والبطيخ(6) — تخفيض قوي 70% (حد أدنى 1)
+    // ============================================================
+    if (slotId === 4 || slotId === 6) {
+        weight = Math.max(1, Math.floor(weight * 0.3));
     }
 
-    return selected;
+    // ============================================================
+    // ⚠️ إصلاح مشكلة "الجمود": بدل تصفير أوزان 7 و8 عند ظهورها،
+    // نقوم فقط بتخفيضها 50% (حد أدنى 1) — يمنع إجبار الخوارزمية
+    // على اختيار الكرز/البطيخ لتجنب التكرار.
+    // ============================================================
+    let prevIds = previousSelection || [];
+    if ((slotId === 7 || slotId === 8) && prevIds.includes(slotId)) {
+        weight = Math.max(1, Math.floor(weight * 0.5));
+    }
+
+    // 🎲 تقوية العشوائية: ضجيج عشوائي قوي
+    weight += Math.random() * 7;
+
+    // سقف وحد أدنى
+    weight = Math.min(weight, 45);
+    return Math.max(1, Math.round(weight));
 }
 
-// 9. توليد التوقعات (5 تخمينات: 3 صغيرة + 2 كبيرة)
+// ============================================================
+// 8. اختيار عنصر مرجّح واحد من مجموعة (بدون تكرار)
+//    يُرجع: { slot, weight, randomKey } مع الكاش
+// ============================================================
+function pickWeightedFromPool(pool, previousSelection) {
+    if (!pool || pool.length === 0) return null;
+
+    let weightedSlots = pool.map(slot => ({
+        slot: slot,
+        weight: calculateFruitWeight(slot, previousSelection),
+        randomKey: Math.random()
+    }));
+
+    // بناء مجمع اليانصيب
+    let lotteryPool = [];
+    weightedSlots.forEach(item => {
+        for (let i = 0; i < item.weight; i++) {
+            lotteryPool.push(item);
+        }
+    });
+
+    // حالة نادرة: كل الأوزان صفر (نظرياً مستحيل الآن) → fallback
+    if (lotteryPool.length === 0) {
+        let idx = Math.floor(Math.random() * weightedSlots.length);
+        return weightedSlots[idx];
+    }
+
+    // خلط قوي ثم اختيار الأول
+    lotteryPool = strongShuffle(lotteryPool, 3);
+    return lotteryPool[0];
+}
+
+// ============================================================
+// 9. بناء كائن التوقع النهائي (مع بيانات مرتبطة بالخوارزمية)
+// ============================================================
+function buildPrediction(pick, category) {
+    let w = (pick && pick.weight) ? pick.weight : 1;
+    let slot = pick.slot;
+
+    // الثقة مرتبطة بالوزن (92% - 99%)
+    let confidence = Math.min(99, Math.max(92, Math.round(90 + w / 3)));
+    // النقاط مرتبطة بالوزن
+    let score = (w * 50 + Math.random() * 100).toFixed(1);
+    // نسبة الأقلية (عشوائية صغيرة للعرض فقط)
+    let minority = (Math.random() * 4 + 0.3).toFixed(1);
+
+    return {
+        id: slot.id,
+        top: slot.top,
+        left: slot.left,
+        weight: w,
+        confidence: confidence,
+        score: score,
+        minority: minority,
+        category: category   // 'SMALL' أو 'BIG'
+    };
+}
+
+// ============================================================
+// 10. توليد 5 توقعات:
+//     3 خانات لفواكه صغيرة (مواقع 1,2,3)
+//     2 خانات لفواكه كبيرة (مواقع 4,5) — الخامسة هي المميزة بالأحمر
+// ============================================================
 function generatePrediction(slots, previousSelection) {
     try {
         if (!slots || slots.length === 0) {
@@ -173,17 +235,61 @@ function generatePrediction(slots, previousSelection) {
             updateAIMemory(previousSelection);
         }
 
-        const smallSlots = slots.filter(s => SMALL_FRUIT_IDS.includes(s.id));
-        const bigSlots = slots.filter(s => BIG_FRUIT_IDS.includes(s.id));
+        // فصل المجموعات
+        let smallPool = slots.filter(s => SMALL_FRUIT_IDS.includes(s.id));
+        let bigPool = slots.filter(s => BIG_FRUIT_IDS.includes(s.id));
 
-        // 3 فواكه صغيرة + 2 فواكه كبيرة = 5
-        const selectedSmall = weightedSelect(smallSlots, 3, previousSelection);
-        const selectedBig = weightedSelect(bigSlots, 2, previousSelection);
+        if (smallPool.length < 3) {
+            throw new Error("عدد الفواكه الصغيرة غير كافٍ (يجب 3 على الأقل).");
+        }
+        if (bigPool.length < 2) {
+            throw new Error("عدد الفواكه الكبيرة غير كافٍ (يجب 2 على الأقل).");
+        }
 
-        const result = [...selectedSmall, ...selectedBig];
+        let result = [];
+        let usedIds = new Set();
+        let smallRemaining = [...smallPool];
+        let bigRemaining = [...bigPool];
+
+        // ---------- 3 فواكه صغيرة ----------
+        for (let i = 0; i < 3; i++) {
+            let pick = pickWeightedFromPool(smallRemaining, previousSelection);
+
+            if (pick && !usedIds.has(pick.slot.id)) {
+                result.push(buildPrediction(pick, 'SMALL'));
+                usedIds.add(pick.slot.id);
+                smallRemaining = smallRemaining.filter(s => s.id !== pick.slot.id);
+            } else {
+                // fallback عشوائي من المتبقي
+                let avail = smallRemaining.filter(s => !usedIds.has(s.id));
+                if (avail.length === 0) break;
+                let s = avail[Math.floor(Math.random() * avail.length)];
+                result.push(buildPrediction({ slot: s, weight: 1 }, 'SMALL'));
+                usedIds.add(s.id);
+                smallRemaining = smallRemaining.filter(x => x.id !== s.id);
+            }
+        }
+
+        // ---------- 2 فواكه كبيرة ----------
+        for (let i = 0; i < 2; i++) {
+            let pick = pickWeightedFromPool(bigRemaining, previousSelection);
+
+            if (pick && !usedIds.has(pick.slot.id)) {
+                result.push(buildPrediction(pick, 'BIG'));
+                usedIds.add(pick.slot.id);
+                bigRemaining = bigRemaining.filter(s => s.id !== pick.slot.id);
+            } else {
+                let avail = bigRemaining.filter(s => !usedIds.has(s.id));
+                if (avail.length === 0) break;
+                let s = avail[Math.floor(Math.random() * avail.length)];
+                result.push(buildPrediction({ slot: s, weight: 1 }, 'BIG'));
+                usedIds.add(s.id);
+                bigRemaining = bigRemaining.filter(x => x.id !== s.id);
+            }
+        }
 
         if (result.length !== 5) {
-            throw new Error(`فشل في استخراج 5 توقعات (تم استخراج ${result.length}).`);
+            throw new Error("فشل استخراج 5 توقعات.");
         }
 
         return result;
@@ -194,7 +300,7 @@ function generatePrediction(slots, previousSelection) {
     }
 }
 
-// 10. وظائف إدارة السجل
+// 11. وظائف إضافية لإدارة السجل والإحصائيات
 function getLearningStats() {
     return {
         totalTrained: totalTrained,
@@ -216,3 +322,7 @@ function resetLearning() {
     totalTrained = 0;
     return true;
 }
+
+// تصدير المتغيرات للاستخدام خارجياً (للتحقق من التصنيف)
+function getSmallFruitIds() { return [...SMALL_FRUIT_IDS]; }
+function getBigFruitIds() { return [...BIG_FRUIT_IDS]; }
