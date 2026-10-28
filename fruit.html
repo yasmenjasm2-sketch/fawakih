@@ -22,6 +22,7 @@
             --neon-pink: #FF00E5;
             --success: #00E676;
             --danger: #FF4757;
+            --danger-glow: #FF6B81;
             --text-main: #FFFFFF;
             --text-muted: #8A7A9E;
             --border-color: #2D1B4E;
@@ -112,7 +113,9 @@
             padding: 35px 25px 30px 25px;
             border-radius: 24px;
             border: 2px solid var(--primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(157, 78, 221, 0.3);
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.8),
+                0 0 25px rgba(157, 78, 221, 0.3);
             width: 100%;
             max-width: 420px;
             margin-top: 8vh;
@@ -275,8 +278,16 @@
             text-align: right;
             line-height: 1.2;
         }
-        .buy-title { font-size: 15px; font-weight: 900; }
-        .buy-sub { font-size: 10px; font-weight: 700; opacity: 0.75; margin-top: 2px; }
+        .buy-title {
+            font-size: 15px;
+            font-weight: 900;
+        }
+        .buy-sub {
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
 
         #game-screen {
             display: none;
@@ -387,52 +398,97 @@
             border-color: var(--gold);
             filter: drop-shadow(0 0 4px var(--gold));
         }
-        .marker .corner.tl { top: 0; left: 0; border-top: 3px solid var(--gold); border-left: 3px solid var(--gold); }
-        .marker .corner.tr { top: 0; right: 0; border-top: 3px solid var(--gold); border-right: 3px solid var(--gold); }
-        .marker .corner.bl { bottom: 0; left: 0; border-bottom: 3px solid var(--gold); border-left: 3px solid var(--gold); }
-        .marker .corner.br { bottom: 0; right: 0; border-bottom: 3px solid var(--gold); border-right: 3px solid var(--gold); }
+        .marker .corner.tl {
+            top: 0; left: 0;
+            border-top: 3px solid var(--gold);
+            border-left: 3px solid var(--gold);
+        }
+        .marker .corner.tr {
+            top: 0; right: 0;
+            border-top: 3px solid var(--gold);
+            border-right: 3px solid var(--gold);
+        }
+        .marker .corner.bl {
+            bottom: 0; left: 0;
+            border-bottom: 3px solid var(--gold);
+            border-left: 3px solid var(--gold);
+        }
+        .marker .corner.br {
+            bottom: 0; right: 0;
+            border-bottom: 3px solid var(--gold);
+            border-right: 3px solid var(--gold);
+        }
 
         .marker .edge-top, .marker .edge-bottom {
-            position: absolute; left: 50%; transform: translateX(-50%);
-            width: 12px; height: 3px;
-            background: var(--gold); box-shadow: 0 0 5px var(--gold); border-radius: 2px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 3px;
+            background: var(--gold);
+            box-shadow: 0 0 5px var(--gold);
+            border-radius: 2px;
         }
         .marker .edge-top { top: -1px; }
         .marker .edge-bottom { bottom: -1px; }
         .marker .edge-left, .marker .edge-right {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            width: 3px; height: 12px;
-            background: var(--gold); box-shadow: 0 0 5px var(--gold); border-radius: 2px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 12px;
+            background: var(--gold);
+            box-shadow: 0 0 5px var(--gold);
+            border-radius: 2px;
         }
         .marker .edge-left { left: -1px; }
         .marker .edge-right { right: -1px; }
 
         .marker .center-dot {
-            position: absolute; top: 50%; left: 50%;
-            width: 5px; height: 5px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
             transform: translate(-50%, -50%);
-            background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold);
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--gold);
         }
 
-        /* 🔴 ماركر التوقع الخامس - أحمر متوهج */
-        .marker.special-marker .corner {
-            border-color: #FF1744;
-            filter: drop-shadow(0 0 6px #FF1744);
+        /* ============================================================
+           🔴 الماركر الخامس المميز (أحمر متوهج)
+           ============================================================ */
+        .marker.marker-special .corner.tl {
+            border-top-color: var(--danger);
+            border-left-color: var(--danger);
+            filter: drop-shadow(0 0 6px var(--danger));
         }
-        .marker.special-marker .corner.tl { border-top-color: #FF1744; border-left-color: #FF1744; }
-        .marker.special-marker .corner.tr { border-top-color: #FF1744; border-right-color: #FF1744; }
-        .marker.special-marker .corner.bl { border-bottom-color: #FF1744; border-left-color: #FF1744; }
-        .marker.special-marker .corner.br { border-bottom-color: #FF1744; border-right-color: #FF1744; }
-        .marker.special-marker .edge-top,
-        .marker.special-marker .edge-bottom,
-        .marker.special-marker .edge-left,
-        .marker.special-marker .edge-right {
-            background: #FF1744;
-            box-shadow: 0 0 8px #FF1744;
+        .marker.marker-special .corner.tr {
+            border-top-color: var(--danger);
+            border-right-color: var(--danger);
+            filter: drop-shadow(0 0 6px var(--danger));
         }
-        .marker.special-marker .center-dot {
-            background: #FF1744;
-            box-shadow: 0 0 10px #FF1744;
+        .marker.marker-special .corner.bl {
+            border-bottom-color: var(--danger);
+            border-left-color: var(--danger);
+            filter: drop-shadow(0 0 6px var(--danger));
+        }
+        .marker.marker-special .corner.br {
+            border-bottom-color: var(--danger);
+            border-right-color: var(--danger);
+            filter: drop-shadow(0 0 6px var(--danger));
+        }
+        .marker.marker-special .edge-top,
+        .marker.marker-special .edge-bottom,
+        .marker.marker-special .edge-left,
+        .marker.marker-special .edge-right {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+        .marker.marker-special .center-dot {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
         }
 
         .controls-container {
@@ -499,9 +555,12 @@
             color: var(--primary);
         }
         
+        /* ============================================================
+           🎯 شبكة التوقعات (5 كروت): 3 صغيرة + 2 كبيرة
+           ============================================================ */
         .predictions-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
         }
         .pred-card {
@@ -510,79 +569,99 @@
             border-radius: 10px;
             padding: 10px;
             position: relative;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
             cursor: pointer;
         }
+
+        /* الكروت الصغيرة (1,2,3) → تأخذ عمودين لكل واحد = 3 في صف */
+        .pred-card.small-card {
+            grid-column: span 2;
+        }
+
+        /* الكروت الكبيرة (4,5) → تأخذ 3 أعمدة لكل واحد = 2 في صف */
+        .pred-card.big-card {
+            grid-column: span 3;
+        }
+
         .pred-card.active-card {
             border-color: var(--gold);
             box-shadow: 0 0 12px rgba(248, 192, 0, 0.2);
         }
+
+        /* ============================================================
+           🔴 كارت التوقع الخامس المميز (أحمر متوهج احترافي)
+           ============================================================ */
+        .pred-card.big-card.special-red {
+            border: 2px solid var(--danger);
+            background: linear-gradient(145deg, rgba(255, 71, 87, 0.18), rgba(255, 71, 87, 0.05));
+            animation: redGlowPulse 2.2s ease-in-out infinite;
+            overflow: visible;
+        }
+
+        @keyframes redGlowPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 12px rgba(255, 71, 87, 0.55),
+                    0 0 26px rgba(255, 71, 87, 0.35),
+                    inset 0 0 16px rgba(255, 71, 87, 0.10);
+            }
+            50% {
+                box-shadow: 
+                    0 0 22px rgba(255, 71, 87, 0.85),
+                    0 0 44px rgba(255, 71, 87, 0.55),
+                    inset 0 0 22px rgba(255, 71, 87, 0.20);
+            }
+        }
+
+        .pred-card.big-card.special-red .pred-title {
+            color: #FF6B81;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.7);
+        }
+
+        .pred-card.big-card.special-red .pred-type {
+            color: var(--danger);
+            font-weight: 900;
+        }
+
+        .pred-card.big-card.special-red .progress-fill {
+            background: linear-gradient(90deg, #FF4757, #FF6B81) !important;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
+        }
+
+        .pred-card.big-card.special-red .pred-footer {
+            color: #FF9BA5;
+        }
+
+        .special-badge {
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #FF4757, #FF6B81, #FF4757);
+            background-size: 200% auto;
+            color: #FFF;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(255, 71, 87, 0.6);
+            z-index: 10;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            animation: badgeShimmer 3s linear infinite;
+        }
+
+        @keyframes badgeShimmer {
+            from { background-position: 0% center; }
+            to { background-position: 200% center; }
+        }
+
         .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
         .pred-title { font-size: 18px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
         .pred-score { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 8px; }
         .progress-track { width: 100%; height: 4px; background: #25163D; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.8s ease; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
-
-        /* 🔴 البطاقة الخامسة المميزة - أحمر متوهج احترافي */
-        .pred-card.special-card {
-            grid-column: span 2;
-            border: 2px solid #FF1744;
-            background: linear-gradient(145deg, rgba(255, 23, 68, 0.18), rgba(120, 0, 30, 0.08));
-            box-shadow: 
-                0 0 25px rgba(255, 23, 68, 0.55),
-                inset 0 0 15px rgba(255, 23, 68, 0.12);
-            animation: specialPulse 2s ease-in-out infinite;
-            margin-top: 6px;
-            overflow: visible;
-        }
-
-        .pred-card.special-card::before {
-            content: '⭐ توقع مميز';
-            position: absolute;
-            top: -11px;
-            right: 15px;
-            background: linear-gradient(135deg, #FF1744, #D50000);
-            color: #FFFFFF;
-            font-size: 10px;
-            font-weight: 900;
-            padding: 3px 12px;
-            border-radius: 10px;
-            box-shadow: 0 0 12px rgba(255, 23, 68, 0.8);
-            letter-spacing: 0.5px;
-        }
-
-        @keyframes specialPulse {
-            0%, 100% {
-                box-shadow: 
-                    0 0 25px rgba(255, 23, 68, 0.55),
-                    inset 0 0 15px rgba(255, 23, 68, 0.12);
-            }
-            50% {
-                box-shadow: 
-                    0 0 40px rgba(255, 23, 68, 0.9),
-                    inset 0 0 22px rgba(255, 23, 68, 0.22);
-            }
-        }
-
-        .pred-card.special-card .pred-title {
-            color: #FF8A80;
-            text-shadow: 0 0 14px rgba(255, 23, 68, 0.8);
-            font-size: 21px;
-        }
-
-        .pred-card.special-card .pred-type {
-            color: #FF5252;
-            font-weight: 900;
-        }
-
-        .pred-card.special-card .pred-score {
-            color: #FFCDD2;
-        }
-
-        .pred-card.special-card .pred-footer {
-            color: #FF8A80;
-        }
 
         .system-log {
             background: #060309;
@@ -645,22 +724,37 @@
         }
 
         .wrong-fruit-overlay {
-            position: fixed; inset: 0;
+            position: fixed;
+            inset: 0;
             background: rgba(0, 0, 0, 0.85);
-            display: none; align-items: center; justify-content: center;
-            z-index: 9999; padding: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
         }
-        .wrong-fruit-overlay.show { display: flex; animation: overlayFade 0.25s ease; }
-        @keyframes overlayFade { from { opacity: 0; } to { opacity: 1; } }
+        .wrong-fruit-overlay.show {
+            display: flex;
+            animation: overlayFade 0.25s ease;
+        }
+        @keyframes overlayFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         .wrong-fruit-modal {
             background: linear-gradient(145deg, #1a0b2e, #0d0616);
             border: 2px solid var(--danger);
             border-radius: 24px;
             padding: 25px 20px 20px 20px;
-            max-width: 420px; width: 100%; max-height: 88vh;
-            overflow-y: auto; position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 71, 87, 0.4);
+            max-width: 420px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(255, 71, 87, 0.4);
             animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes modalPop {
@@ -668,41 +762,82 @@
             to { transform: scale(1) translateY(0); opacity: 1; }
         }
 
-        .warning-icon-wrapper { display: flex; justify-content: center; margin-bottom: 15px; }
+        .wrong-fruit-modal::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--danger), var(--gold), var(--danger));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .warning-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
         .warning-icon {
-            width: 90px; height: 90px;
+            width: 90px;
+            height: 90px;
             filter: drop-shadow(0 0 15px rgba(255, 71, 87, 0.7));
             animation: warningPulse 2s ease-in-out infinite;
         }
-        @keyframes warningPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        @keyframes warningPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
 
         .wrong-fruit-title {
-            font-size: 20px; font-weight: 900; color: var(--danger);
-            text-align: center; margin-bottom: 8px;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--danger);
+            text-align: center;
+            margin-bottom: 8px;
             text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
         }
 
         .wrong-fruit-message {
-            font-size: 13px; color: var(--text-muted);
-            text-align: center; line-height: 1.7; margin-bottom: 18px; padding: 0 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.7;
+            margin-bottom: 18px;
+            padding: 0 10px;
         }
 
         .wrong-fruit-entered {
-            display: block; font-size: 15px; color: var(--gold); font-weight: 800;
-            margin: 8px 0; padding: 8px 12px;
+            display: block;
+            font-size: 15px;
+            color: var(--gold);
+            font-weight: 800;
+            margin: 8px 0;
+            padding: 8px 12px;
             background: rgba(248, 192, 0, 0.08);
             border: 1px dashed rgba(248, 192, 0, 0.4);
-            border-radius: 10px; text-align: center; word-break: break-word;
+            border-radius: 10px;
+            text-align: center;
+            word-break: break-word;
         }
 
         .available-title {
-            text-align: center; font-size: 13px; color: var(--neon-blue);
-            font-weight: 800; margin-bottom: 12px; letter-spacing: 0.5px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--neon-blue);
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
         }
 
         .fruits-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 8px; margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
         }
 
         .fruit-item {
@@ -710,72 +845,130 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 8px 4px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 4px; transition: transform 0.2s ease, border-color 0.2s ease; cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
         }
-        .fruit-item:active { transform: scale(0.94); border-color: var(--gold); }
+        .fruit-item:active {
+            transform: scale(0.94);
+            border-color: var(--gold);
+        }
 
         .fruit-svg-icon {
-            width: 38px; height: 38px;
+            width: 38px;
+            height: 38px;
             filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.15));
         }
 
         .fruit-label {
-            font-size: 10px; color: var(--text-main); font-weight: 700;
-            text-align: center; letter-spacing: 0.3px;
+            font-size: 10px;
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.3px;
         }
 
         .wrong-fruit-close-btn {
-            width: 100%; padding: 14px;
+            width: 100%;
+            padding: 14px;
             background: linear-gradient(135deg, #9D4EDD, #5A189A);
-            color: #FFF; border: none; border-radius: 14px;
-            font-weight: 900; font-size: 15px; cursor: pointer;
+            color: #FFF;
+            border: none;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
             box-shadow: 0 4px 15px rgba(157, 78, 221, 0.5);
             transition: transform 0.2s ease;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .wrong-fruit-close-btn:active { transform: scale(0.96); }
+        .wrong-fruit-close-btn:active {
+            transform: scale(0.96);
+        }
 
         .account-overlay {
-            position: fixed; inset: 0;
+            position: fixed;
+            inset: 0;
             background: rgba(0, 0, 0, 0.88);
-            display: none; align-items: center; justify-content: center;
-            z-index: 10000; padding: 20px;
-            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
-        .account-overlay.show { display: flex; animation: overlayFade 0.25s ease; }
+        .account-overlay.show {
+            display: flex;
+            animation: overlayFade 0.25s ease;
+        }
 
         .account-modal {
             background: linear-gradient(145deg, #1a0b2e, #0d0616);
             border: 2px solid var(--neon-blue);
-            border-radius: 24px; padding: 0;
-            max-width: 440px; width: 100%; max-height: 90vh;
-            overflow-y: auto; position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 229, 255, 0.35);
+            border-radius: 24px;
+            padding: 0;
+            max-width: 440px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(0, 229, 255, 0.35);
             animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        .account-modal::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--gold), var(--primary), var(--neon-blue));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
         .account-header {
-            display: flex; align-items: center; gap: 12px;
-            padding: 20px 22px; border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border-color);
             background: rgba(0, 229, 255, 0.05);
             border-radius: 22px 22px 0 0;
         }
 
         .account-gear-icon {
-            width: 40px; height: 40px; fill: var(--gold);
+            width: 40px;
+            height: 40px;
+            fill: var(--gold);
             animation: gearSpin 12s linear infinite;
             filter: drop-shadow(0 0 8px rgba(248, 192, 0, 0.55));
             flex-shrink: 0;
         }
+
         @keyframes gearSpin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
         .account-header h2 {
-            font-size: 18px; color: var(--gold); font-weight: 900;
-            margin: 0; text-shadow: 0 0 10px rgba(248, 192, 0, 0.35);
+            font-size: 18px;
+            color: var(--gold);
+            font-weight: 900;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(248, 192, 0, 0.35);
         }
 
         .account-close-btn {
@@ -783,22 +976,39 @@
             background: rgba(255, 71, 87, 0.15);
             border: 1px solid rgba(255, 71, 87, 0.4);
             color: var(--danger);
-            width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
-            font-size: 16px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s; padding: 0; line-height: 1;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 0;
+            line-height: 1;
         }
-        .account-close-btn:active { transform: scale(0.9); background: rgba(255, 71, 87, 0.3); }
+        .account-close-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 71, 87, 0.3);
+        }
 
         .account-body {
-            padding: 20px 22px; display: flex; flex-direction: column; gap: 12px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .account-field {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--border-color);
-            border-radius: 14px; padding: 12px 14px;
-            display: flex; flex-direction: column; gap: 6px;
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
             transition: border-color 0.2s;
         }
 
@@ -815,36 +1025,63 @@
         }
 
         .account-field-label {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 11px; color: var(--text-muted);
-            font-weight: 700; letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .account-field-label svg {
-            width: 16px; height: 16px; fill: var(--neon-blue); flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            fill: var(--neon-blue);
+            flex-shrink: 0;
         }
+
         .account-field.highlight .account-field-label svg { fill: var(--gold); }
         .account-field.danger .account-field-label svg { fill: var(--danger); }
 
         .account-field-value {
-            font-size: 14px; color: var(--text-main); font-weight: 800;
-            font-family: 'Courier New', monospace; word-break: break-all;
-            letter-spacing: 0.3px; direction: ltr; text-align: right;
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            letter-spacing: 0.3px;
+            direction: ltr;
+            text-align: right;
         }
+
         .account-field.highlight .account-field-value { color: var(--gold); }
         .account-field.danger .account-field-value { color: var(--danger); }
 
-        .account-footer { padding: 0 22px 20px 22px; display: flex; justify-content: center; }
+        .account-footer {
+            padding: 0 22px 20px 22px;
+            display: flex;
+            justify-content: center;
+        }
 
         .account-footer-badge {
-            display: inline-flex; align-items: center; gap: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 6px 14px;
             background: rgba(0, 230, 118, 0.1);
             border: 1px solid rgba(0, 230, 118, 0.4);
-            border-radius: 20px; font-size: 11px;
-            color: var(--success); font-weight: 800;
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--success);
+            font-weight: 800;
         }
-        .account-footer-badge svg { width: 14px; height: 14px; fill: var(--success); }
+
+        .account-footer-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--success);
+        }
     </style>
 </head>
 <body>
@@ -857,6 +1094,7 @@
         <div class="dev-sub">nbras</div>
     </div>
 
+    <!-- شاشة تسجيل الدخول VIP -->
     <div id="login-screen">
         <svg class="shield-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -910,16 +1148,18 @@
         </a>
     </div>
 
+    <!-- شاشة الانتظار -->
     <div id="waiting-screen">
         <div class="loader-spinner" id="waiting-spinner"></div>
         <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
         <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك</p>
     </div>
 
+    <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
         
         <div class="app-header">
-            <h1>🍒 YALLA FRUIT <span>v8.0</span></h1>
+            <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
         </div>
 
         <div class="game-container">
@@ -927,43 +1167,63 @@
                 <img src="fefaf.jpg" alt="Fruit Party" class="game-image" id="main-image">
 
                 <div id="marker-1" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="edge-top"></div><div class="edge-bottom"></div>
-                    <div class="edge-left"></div><div class="edge-right"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-2" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="edge-top"></div><div class="edge-bottom"></div>
-                    <div class="edge-left"></div><div class="edge-right"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-3" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="edge-top"></div><div class="edge-bottom"></div>
-                    <div class="edge-left"></div><div class="edge-right"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
                 <div id="marker-4" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="edge-top"></div><div class="edge-bottom"></div>
-                    <div class="edge-left"></div><div class="edge-right"></div>
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
-                <!-- 🔴 الماركر الخامس (مميز بالأحمر) -->
-                <div id="marker-5" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="edge-top"></div><div class="edge-bottom"></div>
-                    <div class="edge-left"></div><div class="edge-right"></div>
+                <!-- 🔴 الماركر الخامس المميز (أحمر متوهج) -->
+                <div id="marker-5" class="marker marker-special">
+                    <div class="corner tl"></div>
+                    <div class="corner tr"></div>
+                    <div class="corner bl"></div>
+                    <div class="corner br"></div>
+                    <div class="edge-top"></div>
+                    <div class="edge-bottom"></div>
+                    <div class="edge-left"></div>
+                    <div class="edge-right"></div>
                     <div class="center-dot"></div>
                 </div>
 
@@ -988,7 +1248,7 @@
 
         <div class="panel">
             <div class="panel-header">
-                <span>🎯 توقعات NEXUS (5)</span>
+                <span>🎯 توقعات NEXUS</span>
                 <span class="learning-badge">
                     <span>🧠 تعلم: <span id="trained-count">0</span></span>
                 </span>
@@ -997,8 +1257,8 @@
                 جاري التحليل... 🧠
             </div>
             <div class="predictions-grid" id="predictions-grid">
-                <div style="grid-column: span 2; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
-                    اضغط "بدء جولة جديدة" لاستخراج 5 توقعات (3 صغيرة + 2 كبيرة)
+                <div style="grid-column: span 6; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px;">
+                    اضغط "بدء جولة جديدة" لاستخراج 5 توقعات
                 </div>
             </div>
         </div>
@@ -1008,14 +1268,16 @@
                 <span>📋 سجل النظام</span>
             </div>
             <div class="system-log" id="system-log">
-                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v8.0 - عقل واحد AI1 - جاهز للعمل</div>
+                <div><span class="log-time">[نظام]</span> 🍒 YALLA FRUIT v7.0 - عقل واحد AI1 - جاهز للعمل</div>
             </div>
         </div>
 
     </div>
 
+    <!-- 🚫 نافذة الفاكهة الخاطئة (مخفية افتراضياً) -->
     <div id="wrong-fruit-overlay" class="wrong-fruit-overlay" onclick="closeWrongFruitModal(event)">
         <div class="wrong-fruit-modal" onclick="event.stopPropagation()">
+
             <div class="warning-icon-wrapper">
                 <svg class="warning-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -1028,11 +1290,22 @@
                             <stop offset="100%" style="stop-color:#0d0616" />
                         </linearGradient>
                     </defs>
-                    <path d="M 50 8 L 94 88 L 6 88 Z" fill="url(#warnGrad)" stroke="#FFD54F" stroke-width="2.5" stroke-linejoin="round"/>
-                    <path d="M 50 20 L 86 82 L 14 82 Z" fill="url(#warnInner)" opacity="0.4"/>
+                    <path d="M 50 8 L 94 88 L 6 88 Z" 
+                          fill="url(#warnGrad)" 
+                          stroke="#FFD54F" 
+                          stroke-width="2.5"
+                          stroke-linejoin="round"/>
+                    <path d="M 50 20 L 86 82 L 14 82 Z" 
+                          fill="url(#warnInner)" 
+                          opacity="0.4"/>
                     <rect x="47" y="38" width="6" height="28" rx="3" fill="#FFD54F"/>
                     <circle cx="50" cy="75" r="4" fill="#FFD54F"/>
-                    <circle cx="50" cy="50" r="46" fill="none" stroke="#FF4757" stroke-width="1" stroke-dasharray="3 5" opacity="0.5"/>
+                    <circle cx="50" cy="50" r="46" 
+                            fill="none" 
+                            stroke="#FF4757" 
+                            stroke-width="1" 
+                            stroke-dasharray="3 5"
+                            opacity="0.5"/>
                 </svg>
             </div>
 
@@ -1047,38 +1320,102 @@
             <div class="available-title">🍎 اضغط على الفاكهة لاختيارها تلقائياً</div>
 
             <div class="fruits-grid">
+
                 <div class="fruit-item" onclick="selectFruitName('برتقال')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><circle cx="20" cy="24" r="12" fill="#FF8C00" stroke="#E67600" stroke-width="1.5"/><ellipse cx="17" cy="20" rx="3" ry="2" fill="#FFB84D" opacity="0.7"/><path d="M 20 12 Q 18 8 22 6 Q 24 8 22 12" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="24" r="12" fill="#FF8C00" stroke="#E67600" stroke-width="1.5"/>
+                        <ellipse cx="17" cy="20" rx="3" ry="2" fill="#FFB84D" opacity="0.7"/>
+                        <path d="M 20 12 Q 18 8 22 6 Q 24 8 22 12" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/>
+                    </svg>
                     <span class="fruit-label">برتقال</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('ليمون')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><ellipse cx="20" cy="24" rx="11" ry="12" fill="#FFEB3B" stroke="#F9A825" stroke-width="1.5"/><ellipse cx="17" cy="20" rx="2.5" ry="1.8" fill="#FFF59D" opacity="0.8"/><path d="M 20 12 Q 22 9 20 7" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="20" cy="24" rx="11" ry="12" fill="#FFEB3B" stroke="#F9A825" stroke-width="1.5"/>
+                        <ellipse cx="17" cy="20" rx="2.5" ry="1.8" fill="#FFF59D" opacity="0.8"/>
+                        <path d="M 20 12 Q 22 9 20 7" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    </svg>
                     <span class="fruit-label">ليمون</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('عنب')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><circle cx="16" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/><circle cx="24" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/><circle cx="20" cy="26" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/><circle cx="14" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/><circle cx="26" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/><circle cx="20" cy="33" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/><path d="M 20 16 Q 20 10 24 8" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M 24 8 Q 28 9 27 13 Q 25 14 23 11 Z" fill="#4CAF50"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="16" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="24" cy="20" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="20" cy="26" r="4" fill="#7B1FA2" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="14" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="26" cy="27" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <circle cx="20" cy="33" r="4" fill="#9C27B0" stroke="#4A148C" stroke-width="1"/>
+                        <path d="M 20 16 Q 20 10 24 8" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 24 8 Q 28 9 27 13 Q 25 14 23 11 Z" fill="#4CAF50"/>
+                    </svg>
                     <span class="fruit-label">عنب</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('تفاح')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><path d="M 20 13 Q 12 11 9 20 Q 7 30 15 34 Q 18 35 20 33 Q 22 35 25 34 Q 33 30 31 20 Q 28 11 20 13 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/><ellipse cx="15" cy="19" rx="2.5" ry="3" fill="#FFCDD2" opacity="0.5"/><path d="M 20 13 Q 20 8 22 6" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M 20 9 Q 24 8 25 11 Q 24 14 21 12 Z" fill="#43A047"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 13 Q 12 11 9 20 Q 7 30 15 34 Q 18 35 20 33 Q 22 35 25 34 Q 33 30 31 20 Q 28 11 20 13 Z" 
+                              fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
+                        <ellipse cx="15" cy="19" rx="2.5" ry="3" fill="#FFCDD2" opacity="0.5"/>
+                        <path d="M 20 13 Q 20 8 22 6" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 20 9 Q 24 8 25 11 Q 24 14 21 12 Z" fill="#43A047"/>
+                    </svg>
                     <span class="fruit-label">تفاح</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('فراولة')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><path d="M 20 36 Q 10 26 10 19 Q 10 13 20 13 Q 30 13 30 19 Q 30 26 20 36 Z" fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/><circle cx="16" cy="19" r="0.9" fill="#FFEB3B"/><circle cx="20" cy="17" r="0.9" fill="#FFEB3B"/><circle cx="24" cy="19" r="0.9" fill="#FFEB3B"/><circle cx="18" cy="23" r="0.9" fill="#FFEB3B"/><circle cx="22" cy="23" r="0.9" fill="#FFEB3B"/><circle cx="20" cy="28" r="0.9" fill="#FFEB3B"/><path d="M 16 13 Q 20 8 24 13 Q 22 11 20 11 Q 18 11 16 13 Z" fill="#43A047"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 36 Q 10 26 10 19 Q 10 13 20 13 Q 30 13 30 19 Q 30 26 20 36 Z" 
+                              fill="#E53935" stroke="#B71C1C" stroke-width="1.2"/>
+                        <circle cx="16" cy="19" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="20" cy="17" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="24" cy="19" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="18" cy="23" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="22" cy="23" r="0.9" fill="#FFEB3B"/>
+                        <circle cx="20" cy="28" r="0.9" fill="#FFEB3B"/>
+                        <path d="M 16 13 Q 20 8 24 13 Q 22 11 20 11 Q 18 11 16 13 Z" fill="#43A047"/>
+                    </svg>
                     <span class="fruit-label">فراولة</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('مانجو')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><path d="M 20 14 Q 12 12 10 22 Q 8 32 18 34 Q 28 34 30 24 Q 31 14 22 14 Q 21 14 20 14 Z" fill="#FFA726" stroke="#EF6C00" stroke-width="1.2"/><ellipse cx="16" cy="21" rx="2.5" ry="3" fill="#FFE0B2" opacity="0.5"/><path d="M 21 12 Q 22 8 25 7" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M 22 10 Q 25 8 26 11 Q 24 13 22 11 Z" fill="#43A047"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20 14 Q 12 12 10 22 Q 8 32 18 34 Q 28 34 30 24 Q 31 14 22 14 Q 21 14 20 14 Z" 
+                              fill="#FFA726" stroke="#EF6C00" stroke-width="1.2"/>
+                        <ellipse cx="16" cy="21" rx="2.5" ry="3" fill="#FFE0B2" opacity="0.5"/>
+                        <path d="M 21 12 Q 22 8 25 7" stroke="#4E342E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 22 10 Q 25 8 26 11 Q 24 13 22 11 Z" fill="#43A047"/>
+                    </svg>
                     <span class="fruit-label">مانجو</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('بطيخ')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><path d="M 6 22 Q 20 38 34 22 Q 20 14 6 22 Z" fill="#E53935" stroke="#2E7D32" stroke-width="1.5"/><path d="M 6 22 Q 20 14 34 22 Q 20 22 6 22 Z" fill="#2E7D32"/><circle cx="14" cy="24" r="0.8" fill="#212121"/><circle cx="20" cy="26" r="0.8" fill="#212121"/><circle cx="26" cy="24" r="0.8" fill="#212121"/><circle cx="17" cy="28" r="0.8" fill="#212121"/><circle cx="23" cy="28" r="0.8" fill="#212121"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 6 22 Q 20 38 34 22 Q 20 14 6 22 Z" fill="#E53935" stroke="#2E7D32" stroke-width="1.5"/>
+                        <path d="M 6 22 Q 20 14 34 22 Q 20 22 6 22 Z" fill="#2E7D32"/>
+                        <circle cx="14" cy="24" r="0.8" fill="#212121"/>
+                        <circle cx="20" cy="26" r="0.8" fill="#212121"/>
+                        <circle cx="26" cy="24" r="0.8" fill="#212121"/>
+                        <circle cx="17" cy="28" r="0.8" fill="#212121"/>
+                        <circle cx="23" cy="28" r="0.8" fill="#212121"/>
+                    </svg>
                     <span class="fruit-label">بطيخ</span>
                 </div>
+
                 <div class="fruit-item" onclick="selectFruitName('كرز')">
-                    <svg class="fruit-svg-icon" viewBox="0 0 40 40"><circle cx="15" cy="27" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/><circle cx="26" cy="29" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/><circle cx="13" cy="25" r="1.5" fill="#FFCDD2" opacity="0.6"/><circle cx="24" cy="27" r="1.5" fill="#FFCDD2" opacity="0.6"/><path d="M 15 21 Q 16 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M 26 23 Q 24 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M 22 10 Q 26 9 27 12 Q 25 14 22 12 Z" fill="#43A047"/></svg>
+                    <svg class="fruit-svg-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="15" cy="27" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
+                        <circle cx="26" cy="29" r="6" fill="#C62828" stroke="#8E0000" stroke-width="1"/>
+                        <circle cx="13" cy="25" r="1.5" fill="#FFCDD2" opacity="0.6"/>
+                        <circle cx="24" cy="27" r="1.5" fill="#FFCDD2" opacity="0.6"/>
+                        <path d="M 15 21 Q 16 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 26 23 Q 24 14 22 10" stroke="#2E7D32" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <path d="M 22 10 Q 26 9 27 12 Q 25 14 22 12 Z" fill="#43A047"/>
+                    </svg>
                     <span class="fruit-label">كرز</span>
                 </div>
+
             </div>
 
             <button class="wrong-fruit-close-btn" onclick="closeWrongFruitModal()">
@@ -1087,11 +1424,14 @@
                 </svg>
                 فهمت، سأحاول مرة أخرى
             </button>
+
         </div>
     </div>
 
+    <!-- ⚙️ نافذة معلومات الحساب (الترس) -->
     <div id="account-overlay" class="account-overlay" onclick="closeAccountPanel(event)">
         <div class="account-modal" onclick="event.stopPropagation()">
+
             <div class="account-header">
                 <svg class="account-gear-icon" viewBox="0 0 24 24">
                     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -1101,9 +1441,12 @@
             </div>
 
             <div class="account-body">
+
                 <div class="account-field">
                     <div class="account-field-label">
-                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
                         <span>المعرف الفريد (اسم الحساب)</span>
                     </div>
                     <div class="account-field-value" id="acct-id">--</div>
@@ -1111,7 +1454,9 @@
 
                 <div class="account-field">
                     <div class="account-field-label">
-                        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                        </svg>
                         <span>تاريخ بدء الاشتراك</span>
                     </div>
                     <div class="account-field-value" id="acct-start">--</div>
@@ -1119,7 +1464,9 @@
 
                 <div class="account-field">
                     <div class="account-field-label">
-                        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-9-2l4-4-1.41-1.41L9 15.17l-2.59-2.58L5 14l4 4z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-9-2l4-4-1.41-1.41L9 15.17l-2.59-2.58L5 14l4 4z"/>
+                        </svg>
                         <span>تاريخ انتهاء الاشتراك</span>
                     </div>
                     <div class="account-field-value" id="acct-expiry">--</div>
@@ -1127,19 +1474,25 @@
 
                 <div class="account-field highlight" id="acct-remaining-field">
                     <div class="account-field-label">
-                        <svg viewBox="0 0 24 24"><path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
+                        </svg>
                         <span>الوقت المتبقي</span>
                     </div>
                     <div class="account-field-value" id="acct-remaining">--</div>
                 </div>
+
             </div>
 
             <div class="account-footer">
                 <div class="account-footer-badge">
-                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
                     <span>حساب موثق - VIP</span>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -1546,31 +1899,44 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
-        // 🎨 عرض التوقعات (5 بطاقات - الخامسة مميزة بالأحمر)
-        function renderPredictions(selectedSlots) {
+        // ============================================================
+        // 🎯 عرض 5 توقعات: 3 صغيرة + 2 كبيرة (الخامسة حمراء مميزة)
+        // البيانات (confidence, score, minority) مرتبطة بالخوارزمية
+        // ============================================================
+        function renderPredictions(predictions) {
             const grid = document.getElementById('predictions-grid');
             grid.innerHTML = '';
-            selectedSlots.forEach((slot, index) => {
-                const fData = fruitData[slot.id];
-                const confidence = Math.floor(Math.random() * (99 - 95 + 1)) + 95;
-                const score = (Math.random() * 2000 + 300).toFixed(1);
-                const minority = (Math.random() * 8 + 0.5).toFixed(1);
+
+            predictions.forEach((pred, index) => {
+                const fData = fruitData[pred.id];
+                if (!fData) return;
+
+                const isSmall = index < 3;
+                const isFifth = index === 4;
+
+                const cardClass = isSmall ? 'small-card' : 'big-card';
+                const specialClass = isFifth ? 'special-red' : '';
                 const activeClass = index === 0 ? 'active-card' : '';
-                const specialClass = index === 4 ? 'special-card' : '';
-                const barColor = index === 4 
-                    ? '#FF1744' 
-                    : (confidence >= 97 ? 'var(--success)' : 'var(--gold)');
-                const typeLabel = fData.type === 'BIG' ? `${fData.type} 🔴` : `${fData.type} 🟢`;
+
+                const typeLabel = isSmall ? 'SMALL 🟢' : 'BIG 🔴';
+                const barColor = isFifth
+                    ? 'linear-gradient(90deg, #FF4757, #FF6B81)'
+                    : (pred.confidence >= 97 ? 'var(--success)' : 'var(--gold)');
+
+                const badgeHTML = isFifth
+                    ? '<div class="special-badge">🔥 توقع مميز</div>'
+                    : '';
 
                 grid.innerHTML += `
-                    <div class="pred-card ${activeClass} ${specialClass}">
+                    <div class="pred-card ${cardClass} ${specialClass} ${activeClass}">
+                        ${badgeHTML}
                         <div class="pred-type">${typeLabel}</div>
                         <div class="pred-title">${fData.name} ${fData.mult} ${fData.icon}</div>
-                        <div class="pred-score">Score: ${score} | <span>%${confidence} ثقة</span></div>
+                        <div class="pred-score">Score: ${pred.score} | <span>%${pred.confidence} ثقة</span></div>
                         <div class="progress-track">
-                            <div class="progress-fill" style="width: ${confidence}%; background: ${barColor};"></div>
+                            <div class="progress-fill" style="width: ${pred.confidence}%; background: ${barColor};"></div>
                         </div>
-                        <div class="pred-footer">رهان: ${minority}% | أقلية 🟢</div>
+                        <div class="pred-footer">رهان: ${pred.minority}% | أقلية 🟢</div>
                     </div>
                 `;
             });
@@ -1597,13 +1963,10 @@
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
             
-            // إخفاء 5 ماركرات
-            for (let i = 1; i <= 5; i++) {
-                const m = document.getElementById('marker-' + i);
-                if (m) {
-                    m.style.display = 'none';
-                    m.classList.remove('special-marker');
-                }
+            // إخفاء الماركرات الخمسة
+            for(let i=1; i<=5; i++) {
+                const m = document.getElementById('marker-'+i);
+                if (m) m.style.display = 'none';
             }
             grid.style.display = 'none';
             analyzingUI.style.display = 'flex';
@@ -1616,38 +1979,32 @@
             isGuessingAllowed = false;
 
             setTimeout(() => {
-                let selectedSlots = generatePrediction(slots, previousSelection);
+                let predictions = generatePrediction(slots, previousSelection);
                 
-                if (!selectedSlots || selectedSlots.length !== 5) {
+                if (!predictions || predictions.length === 0) {
                     addSystemLog("❌ فشل المحرك", false);
                     resetEngineUI();
                     return;
                 }
 
-                previousSelection = selectedSlots.map(s => s.id);
+                previousSelection = predictions.map(p => p.id);
                 
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'grid';
-                renderPredictions(selectedSlots);
+                renderPredictions(predictions);
 
-                // عرض الماركرات الخمسة
-                selectedSlots.forEach((slot, index) => {
+                // عرض 5 ماركرات (الخامس أحمر تلقائياً)
+                predictions.forEach((pred, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
-                    if (!marker) return;
-                    marker.style.top = slot.top;
-                    marker.style.left = slot.left;
-                    marker.style.display = 'block';
-                    
-                    // الماركر الخامس مميز بالأحمر
-                    if (index === 4) {
-                        marker.classList.add('special-marker');
-                    } else {
-                        marker.classList.remove('special-marker');
+                    if (marker) {
+                        marker.style.top = pred.top;
+                        marker.style.left = pred.left;
+                        marker.style.display = 'block';
                     }
                 });
 
                 mainImg.classList.remove('analyzing');
-                addSystemLog("✅ تم استخراج 5 توقعات (3 صغيرة + 2 كبيرة) بنجاح", true);
+                addSystemLog("✅ تم استخراج 5 توقعات بنجاح", true);
                 
                 startActiveRoundTimer();
             }, 1200);
