@@ -457,7 +457,7 @@
         }
 
         /* ============================================================
-           🔴 الماركر الخامس المميز (أحمر متوهج)
+           🔴 الماركر الخامس المميز (أحمر متوهج + وميض)
            ============================================================ */
         .marker.marker-special .corner.tl {
             border-top-color: var(--danger);
@@ -475,6 +475,7 @@
             filter: drop-shadow(0 0 6px var(--danger));
         }
         .marker.marker-special .corner.br {
+            bottom: 0; right: 0;
             border-bottom-color: var(--danger);
             border-right-color: var(--danger);
             filter: drop-shadow(0 0 6px var(--danger));
@@ -489,6 +490,11 @@
         .marker.marker-special .center-dot {
             background: var(--danger);
             box-shadow: 0 0 10px var(--danger);
+        }
+        
+        /* أنيميشن الوميض للماركر الخامس */
+        .marker.marker-special {
+            animation: markerFlash 1.2s ease-in-out infinite;
         }
 
         .controls-container {
@@ -556,7 +562,7 @@
         }
         
         /* ============================================================
-           🎯 إصلاح شبكة التوقعات: استخدام Flexbox لضمان ظهور 5 كروت دائماً
+           🎯 شبكة التوقعات: استخدام Flexbox لضمان ظهور 5 كروت دائماً
            ============================================================ */
         .predictions-grid {
             display: flex;
@@ -594,28 +600,28 @@
         }
 
         /* ============================================================
-           🔴 كارت التوقع الخامس المميز (أحمر متوهج احترافي)
+           🔴 كارت التوقع الخامس المميز (أحمر متوهج + وميض مستمر)
            ============================================================ */
         .pred-card.big-card.special-red {
             border: 2px solid var(--danger);
             background: linear-gradient(145deg, rgba(255, 71, 87, 0.18), rgba(255, 71, 87, 0.05));
-            animation: redGlowPulse 2.2s ease-in-out infinite;
+            animation: redGlowPulse 2.2s ease-in-out infinite, cardFlash 1.2s ease-in-out infinite;
             overflow: visible;
         }
 
         @keyframes redGlowPulse {
-            0%, 100% {
-                box-shadow: 
-                    0 0 12px rgba(255, 71, 87, 0.55),
-                    0 0 26px rgba(255, 71, 87, 0.35),
-                    inset 0 0 16px rgba(255, 71, 87, 0.10);
-            }
-            50% {
-                box-shadow: 
-                    0 0 22px rgba(255, 71, 87, 0.85),
-                    0 0 44px rgba(255, 71, 87, 0.55),
-                    inset 0 0 22px rgba(255, 71, 87, 0.20);
-            }
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 71, 87, 0.55), 0 0 26px rgba(255, 71, 87, 0.35); }
+            50% { box-shadow: 0 0 22px rgba(255, 71, 87, 0.85), 0 0 44px rgba(255, 71, 87, 0.55); }
+        }
+
+        @keyframes cardFlash {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.98); }
+        }
+
+        @keyframes markerFlash {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.9); }
         }
 
         .pred-card.big-card.special-red .pred-title {
@@ -1905,8 +1911,7 @@
         }
 
         // ============================================================
-        // 🎯 عرض 5 توقعات: 3 صغيرة + 2 كبيرة (الخامسة حمراء مميزة)
-        // تم إضافة حماية لمنع ظهور undefined وتحديد النوع بشكل صحيح
+        // 🎯 عرض التوقعات: الخانة الخامسة مخفية وبرمجياً
         // ============================================================
         function renderPredictions(predictions) {
             const grid = document.getElementById('predictions-grid');
@@ -1916,7 +1921,6 @@
                 const fData = fruitData[pred.id];
                 if (!fData) return;
 
-                // تحديد إذا كان صغيراً أم كبيراً بناءً على بيانات الخوارزمية أو الترتيب
                 const isSmall = pred.category ? (pred.category === 'SMALL') : (index < 3);
                 const isFifth = index === 4;
 
@@ -1926,7 +1930,6 @@
 
                 const typeLabel = isSmall ? 'SMALL 🟢' : 'BIG 🔴';
                 
-                // منع ظهور undefined في حال كانت الخوارزمية لا ترجع هذه القيم
                 const score = pred.score !== undefined ? pred.score : (Math.random() * 2000 + 300).toFixed(1);
                 const conf = pred.confidence !== undefined ? pred.confidence : Math.floor(Math.random() * 5) + 94;
                 const min = pred.minority !== undefined ? pred.minority : (Math.random() * 4 + 0.3).toFixed(1);
@@ -1939,8 +1942,12 @@
                     ? '<div class="special-badge">🔥 توقع مميز</div>'
                     : '';
 
+                // إخفاء الكارت الخامس مبدئياً باستخدام display: none
+                const cardId = isFifth ? 'id="pred-card-5"' : '';
+                const hiddenStyle = isFifth ? 'display: none;' : '';
+
                 grid.innerHTML += `
-                    <div class="pred-card ${cardClass} ${specialClass} ${activeClass}">
+                    <div class="pred-card ${cardClass} ${specialClass} ${activeClass}" ${cardId} style="${hiddenStyle}">
                         ${badgeHTML}
                         <div class="pred-type">${typeLabel}</div>
                         <div class="pred-title">${fData.name} ${fData.mult} ${fData.icon}</div>
@@ -1990,6 +1997,8 @@
             btn.innerText = "جاري التحليل...";
             isGuessingAllowed = false;
 
+            if (window.fifthCardTimeout) clearTimeout(window.fifthCardTimeout);
+
             setTimeout(() => {
                 let predictions = generatePrediction(slots, previousSelection);
                 
@@ -2005,19 +2014,37 @@
                 grid.style.display = 'flex';
                 renderPredictions(predictions);
 
-                // عرض 5 ماركرات (الخامس أحمر تلقائياً)
+                // عرض الماركرات الأربعة الأولى فقط، وإخفاء الخامس
                 predictions.forEach((pred, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     if (marker) {
                         marker.style.top = pred.top;
                         marker.style.left = pred.left;
-                        marker.style.display = 'block';
+                        if (index === 4) {
+                            marker.style.display = 'none'; // إخفاء المؤشر الخامس مبدئياً
+                        } else {
+                            marker.style.display = 'block';
+                        }
                     }
                 });
 
                 mainImg.classList.remove('analyzing');
-                addSystemLog("✅ تم استخراج 5 توقعات بنجاح", true);
+                addSystemLog("✅ تم استخراج التوقعات الأساسية", true);
                 
+                // تحديد وقت عشوائي لظهور الخانة الخامسة (3 أو 5 أو 7 ثواني)
+                const delays = [3000, 5000, 7000];
+                const randomDelay = delays[Math.floor(Math.random() * delays.length)];
+                
+                window.fifthCardTimeout = setTimeout(() => {
+                    const card5 = document.getElementById('pred-card-5');
+                    const marker5 = document.getElementById('marker-5');
+                    
+                    if (card5) card5.style.display = 'block';
+                    if (marker5) marker5.style.display = 'block';
+                    
+                    addSystemLog(`🔴 ظهر التوقع الخامس (الخطر) بعد ${randomDelay/1000} ثواني!`, true);
+                }, randomDelay);
+
                 startActiveRoundTimer();
             }, 1200);
         }
@@ -2030,6 +2057,7 @@
             document.getElementById('analyzing-ui').style.display = 'none';
             document.getElementById('predictions-grid').style.display = 'flex';
             isGuessingAllowed = true;
+            if (window.fifthCardTimeout) clearTimeout(window.fifthCardTimeout);
         }
 
         function startActiveRoundTimer() {
