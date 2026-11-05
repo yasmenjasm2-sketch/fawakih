@@ -321,78 +321,29 @@
         }
 
         /* ============================================================
-           📸 لقطات الشاشة كإعلان متحرك (Marquee من اليسار لليمين)
+           🎬 الفيديو الترويجي (بدلاً من الصور الإعلانية)
            ============================================================ */
-        .screenshots-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 700;
-            text-align: center;
-            margin-top: 25px;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .screenshots-marquee {
+        .login-promo-video-wrapper {
             position: relative;
             width: 100%;
-            height: 240px;
-            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            margin: 25px auto 5px auto;
             border-radius: 18px;
+            overflow: hidden;
             border: 2px solid var(--neon-blue);
             box-shadow: 
                 0 0 22px rgba(0, 229, 255, 0.4),
                 inset 0 0 22px rgba(157, 78, 221, 0.15);
-            background: linear-gradient(135deg, rgba(19, 9, 34, 0.95), rgba(11, 6, 18, 0.95));
-            margin: 0 auto 5px auto;
+            background: #000;
         }
 
-        .screenshots-marquee::before,
-        .screenshots-marquee::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .screenshots-marquee::before {
-            left: 0;
-            background: linear-gradient(to right, rgba(11, 6, 18, 0.95), transparent);
-        }
-        .screenshots-marquee::after {
-            right: 0;
-            background: linear-gradient(to left, rgba(11, 6, 18, 0.95), transparent);
-        }
-
-        .screenshots-track {
-            display: flex;
-            align-items: center;
+        .login-promo-video {
+            width: 100%;
             height: 100%;
-            padding: 14px 0;
-            width: max-content;
-            direction: ltr;
-            animation: marqueeLTR 22s linear infinite;
-            will-change: transform;
-        }
-
-        @keyframes marqueeLTR {
-            from { transform: translateX(-50%); }
-            to { transform: translateX(0%); }
-        }
-
-        .screenshot-img-ad {
-            height: 100%;
-            width: 150px;
-            margin-right: 14px;
             object-fit: cover;
-            border-radius: 14px;
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 16px rgba(248, 192, 0, 0.5);
-            background: rgba(0, 0, 0, 0.5);
-            flex-shrink: 0;
             display: block;
+            background: #000;
+            border-radius: 16px;
         }
 
         /* زر الشراء القديم (محتفظ به للتوافق) */
@@ -1308,17 +1259,19 @@
             </a>
         </div>
 
-        <!-- 📸 لقطات الشاشة كإعلان متحرك (تمرير من اليسار لليمين) -->
-        <div class="screenshots-label">📸 لقطات من داخل التطبيق</div>
-        <div class="screenshots-marquee">
-            <div class="screenshots-track">
-                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
-                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
-                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
-                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
-                <img src="kama.jpg" alt="لقطة شاشة 1" class="screenshot-img-ad">
-                <img src="kama1.jpg" alt="لقطة شاشة 2" class="screenshot-img-ad">
-            </div>
+        <!-- 🎬 فيديو ترويجي (بدلاً من الصور الإعلانية) -->
+        <div class="login-promo-video-wrapper">
+            <video 
+                id="login-promo-video"
+                class="login-promo-video"
+                autoplay
+                playsinline
+                controls
+                preload="auto"
+                webkit-playsinline>
+                <source src="gome.mp4" type="video/mp4">
+                متصفحك لا يدعم تشغيل الفيديو.
+            </video>
         </div>
     </div>
 
@@ -1677,6 +1630,38 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
+        // ============================================================
+        // 🎬 إدارة الفيديو الترويجي (تشغيل تلقائي + صوت)
+        // ============================================================
+        function playPromoVideo() {
+            const promoVideo = document.getElementById('login-promo-video');
+            if (!promoVideo) return;
+            try {
+                promoVideo.muted = false;
+                promoVideo.volume = 1;
+                const p = promoVideo.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(function() {
+                        // المتصفح منع التشغيل التلقائي بالصوت - نشغّل بدون صوت
+                        promoVideo.muted = true;
+                        promoVideo.play().catch(function() {});
+                    });
+                }
+            } catch (e) {
+                try { promoVideo.muted = true; promoVideo.play(); } catch (err) {}
+            }
+        }
+
+        // محاولة تشغيل الفيديو عند أي تفاعل من المستخدم (لفتح الصوت)
+        document.addEventListener('click', function oncePlayWithSound() {
+            const promoVideo = document.getElementById('login-promo-video');
+            if (promoVideo && promoVideo.paused) {
+                promoVideo.muted = false;
+                promoVideo.play().catch(function(){});
+            }
+            document.removeEventListener('click', oncePlayWithSound);
+        }, { once: true });
+
         const firebaseConfig = {
             apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
             databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -1736,6 +1721,7 @@
         window.onload = function() {
             listenToCurrentDeviceStatus();
             updateTrainedCount();
+            playPromoVideo();
         };
 
         function updateTrainedCount() {
@@ -2025,6 +2011,9 @@
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('waiting-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'none';
+            
+            // تشغيل الفيديو الترويجي عند ظهور شاشة الدخول
+            playPromoVideo();
             
             const msgBox = document.getElementById('login-msg');
             if (customMsg) {
