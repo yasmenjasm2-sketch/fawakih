@@ -160,41 +160,35 @@
         }
         .game-image.analyzing { opacity: 0.5; }
 
+        /* =========================================
+           تصميم مؤشر الإصبع الذهبي (Marker)
+           ========================================= */
         .marker {
             position: absolute;
-            width: 60px;
-            height: 60px;
-            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            transform: translate(-50%, -100%);
             display: none;
             z-index: 100;
             pointer-events: none;
+            animation: bounceFinger 1s infinite alternate;
         }
 
-        .marker .corner {
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border-color: var(--neon-blue);
-            filter: drop-shadow(0 0 5px var(--neon-blue));
-        }
-        .marker .corner.tl { top: 0; left: 0; border-top: 3px solid; border-left: 3px solid; }
-        .marker .corner.tr { top: 0; right: 0; border-top: 3px solid; border-right: 3px solid; }
-        .marker .corner.bl { bottom: 0; left: 0; border-bottom: 3px solid; border-left: 3px solid; }
-        .marker .corner.br { bottom: 0; right: 0; border-bottom: 3px solid; border-right: 3px solid; }
-        
-        .marker .center-dot {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 6px; height: 6px;
-            transform: translate(-50%, -50%);
-            background: var(--neon-blue);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--neon-blue);
+        .marker svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(180deg); /* قلب الإصبع ليشير للأسفل */
+            filter: drop-shadow(0px 0px 10px rgba(248, 192, 0, 0.9)) drop-shadow(0px 5px 5px rgba(0,0,0,0.6));
         }
 
-        .marker.marker-special .corner { border-color: var(--gold); filter: drop-shadow(0 0 6px var(--gold)); }
-        .marker.marker-special .center-dot { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
-        .marker.marker-special { animation: markerFlash 1s ease-in-out infinite; }
+        .marker.marker-special svg {
+            filter: drop-shadow(0px 0px 15px rgba(255, 215, 0, 1)) drop-shadow(0px 5px 5px rgba(0,0,0,0.6));
+        }
+
+        @keyframes bounceFinger {
+            from { transform: translate(-50%, -100%); }
+            to { transform: translate(-50%, -120%); }
+        }
 
         .controls-container {
             display: flex;
@@ -274,11 +268,6 @@
             50% { box-shadow: 0 0 22px rgba(248, 192, 0, 0.85); }
         }
 
-        @keyframes markerFlash {
-            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
-        }
-
         .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
         .pred-title { font-size: 15px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
         .progress-track { width: 100%; height: 4px; background: #25163D; border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
@@ -333,19 +322,37 @@
                 <!-- صورة اللعبة -->
                 <img src="hamzacc.jpg" alt="Ocean Party" class="game-image" id="main-image">
 
-                <!-- 4 علامات تاشير تتوافق مع المربعات في الصورة -->
+                <!-- 4 مؤشرات إصبع ذهبي -->
                 <div id="marker-1" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="center-dot"></div>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FFF3B0" />
+                                <stop offset="40%" stop-color="#F8C000" />
+                                <stop offset="100%" stop-color="#C68E17" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M10.5 15.5V4.5C10.5 3.67 11.17 3 12 3C12.83 3 13.5 3.67 13.5 4.5V11H15V6.5C15 5.67 15.67 5 16.5 5C17.33 5 18 5.67 18 6.5V11H19.5V8.5C19.5 7.67 20.17 7 21 7C21.83 7 22.5 7.67 22.5 8.5V15C22.5 19.42 18.92 23 14.5 23C10.08 23 6.5 19.42 6.5 15V12.5C6.5 11.67 7.17 11 8 11C8.83 11 9.5 11.67 9.5 12.5V15.5H10.5Z" fill="url(#goldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+                    </svg>
                 </div>
+                
                 <div id="marker-2" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="center-dot"></div>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 15.5V4.5C10.5 3.67 11.17 3 12 3C12.83 3 13.5 3.67 13.5 4.5V11H15V6.5C15 5.67 15.67 5 16.5 5C17.33 5 18 5.67 18 6.5V11H19.5V8.5C19.5 7.67 20.17 7 21 7C21.83 7 22.5 7.67 22.5 8.5V15C22.5 19.42 18.92 23 14.5 23C10.08 23 6.5 19.42 6.5 15V12.5C6.5 11.67 7.17 11 8 11C8.83 11 9.5 11.67 9.5 12.5V15.5H10.5Z" fill="url(#goldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+                    </svg>
                 </div>
+
                 <div id="marker-3" class="marker">
-                    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="center-dot"></div>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 15.5V4.5C10.5 3.67 11.17 3 12 3C12.83 3 13.5 3.67 13.5 4.5V11H15V6.5C15 5.67 15.67 5 16.5 5C17.33 5 18 5.67 18 6.5V11H19.5V8.5C19.5 7.67 20.17 7 21 7C21.83 7 22.5 7.67 22.5 8.5V15C22.5 19.42 18.92 23 14.5 23C10.08 23 6.5 19.42 6.5 15V12.5C6.5 11.67 7.17 11 8 11C8.83 11 9.5 11.67 9.5 12.5V15.5H10.5Z" fill="url(#goldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+                    </svg>
                 </div>
+
                 <!-- الماركر الرابع المميز -->
                 <div id="marker-4" class="marker marker-special">
-                    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="center-dot"></div>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 15.5V4.5C10.5 3.67 11.17 3 12 3C12.83 3 13.5 3.67 13.5 4.5V11H15V6.5C15 5.67 15.67 5 16.5 5C17.33 5 18 5.67 18 6.5V11H19.5V8.5C19.5 7.67 20.17 7 21 7C21.83 7 22.5 7.67 22.5 8.5V15C22.5 19.42 18.92 23 14.5 23C10.08 23 6.5 19.42 6.5 15V12.5C6.5 11.67 7.17 11 8 11C8.83 11 9.5 11.67 9.5 12.5V15.5H10.5Z" fill="url(#goldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+                    </svg>
                 </div>
 
             </div>
@@ -389,12 +396,12 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // إحداثيات 4 مربعات بناءً على صورة اللعبة
+        // إحداثيات 4 مربعات تم ضبطها بدقة لتناسب الصورة
         const slots = [
-            { id: 1, top: '20%', left: '17%' }, // سلحفاة 12x
-            { id: 2, top: '20%', left: '50%' }, // دولفين 35x
-            { id: 3, top: '20%', left: '83%' }, // قرش 100x
-            { id: 4, top: '60%', left: '50%' }  // مختلط 6x (في المنتصف الأسفل)
+            { id: 1, top: '29%', left: '16%' }, // المربع الأول (أعلى يسار - سلحفاة 12x)
+            { id: 2, top: '29%', left: '50%' }, // المربع الثاني (أعلى وسط - دولفين 35x)
+            { id: 3, top: '29%', left: '84%' }, // المربع الثالث (أعلى يمين - قرش 100x)
+            { id: 4, top: '56%', left: '86%' }  // المربع الرابع (أسفل يمين - مختلط 6x)
         ];
 
         // بيانات الكائنات البحرية
