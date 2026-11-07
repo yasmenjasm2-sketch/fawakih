@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0B0612">
+    <meta name="theme-color" content="#02121a">
     <title>FawakihAI - Ocean Party</title>
 
     <style>
         :root {
-            --bg-main: #0B0612;
-            --bg-panel: #130922;
-            --bg-card: #180C2B;
-            --primary: #9D4EDD;
-            --primary-dark: #5A189A;
+            /* ألوان المحيط العميق الجديدة */
+            --bg-main: #02121a;
+            --bg-panel: rgba(5, 30, 45, 0.7);
+            --bg-card: rgba(8, 45, 65, 0.9);
+            --primary: #00E5FF;
+            --primary-dark: #0077B6;
             --gold: #F8C000;
             --neon-blue: #00E5FF;
             --neon-pink: #FF00E5;
             --success: #00E676;
             --danger: #FF4757;
-            --danger-glow: #FF6B81;
             --text-main: #FFFFFF;
-            --text-muted: #8A7A9E;
-            --border-color: #2D1B4E;
-            --glass-bg: rgba(19, 9, 34, 0.92);
+            --text-muted: #8FBDD4;
+            --border-color: rgba(0, 229, 255, 0.3);
+            --glass-bg: rgba(5, 30, 45, 0.85);
         }
 
         * {
@@ -34,11 +34,11 @@
         }
 
         body {
-            background: #0B0612;
+            background-color: var(--bg-main);
             background-image: 
-                radial-gradient(circle at 20% 20%, rgba(0, 229, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(157, 78, 221, 0.10) 0%, transparent 50%),
-                linear-gradient(135deg, #09040d 0%, #1a0b2e 50%, #0d0616 100%);
+                radial-gradient(circle at 50% 0%, rgba(0, 119, 182, 0.2) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(0, 229, 255, 0.1) 0%, transparent 50%),
+                linear-gradient(180deg, #02121a 0%, #032433 50%, #011017 100%);
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
@@ -48,7 +48,6 @@
             padding: 15px;
             position: relative;
             overflow-x: hidden;
-            transform: translateZ(0);
             -webkit-font-smoothing: antialiased;
         }
 
@@ -63,7 +62,7 @@
             cursor: pointer;
             z-index: 1000;
             object-fit: cover;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
             transition: transform 0.2s ease;
         }
         #dev-logo:active { transform: scale(1.15); }
@@ -108,11 +107,11 @@
             position: relative;
         }
         .app-header h1 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 900;
             color: var(--neon-blue);
             letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
         }
         .app-header h1 span { color: var(--gold); font-size: 18px; }
 
@@ -121,11 +120,11 @@
             justify-content: space-between;
             align-items: center;
             background: var(--glass-bg);
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+            border: 1px solid var(--primary-dark);
+            box-shadow: 0 0 15px rgba(0, 119, 182, 0.3);
             border-radius: 12px;
             padding: 12px 15px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--text-muted);
             gap: 6px;
@@ -141,8 +140,8 @@
             background-color: var(--bg-card);
             border-radius: 15px;
             overflow: hidden;
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.35);
+            border: 2px solid var(--primary-dark);
+            box-shadow: 0 0 25px rgba(0, 119, 182, 0.4);
             margin-bottom: 5px;
         }
         #img-wrap {
@@ -161,7 +160,7 @@
         .game-image.analyzing { opacity: 0.5; }
 
         /* =========================================
-           مستشعرات اللمس (Sensors) لجميع العناصر
+           مستشعرات اللمس (Sensors) 
            ========================================= */
         .sensor {
             position: absolute;
@@ -169,19 +168,35 @@
             height: 35%;
             transform: translate(-50%, -50%);
             z-index: 50;
-            cursor: pointer;
+            cursor: default;
             border-radius: 12px;
             border: 2px solid transparent;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            pointer-events: none; /* معطلة افتراضياً */
         }
-        .sensor:hover {
-            background: rgba(0, 229, 255, 0.15);
-            border-color: rgba(0, 229, 255, 0.4);
+        
+        /* يتم تفعيلها فقط بعد انتهاء الجولة */
+        .sensor.active {
+            pointer-events: auto;
+            cursor: pointer;
+            border-color: rgba(0, 229, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3) inset;
+            animation: pulseSensor 1.5s infinite alternate;
         }
-        .sensor:active, .sensor.selected {
-            background: rgba(0, 229, 255, 0.3);
+        
+        @keyframes pulseSensor {
+            from { box-shadow: 0 0 5px rgba(0, 229, 255, 0.3) inset; border-color: rgba(0, 229, 255, 0.3); }
+            to { box-shadow: 0 0 20px rgba(0, 229, 255, 0.8) inset; border-color: rgba(0, 229, 255, 0.8); }
+        }
+
+        .sensor.active:hover {
+            background: rgba(0, 229, 255, 0.2);
+        }
+        .sensor.active:active, .sensor.selected {
+            background: rgba(0, 229, 255, 0.4);
             border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.6) inset;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.8) inset;
+            animation: none;
         }
 
         /* =========================================
@@ -227,6 +242,7 @@
             border: 1px dashed var(--gold);
             margin-bottom: 10px;
             animation: fadeIn 0.3s ease;
+            box-shadow: 0 0 15px rgba(248, 192, 0, 0.2);
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
@@ -239,41 +255,73 @@
             gap: 12px;
         }
 
+        /* زر بدء الجولة الجديد والفخم */
         .start-btn {
+            position: relative;
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #00E676, #00B0FF, #F8C000);
-            color: #000;
-            border: none;
+            padding: 18px;
+            background: linear-gradient(135deg, #00E5FF, #0055FF, #00E5FF);
+            background-size: 200% auto;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 30px;
             font-size: 18px;
             font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.4);
-            transition: transform 0.2s ease;
+            box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4), inset 0 2px 5px rgba(255,255,255,0.4);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            animation: gradientMove 3s ease infinite;
         }
-        .start-btn:active { transform: scale(0.97); }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            transition: all 0.5s;
+        }
+
+        .start-btn:active:not(:disabled) {
+            transform: scale(0.96);
+            box-shadow: 0 2px 10px rgba(0, 229, 255, 0.6);
+        }
+        
         .start-btn:disabled {
-            background: #2D1B4E;
-            color: #8A7A9E;
+            background: #0f2b3a;
+            color: var(--text-muted);
+            border-color: transparent;
             box-shadow: none;
             cursor: not-allowed;
+            animation: none;
         }
+        .start-btn:disabled::before { display: none; }
 
         .panel {
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
             border-radius: 14px;
             padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
         }
         
         .predictions-grid {
@@ -292,28 +340,29 @@
             cursor: pointer;
             flex: 0 0 calc(50% - 5px);
             max-width: calc(50% - 5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .pred-card.special-red {
             border: 2px solid var(--gold);
-            background: linear-gradient(145deg, rgba(248, 192, 0, 0.18), rgba(248, 192, 0, 0.05));
+            background: linear-gradient(145deg, rgba(248, 192, 0, 0.15), rgba(248, 192, 0, 0.05));
             animation: goldGlowPulse 2s ease-in-out infinite;
         }
 
         @keyframes goldGlowPulse {
-            0%, 100% { box-shadow: 0 0 12px rgba(248, 192, 0, 0.55); }
-            50% { box-shadow: 0 0 22px rgba(248, 192, 0, 0.85); }
+            0%, 100% { box-shadow: 0 0 12px rgba(248, 192, 0, 0.4); }
+            50% { box-shadow: 0 0 22px rgba(248, 192, 0, 0.7); }
         }
 
         .pred-type { font-size: 10px; color: var(--text-muted); text-align: right; margin-bottom: 5px; }
         .pred-title { font-size: 15px; font-weight: bold; color: white; text-align: center; margin-bottom: 5px; }
-        .progress-track { width: 100%; height: 4px; background: #25163D; border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+        .progress-track { width: 100%; height: 4px; background: #0d2b3d; border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
         .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.8s ease; }
         .pred-footer { font-size: 10px; color: var(--text-muted); text-align: center; }
 
         .system-log {
-            background: #060309;
-            border: 1px solid #1E1035;
+            background: #01080c;
+            border: 1px solid #0f2b3a;
             border-radius: 8px;
             padding: 10px;
             height: 100px;
@@ -324,7 +373,7 @@
             direction: ltr;
             text-align: left;
         }
-        .log-highlight { color: var(--success); }
+        .log-highlight { color: var(--neon-blue); }
 
         .analyzing-bar {
             display: none;
@@ -332,7 +381,7 @@
             justify-content: center;
             gap: 10px;
             padding: 10px;
-            color: var(--primary);
+            color: var(--neon-blue);
             font-weight: bold;
             font-size: 14px;
         }
@@ -405,7 +454,7 @@
 
         <!-- شريط عرض النتيجة المسجلة -->
         <div id="registered-area" class="registered-area">
-            📝 تم تسجيل النتيجة: <span id="registered-text" style="color: #fff; font-weight: 900;">--</span>
+            📝 تم تسجيل النتيجة بنجاح: <span id="registered-text" style="color: #fff; font-weight: 900;">--</span>
         </div>
 
         <div class="stats-bar">
@@ -448,54 +497,77 @@
 
         // بيانات جميع العناصر السبعة في الصورة
         const allElements = [
-            { id: 1, name: 'سلحفاة 12x', icon: '🐢', mult: 'x12', weight: 15, top: '22%', left: '16%' }, // نادر خفيف
-            { id: 2, name: 'دولفين 35x', icon: '🐬', mult: 'x35', weight: 5, top: '22%', left: '50%' },  // نادر
-            { id: 3, name: 'قرش 100x', icon: '🦈', mult: 'x100', weight: 1, top: '22%', left: '84%' },  // نادر جداً
-            { id: 4, name: 'سلحفاة 4x', icon: '🐢', mult: 'x4', weight: 25, top: '55%', left: '13%' },   // عادي
-            { id: 5, name: 'دولفين 4x', icon: '🐬', mult: 'x4', weight: 25, top: '55%', left: '38%' },   // عادي
-            { id: 6, name: 'قرش 4x', icon: '🦈', mult: 'x4', weight: 25, top: '55%', left: '62%' },     // عادي
-            { id: 7, name: 'مختلط 6x', icon: '🌊', mult: 'x6', weight: 25, top: '55%', left: '87%' }     // عادي
+            { id: 1, name: 'سلحفاة 12x', icon: '🐢', mult: 'x12', weight: 15, top: '22%', left: '16%' },
+            { id: 2, name: 'دولفين 35x', icon: '🐬', mult: 'x35', weight: 5, top: '22%', left: '50%' },
+            { id: 3, name: 'قرش 100x', icon: '🦈', mult: 'x100', weight: 1, top: '22%', left: '84%' },
+            { id: 4, name: 'سلحفاة 4x', icon: '🐢', mult: 'x4', weight: 25, top: '55%', left: '13%' },
+            { id: 5, name: 'دولفين 4x', icon: '🐬', mult: 'x4', weight: 25, top: '55%', left: '38%' },
+            { id: 6, name: 'قرش 4x', icon: '🦈', mult: 'x4', weight: 25, top: '55%', left: '62%' },
+            { id: 7, name: 'مختلط 6x', icon: '🌊', mult: 'x6', weight: 25, top: '55%', left: '87%' }
         ];
 
-        let lastRegisteredId = null; // لتخزين آخر شيء سجله المستخدم ليتعلم منه الذكاء الاصطناعي
+        let lastRegisteredId = null; // ليتعلم منها الذكاء الاصطناعي في الجولة القادمة
         let currentRoundTime = 26;
         let roundInterval;
-        let isGuessingAllowed = true;
+        
+        // حالات الجولة
+        let roundState = 'idle'; // 'playing' | 'ended'
+        let hasRegisteredThisRound = false;
 
         window.onload = function() {
             document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
         };
 
-        // دالة تسجيل العنصر عند الضغط عليه
+        // دالة تسجيل العنصر (مقيدة بوقت انتهاء الجولة وتسجيل واحد فقط)
         function registerItem(name, id) {
+            if (roundState !== 'ended') {
+                addSystemLog("⚠️ لا يمكنك تسجيل النتيجة إلا بعد انتهاء الوقت!");
+                return;
+            }
+            if (hasRegisteredThisRound) {
+                addSystemLog("⚠️ لقد قمت بتسجيل النتيجة لهذه الجولة مسبقاً!");
+                return;
+            }
+
+            // تعليم الذكاء الاصطناعي
             lastRegisteredId = id;
+            hasRegisteredThisRound = true;
+            
+            // تحديث واجهة المستخدم
             const regArea = document.getElementById('registered-area');
             const regText = document.getElementById('registered-text');
             
             regText.innerText = name;
             regArea.style.display = 'block';
             
-            // إضافة تأثير بصري للمستشعر الذي تم النقر عليه
-            document.querySelectorAll('.sensor').forEach(s => s.classList.remove('selected'));
-            event.target.classList.add('selected');
+            document.querySelectorAll('.sensor').forEach(s => {
+                s.classList.remove('active'); // إيقاف النبض
+                s.classList.remove('selected'); // إزالة التحديد القديم
+            });
+            event.target.classList.add('selected'); // تحديد العنصر الذي تم ضغطه
 
-            addSystemLog(`📝 المستخدم سجل: [${name}] - الذكاء الاصطناعي سيتعلم من هذا!`);
+            addSystemLog(`🧠 تم تسجيل [${name}]. الذكاء الاصطناعي تعلم من هذه الجولة!`);
+            
+            // تغيير نص الزر ليبدأ المستخدم الجولة القادمة
+            const btn = document.getElementById('start-round-btn');
+            btn.innerText = "بدء جولة جديدة (تم التعلم) 🚀";
+            btn.disabled = false;
         }
 
-        // خوارزمية التخمين الذكية مع الأوزان النادرة
+        // خوارزمية التخمين الذكية مع الأوزان النادرة والعشوائية العالية
         function generateSmartPrediction() {
-            // نسخ العناصر لإضافة الأوزان الديناميكية
             let pool = allElements.map(el => {
                 let dynamicWeight = el.weight;
                 
-                // الذكاء الاصطناعي يتعلم: إذا سجل المستخدم عنصراً، نزيد احتمالية توقعه في الجولة القادمة قليلاً
+                // الذكاء الاصطناعي يتعلم: إذا سجل المستخدم عنصراً، نزيد احتمالية توقعه في الجولة القادمة
+                // ولكن نضربها برقم عشوائي كبير للحفاظ على العشوائية وعدم التنبؤ بنسبة 100%
                 if (lastRegisteredId === el.id) {
-                    dynamicWeight += 20; 
+                    dynamicWeight += (Math.random() * 30); 
                 }
 
                 return {
                     ...el,
-                    randomScore: Math.random() * dynamicWeight // النتيجة تعتمد على الوزن
+                    randomScore: Math.random() * dynamicWeight 
                 };
             });
 
@@ -505,11 +577,11 @@
             // نأخذ أفضل 4 عناصر كتوقعات
             let top4 = pool.slice(0, 4);
 
-            // حساب نسبة الثقة بشكل عشوائي وجمالي
+            // حساب نسبة الثقة
             return top4.map((item, index) => {
                 return {
                     ...item,
-                    confidence: Math.floor(Math.random() * 10) + (89 - index * 2) // ثقة تتراوح بين 83% و 98%
+                    confidence: Math.floor(Math.random() * 10) + (89 - index * 2)
                 };
             });
         }
@@ -526,7 +598,6 @@
             grid.innerHTML = '';
 
             predictions.forEach((pred, index) => {
-                // إذا كان العنصر 100x نعطيه كلاس مميز
                 const isSpecial = pred.id === 3; 
                 const specialClass = isSpecial ? 'special-red' : '';
 
@@ -544,39 +615,48 @@
         }
 
         function startNewRound() {
-            if (!isGuessingAllowed) return;
+            // منع البدء إذا كانت الجولة شغالة أو إذا انتهت ولم يقم بالتسجيل
+            if (roundState === 'playing') return;
+            if (roundState === 'ended' && !hasRegisteredThisRound) {
+                addSystemLog("⚠️ يرجى تسجيل النتيجة بالضغط على المربع أولاً!");
+                return;
+            }
 
             const btn = document.getElementById('start-round-btn');
             const mainImg = document.getElementById('main-image');
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
             
-            // إخفاء المؤشرات القديمة وإزالة التحديد من المستشعرات
+            // تصفير الحالة للجولة الجديدة
+            hasRegisteredThisRound = false;
+            roundState = 'playing';
+            
+            // إخفاء المؤشرات القديمة وتعطيل المستشعرات
             for(let i=1; i<=4; i++) {
                 const m = document.getElementById('marker-'+i);
                 if (m) m.style.display = 'none';
             }
-            document.querySelectorAll('.sensor').forEach(s => s.classList.remove('selected'));
+            document.querySelectorAll('.sensor').forEach(s => {
+                s.classList.remove('active');
+                s.classList.remove('selected');
+            });
             document.getElementById('registered-area').style.display = 'none';
             
             grid.style.display = 'none';
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
-            addSystemLog("🚀 بدء تحليل المحيط بناءً على معطياتك...");
+            addSystemLog("🚀 بدء تحليل المحيط...");
             
             btn.disabled = true;
             btn.innerText = "جاري التحليل...";
-            isGuessingAllowed = false;
 
             setTimeout(() => {
-                // استخدام الخوارزمية الموزونة
                 let predictions = generateSmartPrediction();
                 
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'flex';
                 renderPredictions(predictions);
 
-                // عرض المؤشرات على الأماكن المتوقعة
                 predictions.forEach((pred, index) => {
                     let marker = document.getElementById('marker-' + (index + 1));
                     if (marker) {
@@ -589,7 +669,7 @@
                 mainImg.classList.remove('analyzing');
                 addSystemLog("✅ تم استخراج 4 توقعات بنجاح");
                 
-                // تصفير المتغير بعد التعلم منه
+                // تصفير المتغير حتى لا يظل يؤثر في الجولات القادمة باستمرار
                 lastRegisteredId = null;
 
                 startActiveRoundTimer();
@@ -614,18 +694,16 @@
                 } else {
                     clearInterval(roundInterval);
                     timerDisplay.innerText = "0";
+                    
+                    // انتهاء الجولة: تفعيل المستشعرات والسماح بالتسجيل
+                    roundState = 'ended';
+                    
+                    document.querySelectorAll('.sensor').forEach(s => s.classList.add('active'));
+                    
+                    btn.innerText = "⏳ يرجى تسجيل النتيجة بالضغط على الصورة";
                     addSystemLog("⏳ انتهت الجولة. اضغط على المربع الذي ظهر لتسجيله.");
-                    resetEngineUI();
                 }
             }, 1000);
-        }
-
-        function resetEngineUI() {
-            const btn = document.getElementById('start-round-btn');
-            btn.disabled = false;
-            btn.innerText = "بدء جولة جديدة 🚀";
-            document.getElementById('main-image').classList.remove('analyzing');
-            isGuessingAllowed = true;
         }
     </script>
 </body>
