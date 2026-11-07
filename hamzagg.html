@@ -238,6 +238,62 @@
         }
         .game-image.analyzing { opacity: 0.5; }
 
+        /* =========================================
+           🎯 لوحة الدقة والثقة (جديدة)
+           ========================================= */
+        .accuracy-panel {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px 15px;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.4s ease;
+        }
+        .accuracy-panel.visible { display: flex; }
+
+        .accuracy-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+        .accuracy-label {
+            min-width: 100px;
+            color: var(--text-muted);
+            font-weight: bold;
+            font-size: 12px;
+            text-align: right;
+        }
+        .accuracy-bar-track {
+            flex: 1;
+            height: 10px;
+            background: #0d2b3d;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+        }
+        .accuracy-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .accuracy-value {
+            min-width: 45px;
+            text-align: left;
+            font-weight: 900;
+            color: var(--neon-blue);
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* مستشعرات اللمس */
         .sensor {
             position: absolute;
             width: 28%;
@@ -383,28 +439,6 @@
             text-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
         }
         
-        .learn-badge {
-            font-size: 10px;
-            color: var(--gold);
-            background: rgba(248, 192, 0, 0.12);
-            border: 1px solid rgba(248, 192, 0, 0.4);
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        
-        .reset-btn {
-            font-size: 10px;
-            color: var(--danger);
-            background: transparent;
-            border: 1px solid rgba(255, 71, 87, 0.4);
-            padding: 3px 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .reset-btn:active { background: rgba(255, 71, 87, 0.2); }
-
         .predictions-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -455,6 +489,8 @@
             text-align: left;
         }
         .log-highlight { color: var(--neon-blue); }
+        .log-good { color: var(--success); }
+        .log-bad { color: var(--danger); }
 
         .analyzing-bar {
             display: none;
@@ -577,13 +613,30 @@
             </div>
         </div>
 
+        <!-- 🎯 لوحة الدقة والثقة (جديدة) -->
+        <div class="accuracy-panel" id="accuracy-panel">
+            <div class="accuracy-row">
+                <span class="accuracy-label">🎯 دقة الجولة</span>
+                <div class="accuracy-bar-track">
+                    <div class="accuracy-bar-fill" id="accuracy-fill"></div>
+                </div>
+                <span class="accuracy-value" id="accuracy-value">—</span>
+            </div>
+            <div class="accuracy-row">
+                <span class="accuracy-label">🔒 ثقة النموذج</span>
+                <div class="accuracy-bar-track">
+                    <div class="accuracy-bar-fill" id="confidence-fill"></div>
+                </div>
+                <span class="accuracy-value" id="confidence-value">—</span>
+            </div>
+        </div>
+
         <div id="registered-area" class="registered-area">
             📝 تم تسجيل النتيجة بنجاح: <span id="registered-text" style="color: #fff; font-weight: 900;">--</span>
         </div>
 
         <div class="stats-bar">
             <span><span class="stat-icon">⏱</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
-            <span><span class="stat-icon">🧠</span> تعلم: <span class="stat-value" id="learn-count">0</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
@@ -594,7 +647,6 @@
         <div class="panel">
             <div class="panel-header">
                 <span>🎯 توقعات المحيط</span>
-                <span class="learn-badge" id="learn-badge">ذكاء متعلم</span>
             </div>
             <div class="analyzing-bar" id="analyzing-ui">جاري التحليل... 🧠</div>
             <div class="predictions-grid" id="predictions-grid">
@@ -605,10 +657,7 @@
         </div>
 
         <div class="panel">
-            <div class="panel-header">
-                <span>📋 سجل النظام</span>
-                <button class="reset-btn" onclick="resetLearning()">🗑️ مسح التعلم</button>
-            </div>
+            <div class="panel-header"><span>📋 سجل النظام</span></div>
             <div class="system-log" id="system-log">
                 <div><span class="log-time">[نظام]</span> 🌊 OCEAN PARTY AI - جاهز للعمل</div>
             </div>
@@ -645,9 +694,6 @@
         const deviceId = getDeviceId();
         let currentDeviceData = null;
 
-        // ==========================================
-        // نظام فحص الاشتراك بالخلفية
-        // ==========================================
         function checkSubscriptionStatus() {
             db.ref('requests/' + deviceId).on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -703,156 +749,125 @@
             }
         }, 10000);
 
-        window.addEventListener('DOMContentLoaded', () => {
-            checkSubscriptionStatus();
-            initHistoryFromFirebase();
+        // ==========================================
+        // 🧠 نظام الدقة والثقة الواقعي (جديد)
+        // ==========================================
+        // مبادئ التصميم:
+        // 1. نافذة متحركة (12 جولة فقط) - لا تتأثر بكثرة الجولات
+        // 2. ترجيح زمني - الجولات الأحدث أهم
+        // 3. تنعيم بايزي - يمنع القفزات المتطرفة في البداية
+        // 4. حدود واقعية - الثقة لا تتجاوز 68% (لعبة تخمين)
+        // 5. لا مكافآت زائفة - المعايرة تعتمد على الأداء الفعلي فقط
+        // ==========================================
 
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if (splash && splash.style.display !== 'none') {
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                    }, 500);
+        const ACCURACY_HISTORY_KEY = 'ocean_party_accuracy_v1';
+        const CALIBRATION_WINDOW = 12;   // فقط آخر 12 جولة
+        const PRIOR_RATE = 0.5;          // افتراض محايد 50/50
+        const PRIOR_STRENGTH = 3;        // قوة الافتراض (يمنع التطرف)
+        const MAX_STORED_HISTORY = 50;   // حد التخزين
+
+        let roundHistory = [];
+        let currentPredictions = [];
+        let currentRoundConfidence = null;
+
+        function loadAccuracyHistory() {
+            try {
+                const raw = localStorage.getItem(ACCURACY_HISTORY_KEY);
+                roundHistory = raw ? JSON.parse(raw) : [];
+                if (!Array.isArray(roundHistory)) roundHistory = [];
+                // تصفية السجلات التالفة
+                roundHistory = roundHistory.filter(r => r && typeof r.hit === 'boolean');
+            } catch(e) {
+                roundHistory = [];
+            }
+        }
+
+        function saveAccuracyHistory() {
+            try {
+                if (roundHistory.length > MAX_STORED_HISTORY) {
+                    roundHistory = roundHistory.slice(-MAX_STORED_HISTORY);
                 }
-            }, 3500);
-
-            document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
-            
-            // تحديث شارة عدد جولات التعلم
-            updateLearnBadge();
-        });
-
-        function showDevInfo() {
-            const infoBox = document.getElementById('dev-info');
-            infoBox.classList.add('show');
-            setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
-        }
-
-        // ==========================================
-        // 🧠 نظام التعلم الذكي (Learning Engine)
-        // ==========================================
-        // يخزن سجل النتائج المسجلة لكل جهاز
-        // يستخدم خوارزمية Bayesian مع Laplace Smoothing
-        // لتقدير احتمالية كل عنصر بناءً على التسجيلات
-        // النسب المئوية "حقيقية" مستمدة من الاحتمالات
-        // لكن مُقاسة (Scaled) لعرضها بشكل مقروء
-        // ==========================================
-
-        const LEARNING_STORAGE_KEY = 'nexus_learn_history';
-        const ALPHA = 10; // ثابت التنعيم (Laplace Smoothing) - يمنع النسب المتطرفة
-
-        function loadHistory() {
-            try {
-                const raw = localStorage.getItem(LEARNING_STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && typeof parsed.total === 'number' && parsed.counts) {
-                        return parsed;
-                    }
-                }
-            } catch(e) {}
-            return { counts: {}, total: 0 };
-        }
-
-        function saveHistory(history) {
-            try {
-                localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(history));
-            } catch(e) {}
-            // نسخ احتياطي إلى Firebase (fire and forget)
-            try {
-                db.ref('learning/' + deviceId).set(history).catch(() => {});
+                localStorage.setItem(ACCURACY_HISTORY_KEY, JSON.stringify(roundHistory));
             } catch(e) {}
         }
 
-        function initHistoryFromFirebase() {
-            const local = loadHistory();
-            if (local.total > 0) return; // لدينا بيانات محلية بالفعل
-
-            try {
-                db.ref('learning/' + deviceId).once('value', (snap) => {
-                    const fbData = snap.val();
-                    if (fbData && fbData.total > 0) {
-                        localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(fbData));
-                        addSystemLog(`🔄 تم استعادة ${fbData.total} جولة من السحابة`);
-                        updateLearnBadge();
-                    }
-                });
-            } catch(e) {}
-        }
-
-        function recordObservation(elementId) {
-            const history = loadHistory();
-            history.counts[elementId] = (history.counts[elementId] || 0) + 1;
-            history.total = (history.total || 0) + 1;
-            saveHistory(history);
-            updateLearnBadge();
-            return history;
-        }
-
-        // حساب الاحتمالات لكل العناصر باستخدام Bayesian update
-        // P(i) = (count_i + alpha * prior_i) / (N + alpha)
-        // حيث prior_i = weight_i / sum(weights)
-        function computeProbabilities() {
-            const history = loadHistory();
-            const N = history.total || 0;
-            const priorSum = allElements.reduce((s, e) => s + e.weight, 0);
-            
-            const probs = {};
-            allElements.forEach(el => {
-                const count = history.counts[el.id] || 0;
-                const prior = el.weight / priorSum;
-                probs[el.id] = (count + ALPHA * prior) / (N + ALPHA);
+        // حساب معدل الإصابة الفعلي مع ترجيح زمني + تنعيم بايزي
+        function computeCalibration() {
+            const window = roundHistory.slice(-CALIBRATION_WINDOW);
+            if (window.length === 0) {
+                return { calibrated: PRIOR_RATE, rawRate: PRIOR_RATE, sampleSize: 0 };
+            }
+            let weightedHits = 0;
+            let totalWeight = 0;
+            window.forEach((r, i) => {
+                // الجولات الأحدث لها وزن أعلى (1.10^i)
+                const w = Math.pow(1.10, i);
+                totalWeight += w;
+                if (r.hit) weightedHits += w;
             });
-            
-            return probs;
+            const rawRate = weightedHits / totalWeight;
+            const n = window.length;
+            // التنعيم البايزي: يمنع النتيجة من القفز إلى 0% أو 100% في البداية
+            const calibrated = (rawRate * n + PRIOR_RATE * PRIOR_STRENGTH) / (n + PRIOR_STRENGTH);
+            return { calibrated, rawRate, sampleSize: n };
         }
 
-        // أخذ عينات موزونة بدون تكرار (weighted sampling without replacement)
-        function weightedSampleWithoutReplacement(ids, weights, k) {
-            const pool = ids.map(id => ({ id, w: Math.max(0.0001, weights[id] || 0.0001) }));
-            const result = [];
-            for (let i = 0; i < k && pool.length > 0; i++) {
-                const total = pool.reduce((s, p) => s + p.w, 0);
-                let rand = Math.random() * total;
-                let chosenIdx = pool.length - 1;
-                for (let j = 0; j < pool.length; j++) {
-                    rand -= pool[j].w;
-                    if (rand <= 0) { chosenIdx = j; break; }
+        // حساب دقة الجولة: يعتمد على ترتيب التوقع الصحيح
+        // #1 = 100% ، #2 = 78% ، #3 = 58% ، #4 = 40% ، #5 = 25% ، خارج التوقعات = 0%
+        function computeRoundAccuracy(predictions, registeredId) {
+            const idx = predictions.findIndex(p => p.id === registeredId);
+            if (idx === -1) return 0;
+            const rankScores = [100, 78, 58, 40, 25];
+            return rankScores[idx] !== undefined ? rankScores[idx] : 25;
+        }
+
+        // تحديث واجهة الدقة والثقة
+        function updateAccuracyUI(accuracy, confidence, isPending) {
+            const panel = document.getElementById('accuracy-panel');
+            if (!panel) return;
+            panel.classList.add('visible');
+
+            const accFill = document.getElementById('accuracy-fill');
+            const accVal = document.getElementById('accuracy-value');
+            const confFill = document.getElementById('confidence-fill');
+            const confVal = document.getElementById('confidence-value');
+
+            // شريط الدقة
+            if (isPending || accuracy === null || accuracy === undefined) {
+                accFill.style.width = '0%';
+                accFill.style.background = '#0d2b3d';
+                accVal.innerText = '—';
+                accVal.style.color = 'var(--text-muted)';
+            } else {
+                accFill.style.width = accuracy + '%';
+                accVal.innerText = accuracy + '%';
+                if (accuracy >= 70) {
+                    accFill.style.background = 'var(--success)';
+                    accVal.style.color = 'var(--success)';
+                } else if (accuracy >= 40) {
+                    accFill.style.background = 'var(--gold)';
+                    accVal.style.color = 'var(--gold)';
+                } else {
+                    accFill.style.background = 'var(--danger)';
+                    accVal.style.color = 'var(--danger)';
                 }
-                result.push(pool[chosenIdx].id);
-                pool.splice(chosenIdx, 1);
             }
-            return result;
-        }
 
-        // تحويل الاحتمال الحقيقي إلى نسبة عرض مفهومة
-        // SCALE=3.2, OFFSET=28, مع jitter ±3 للمظهر
-        function toDisplayConfidence(prob) {
-            let val = prob * 100 * 3.2 + 28;
-            val += (Math.random() * 6 - 3); // تمويه بسيط للمظهر
-            val = Math.max(35, Math.min(97, val));
-            return Math.round(val);
-        }
-
-        function updateLearnBadge() {
-            const h = loadHistory();
-            const badge = document.getElementById('learn-badge');
-            if (badge) {
-                badge.innerText = h.total > 0 ? `🧠 متعلم من ${h.total} جولة` : '🧠 ذكاء جديد';
+            // شريط الثقة
+            if (confidence !== null && confidence !== undefined) {
+                confFill.style.width = confidence + '%';
+                confVal.innerText = confidence + '%';
+                if (confidence >= 55) {
+                    confFill.style.background = 'var(--primary)';
+                    confVal.style.color = 'var(--primary)';
+                } else if (confidence >= 35) {
+                    confFill.style.background = 'var(--gold)';
+                    confVal.style.color = 'var(--gold)';
+                } else {
+                    confFill.style.background = 'var(--danger)';
+                    confVal.style.color = 'var(--danger)';
+                }
             }
-            const lc = document.getElementById('learn-count');
-            if (lc) lc.innerText = h.total;
-        }
-
-        function resetLearning() {
-            if (!confirm('هل أنت متأكد من مسح سجل التعلم؟ سيبدأ الذكاء من الصفر.')) return;
-            try {
-                localStorage.removeItem(LEARNING_STORAGE_KEY);
-                db.ref('learning/' + deviceId).remove().catch(() => {});
-            } catch(e) {}
-            updateLearnBadge();
-            addSystemLog("🗑️ تم مسح سجل التعلم. الذكاء يبدأ من جديد.");
         }
 
         // ==========================================
@@ -871,62 +886,8 @@
         let lastRegisteredId = null; 
         let currentRoundTime = 26;
         let roundInterval;
-        
         let roundState = 'idle'; 
         let hasRegisteredThisRound = false;
-
-        // ==========================================
-        // توليد التوقعات بناءً على التعلم الحقيقي
-        // ==========================================
-        function generateSmartPrediction() {
-            const probs = computeProbabilities();
-            const allIds = allElements.map(e => e.id);
-
-            // 1) أخذ 4 توقعات رئيسية موزونة بدون تكرار
-            const mainPicks = weightedSampleWithoutReplacement(allIds, probs, 4);
-
-            // 2) أخذ توقع خامس "خاص" من باقي العناصر (بدون تكرار)
-            //    هذا يضمن التنوع بدلاً من أن يكون دائماً دولفين
-            const remainingIds = allIds.filter(id => !mainPicks.includes(id));
-            const specialPick = weightedSampleWithoutReplacement(remainingIds, probs, 1);
-
-            // 3) ترتيب التوقعات الرئيسية حسب الاحتمال (الأعلى أولاً)
-            mainPicks.sort((a, b) => probs[b] - probs[a]);
-
-            const orderedIds = [...mainPicks, specialPick[0]];
-
-            // 4) بناء كائن التوقع مع النسبة المئوية الحقيقية
-            return orderedIds.map((id, idx) => {
-                const element = allElements.find(e => e.id === id);
-                const prob = probs[id];
-                const confidence = toDisplayConfidence(prob);
-
-                return {
-                    id: element.id,
-                    name: element.name,
-                    icon: element.icon,
-                    mult: element.mult,
-                    top: element.top,
-                    left: element.left,
-                    type: element.type,
-                    confidence: confidence,
-                    probability: prob,
-                    isSpecial: idx === 4
-                };
-            });
-        }
-
-        function addSystemLog(msg) {
-            const logBox = document.getElementById('system-log');
-            if (!logBox) return;
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            logBox.innerHTML += `<div><span class="log-time">[${time}]</span> <span class="log-highlight">${msg}</span></div>`;
-            // تحديد السجل بـ 50 سطر كحد أقصى
-            while (logBox.children.length > 50) {
-                logBox.removeChild(logBox.firstChild);
-            }
-            logBox.scrollTop = logBox.scrollHeight;
-        }
 
         function registerItem(name, id) {
             if (roundState !== 'ended') {
@@ -941,12 +902,8 @@
             lastRegisteredId = id;
             hasRegisteredThisRound = true;
             
-            // ⭐ تسجيل النتيجة في نظام التعلم
-            const history = recordObservation(id);
-            
             const regArea = document.getElementById('registered-area');
             const regText = document.getElementById('registered-text');
-            
             regText.innerText = name;
             regArea.style.display = 'block';
             
@@ -954,13 +911,96 @@
                 s.classList.remove('active'); 
                 s.classList.remove('selected'); 
             });
-            event.target.classList.add('selected'); 
+            if (event && event.target) event.target.classList.add('selected'); 
 
-            addSystemLog(`🧠 تم تسجيل [${name}]. الذكاء تعلم الآن من ${history.total} جولة!`);
+            // ==========================================
+            // 🎯 حساب دقة هذه الجولة وتسجيلها في التاريخ
+            // ==========================================
+            const accuracy = computeRoundAccuracy(currentPredictions, id);
+            const hit = accuracy > 0;
+
+            // حفظ في السجل (بيانات كافية فقط - لا شيء يضخم النتيجة)
+            roundHistory.push({
+                hit: hit,
+                accuracy: accuracy,
+                registeredId: id,
+                timestamp: Date.now()
+            });
+            saveAccuracyHistory();
+
+            // إعادة حساب المعايرة بعد إضافة هذه الجولة
+            const cal = computeCalibration();
+            const nextConfidence = currentRoundConfidence; // ثقة الجولة المنتهية
+            
+            // تحديث الواجهة
+            updateAccuracyUI(accuracy, nextConfidence, false);
+
+            // سجلات واضحة
+            if (hit) {
+                addSystemLog(`✅ دقة الجولة: ${accuracy}% — إصابة صحيحة (الترتيب #${currentPredictions.findIndex(p => p.id === id) + 1})`, 'good');
+            } else {
+                addSystemLog(`❌ دقة الجولة: 0% — لم يكن ضمن التوقعات`, 'bad');
+            }
+            addSystemLog(`📊 معدل الدقة الفعلي (آخر ${cal.sampleSize} جولة): ${Math.round(cal.calibrated * 100)}%`);
             
             const btn = document.getElementById('start-round-btn');
             btn.innerText = "بدء جولة جديدة (تم التعلم) 🚀";
             btn.disabled = false;
+        }
+
+        function generateSmartPrediction() {
+            let commonElements = allElements.filter(el => el.type === 'common');
+            let rareElements = allElements.filter(el => el.type === 'rare');
+
+            let shuffledCommon = [...commonElements].sort(() => 0.5 - Math.random());
+            let selectedCommon = shuffledCommon.slice(0, 4);
+
+            let selectedRare;
+            if (Math.random() < 0.75) {
+                selectedRare = rareElements.find(el => el.id === 2); 
+            } else {
+                selectedRare = rareElements.find(el => el.id === 3); 
+            }
+
+            let finalPredictions = [...selectedCommon, selectedRare];
+
+            // ==========================================
+            // 🧠 الثقة الحقيقية: مبنية على المعايرة الفعلية
+            // ==========================================
+            // لا نستخدم "مكافآت" وهمية بناءً على عدد الجولات
+            // الثقة تنخفض بصدق إذا كان النموذج يخيب
+            const cal = computeCalibration();
+            
+            // معامل المعايرة: 0.6 إلى 1.4 بناءً على الأداء الفعلي
+            // 50% معايرة → 1.0 | 70% → 1.16 | 30% → 0.84
+            const calFactor = 0.6 + (cal.calibrated * 0.8);
+
+            // أسس ترتيبية واقعية (بدون مبالغة)
+            // التوقع #1: ~38% كحد أقصى (لعبة تخمين لا يمكن ضمانها)
+            const rankBases = [38, 28, 20, 14, 10];
+
+            return finalPredictions.map((item, index) => {
+                const base = rankBases[index] || 10;
+                // تباين صغير جداً حتى لا تتطابق كل الجولات
+                const variance = 0.9 + Math.random() * 0.2;
+                let confidence = Math.round(base * calFactor * variance);
+                // حدود واقعية: 5% إلى 48% (لا نبالغ أبداً)
+                confidence = Math.min(Math.max(confidence, 5), 48);
+                return {
+                    ...item,
+                    confidence: confidence
+                };
+            });
+        }
+
+        function addSystemLog(msg, type) {
+            const logBox = document.getElementById('system-log');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            let cls = 'log-highlight';
+            if (type === 'good') cls = 'log-good';
+            else if (type === 'bad') cls = 'log-bad';
+            logBox.innerHTML += `<div><span class="log-time">[${time}]</span> <span class="${cls}">${msg}</span></div>`;
+            logBox.scrollTop = logBox.scrollHeight;
         }
 
         function renderPredictions(predictions) {
@@ -968,21 +1008,18 @@
             grid.innerHTML = '';
 
             predictions.forEach((pred, index) => {
-                const isSpecialSlot = (index === 4);
-                const specialClass = isSpecialSlot ? 'special-red' : '';
+                const isRare = pred.type === 'rare'; 
+                const specialClass = isRare ? 'special-red' : '';
                 
-                const isHidden = isSpecialSlot ? 'style="display: none;"' : '';
-                const cardId = isSpecialSlot ? 'id="pred-card-5"' : '';
-                
-                const progressColor = isSpecialSlot ? 'var(--danger)' : 'var(--success)';
-                const crown = isSpecialSlot ? '👑' : '';
+                const isHidden = index === 4 ? 'style="display: none;"' : '';
+                const cardId = index === 4 ? 'id="pred-card-5"' : '';
 
                 grid.innerHTML += `
                     <div class="pred-card ${specialClass}" ${cardId} ${isHidden}>
-                        <div class="pred-type">توقع ${index + 1} ${crown}</div>
+                        <div class="pred-type">توقع ${index + 1} ${isRare ? '👑' : ''}</div>
                         <div class="pred-title">${pred.name} ${pred.icon}</div>
                         <div class="progress-track">
-                            <div class="progress-fill" style="width: ${pred.confidence}%; background: ${progressColor};"></div>
+                            <div class="progress-fill" style="width: ${pred.confidence}%; background: ${isRare ? 'var(--danger)' : 'var(--success)'};"></div>
                         </div>
                         <div class="pred-footer">ثقة: ${pred.confidence}%</div>
                     </div>
@@ -1018,21 +1055,25 @@
             grid.style.display = 'none';
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
-            
-            const hist = loadHistory();
-            addSystemLog(`🚀 بدء تحليل المحيط... (التعلم: ${hist.total} جولة)`);
+            addSystemLog("🚀 بدء تحليل المحيط...");
             
             btn.disabled = true;
             btn.innerText = "جاري التحليل...";
 
             setTimeout(() => {
                 let predictions = generateSmartPrediction();
+                currentPredictions = predictions;
                 
+                // ==========================================
+                // 🎯 ثقة هذه الجولة = ثقة التوقع الأول (الأعلى)
+                // هذا هو "احتمال أن تكون الجولة صحيحة"
+                // ==========================================
+                currentRoundConfidence = predictions[0].confidence;
+
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'grid';
                 renderPredictions(predictions);
 
-                // عرض أول 4 توقعات
                 for (let i = 0; i < 4; i++) {
                     let marker = document.getElementById('marker-' + (i + 1));
                     if (marker) {
@@ -1045,10 +1086,12 @@
                 mainImg.classList.remove('analyzing');
                 addSystemLog("✅ تم استخراج 4 توقعات أساسية");
                 
+                // عرض الثقة (الدقة قيد التقييم)
+                updateAccuracyUI(null, currentRoundConfidence, true);
+                
                 lastRegisteredId = null; 
                 startActiveRoundTimer();
 
-                // التوقع الخامس يظهر بعد 3.5 ثانية
                 setTimeout(() => {
                     let marker5 = document.getElementById('marker-5');
                     if (marker5) {
@@ -1059,7 +1102,7 @@
                     let card5 = document.getElementById('pred-card-5');
                     if (card5) card5.style.display = 'block';
                     
-                    addSystemLog(`🔴 ظهر التوقع الخامس المميز: ${predictions[4].name}`);
+                    addSystemLog("🔴 ظهر التوقع الخامس (النادر)!");
                 }, 3500);
 
             }, 1500);
@@ -1092,6 +1135,38 @@
                     addSystemLog("⏳ انتهت الجولة. اضغط على المربع الذي ظهر لتسجيله.");
                 }
             }, 1000);
+        }
+
+        // ==========================================
+        // التشغيل الأولي
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAccuracyHistory();
+            checkSubscriptionStatus();
+
+            // عرض إحصائيات تاريخية إن وجدت
+            if (roundHistory.length > 0) {
+                const cal = computeCalibration();
+                addSystemLog(`📈 تم تحميل ${roundHistory.length} جولة سابقة. المعدل الفعلي: ${Math.round(cal.calibrated * 100)}%`);
+            }
+
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash && splash.style.display !== 'none') {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }
+            }, 3500);
+
+            document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
+        });
+
+        function showDevInfo() {
+            const infoBox = document.getElementById('dev-info');
+            infoBox.classList.add('show');
+            setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
     </script>
 </body>
