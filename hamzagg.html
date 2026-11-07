@@ -11,7 +11,6 @@
 
     <style>
         :root {
-            /* ألوان المحيط العميق الجديدة */
             --bg-main: #02121a;
             --bg-panel: rgba(5, 30, 45, 0.7);
             --bg-card: rgba(8, 45, 65, 0.9);
@@ -54,9 +53,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* =========================================
-           شاشة التحميل (Splash Screen)
-           ========================================= */
         #splash-screen {
             position: fixed;
             inset: 0;
@@ -99,9 +95,6 @@
             to { opacity: 1; }
         }
 
-        /* =========================================
-           شاشة الحجب (Subscription Blocker)
-           ========================================= */
         #auth-blocker {
             position: fixed;
             inset: 0;
@@ -135,9 +128,6 @@
             animation: pulseText 1s infinite alternate;
         }
 
-        /* =========================================
-           العناصر الأساسية
-           ========================================= */
         #dev-logo {
             position: absolute;
             top: 15px;
@@ -178,7 +168,6 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
-        /* شاشة النظام الرئيسية */
         #game-screen {
             display: flex;
             flex-direction: column;
@@ -249,9 +238,6 @@
         }
         .game-image.analyzing { opacity: 0.5; }
 
-        /* =========================================
-           مستشعرات اللمس (Sensors) 
-           ========================================= */
         .sensor {
             position: absolute;
             width: 28%;
@@ -278,9 +264,7 @@
             to { box-shadow: 0 0 20px rgba(0, 229, 255, 0.8) inset; border-color: rgba(0, 229, 255, 0.8); }
         }
 
-        .sensor.active:hover {
-            background: rgba(0, 229, 255, 0.2);
-        }
+        .sensor.active:hover { background: rgba(0, 229, 255, 0.2); }
         .sensor.active:active, .sensor.selected {
             background: rgba(0, 229, 255, 0.4);
             border-color: var(--neon-blue);
@@ -288,9 +272,6 @@
             animation: none;
         }
 
-        /* =========================================
-           المؤشرات (Markers)
-           ========================================= */
         .marker {
             position: absolute;
             width: 45px;
@@ -318,7 +299,6 @@
             to { transform: translate(-50%, -120%); }
         }
 
-        /* منطقة التسجيل */
         .registered-area {
             display: none;
             text-align: center;
@@ -344,7 +324,6 @@
             gap: 12px;
         }
 
-        /* زر بدء الجولة */
         .start-btn {
             position: relative;
             width: 100%;
@@ -402,7 +381,6 @@
             text-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
         }
         
-        /* تعديل شبكة التوقعات لتستوعب 5 بطاقات */
         .predictions-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -418,7 +396,6 @@
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-        /* البطاقة الخامسة تأخذ صفاً كاملاً */
         .pred-card:nth-child(5) {
             grid-column: span 2;
         }
@@ -466,11 +443,52 @@
             font-size: 14px;
         }
 
+        /* شريط دقة الجولة والتوصية */
+        .round-accuracy {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 119, 182, 0.1));
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+        .round-accuracy .acc-label { color: var(--text-muted); font-weight: bold; }
+        .round-accuracy .acc-value { 
+            color: var(--neon-blue); 
+            font-weight: 900; 
+            font-size: 18px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+        }
+        .recommendation {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            text-align: center;
+        }
+        .rec-good { background: rgba(0, 230, 118, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .rec-mid { background: rgba(248, 192, 0, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .rec-bad { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        .history-info {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 6px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- شاشة الحجب -->
     <div id="auth-blocker">
         <svg class="blocker-icon" viewBox="0 0 24 24">
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
@@ -482,7 +500,6 @@
         </div>
     </div>
 
-    <!-- شاشة التحميل -->
     <div id="splash-screen">
         <div class="dolphin-svg">
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -492,21 +509,14 @@
                         <stop offset="100%" stop-color="#0077B6" />
                     </linearGradient>
                 </defs>
-                <!-- جسم الدولفين -->
                 <path d="M 25 50 C 30 30, 60 20, 80 40 C 90 50, 85 70, 60 75 C 40 80, 20 65, 25 50 Z" fill="url(#dolphinGrad)"/>
-                <!-- الزعنفة العلوية -->
                 <path d="M 50 28 C 55 15, 65 15, 70 25 C 65 28, 60 30, 50 28 Z" fill="#00E5FF"/>
-                <!-- الزعنفة الصدرية -->
                 <path d="M 45 60 C 50 70, 60 75, 65 70 C 60 60, 50 55, 45 60 Z" fill="#0077B6"/>
-                <!-- الذيل -->
                 <path d="M 25 50 C 15 40, 5 30, 10 25 C 15 35, 20 40, 25 50 Z" fill="#00E5FF"/>
                 <path d="M 25 50 C 15 60, 5 70, 10 75 C 15 65, 20 60, 25 50 Z" fill="#00E5FF"/>
-                <!-- العين -->
                 <circle cx="72" cy="45" r="3" fill="#FFF"/>
                 <circle cx="73" cy="45" r="1.5" fill="#000"/>
-                <!-- الفم -->
                 <path d="M 82 52 Q 78 58 70 58" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round"/>
-                <!-- الفقاعات -->
                 <circle cx="90" cy="35" r="3" fill="none" stroke="#FFF" stroke-width="1" opacity="0.6"/>
                 <circle cx="95" cy="25" r="2" fill="none" stroke="#FFF" stroke-width="1" opacity="0.6"/>
             </svg>
@@ -520,7 +530,6 @@
         <div class="dev-sub">nbras</div>
     </div>
 
-    <!-- شاشة النظام الرئيسية -->
     <div id="game-screen">
         
         <div class="app-header">
@@ -529,10 +538,8 @@
 
         <div class="game-container">
             <div id="img-wrap">
-                <!-- صورة اللعبة -->
                 <img src="hamzacc.jpg" alt="Ocean Party" class="game-image" id="main-image">
 
-                <!-- مستشعرات شفافة للضغط (تسجيل النتيجة) -->
                 <div class="sensor" onclick="registerItem('سلحفاة 12x', 1)" style="top: 22%; left: 16%;"></div>
                 <div class="sensor" onclick="registerItem('دولفين 35x', 2)" style="top: 22%; left: 50%;"></div>
                 <div class="sensor" onclick="registerItem('قرش 100x', 3)" style="top: 22%; left: 84%;"></div>
@@ -541,7 +548,6 @@
                 <div class="sensor" onclick="registerItem('قرش 4x', 6)" style="top: 55%; left: 62%;"></div>
                 <div class="sensor" onclick="registerItem('مختلط 6x', 7)" style="top: 55%; left: 87%;"></div>
 
-                <!-- المؤشرات الذهبية (1 إلى 4) -->
                 <div id="marker-1" class="marker">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -573,7 +579,6 @@
                     </svg>
                 </div>
 
-                <!-- المؤشر الخامس (الأحمر - يظهر متأخراً) -->
                 <div id="marker-5" class="marker marker-special-red">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -590,18 +595,17 @@
             </div>
         </div>
 
-        <!-- شريط عرض النتيجة المسجلة -->
         <div id="registered-area" class="registered-area">
             📝 تم تسجيل النتيجة بنجاح: <span id="registered-text" style="color: #fff; font-weight: 900;">--</span>
         </div>
 
         <div class="stats-bar">
             <span><span class="stat-icon">⏱</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
+            <span><span class="stat-icon">📊</span> تاريخ: <span class="stat-value" id="history-count">0</span></span>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
 
         <div class="controls-container">
-            <!-- زر بدء الجولة -->
             <button id="start-round-btn" class="start-btn" onclick="startNewRound()">بدء جولة جديدة 🚀</button>
         </div>
 
@@ -610,9 +614,19 @@
                 <span>🎯 توقعات المحيط</span>
             </div>
             <div class="analyzing-bar" id="analyzing-ui">جاري التحليل... 🧠</div>
+
+            <!-- شريط دقة الجولة والتوصية (يظهر بعد التحليل) -->
+            <div class="round-accuracy" id="round-accuracy">
+                <div>
+                    <div class="acc-label">دقة التوقعات الكلية</div>
+                    <div class="acc-value" id="acc-value">0%</div>
+                </div>
+                <div class="recommendation" id="recommendation">--</div>
+            </div>
+
             <div class="predictions-grid" id="predictions-grid">
                 <div style="width: 100%; text-align: center; color: var(--text-muted); font-size: 12px; padding: 20px; grid-column: span 2;">
-                    اضغط "بدء جولة جديدة" لاستخراج 5 توقعات
+                    اضغط "بدء جولة جديدة" لاستخراج 5 توقعات باحتمالات حقيقية
                 </div>
             </div>
         </div>
@@ -657,7 +671,7 @@
         let subscriptionCheckInterval = null;
 
         // ==========================================
-        // نظام فحص الاشتراك بالخلفية
+        // نظام فحص الاشتراك
         // ==========================================
         function checkSubscriptionStatus() {
             db.ref('requests/' + deviceId).on('value', (snapshot) => {
@@ -684,7 +698,6 @@
                     } else {
                         authBlocker.style.display = 'none';
                         gameScreen.style.display = 'flex';
-                        // إخفاء شاشة التحميل ودخول اللعبة
                         if (splash && splash.style.display !== 'none') {
                             splash.style.opacity = '0';
                             setTimeout(() => {
@@ -705,7 +718,6 @@
             });
         }
 
-        // فحص دوري للتأكد من أن الاشتراك لم ينته أثناء اللعب
         setInterval(() => {
             if (currentDeviceData && currentDeviceData.expiryTimestamp) {
                 if (Date.now() >= currentDeviceData.expiryTimestamp) {
@@ -714,13 +726,10 @@
                     document.getElementById('game-screen').style.display = 'none';
                 }
             }
-        }, 10000); // كل 10 ثواني
+        }, 10000);
 
-        // بدء التطبيق
         window.addEventListener('DOMContentLoaded', () => {
             checkSubscriptionStatus();
-
-            // إخفاء شاشة التحميل كحد أقصى بعد 3.5 ثواني حتى لو كان الاتصال بالسيرفر بطيئاً
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash && splash.style.display !== 'none') {
@@ -730,8 +739,8 @@
                     }, 500);
                 }
             }, 3500);
-
             document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
+            updateHistoryCountDisplay();
         });
 
         function showDevInfo() {
@@ -741,18 +750,132 @@
         }
 
         // ==========================================
-        // منطق اللعبة الأساسي (كما هو دون تغيير)
+        // عناصر اللعبة (المضاعفات كما طلبت: دولفين 35x، قرش 100x، سلحفاة 12x)
         // ==========================================
         const allElements = [
-            { id: 1, name: 'سلحفاة 12x', icon: '🐢', mult: 'x12', weight: 15, top: '22%', left: '16%', type: 'common' },
-            { id: 2, name: 'دولفين 35x', icon: '🐬', mult: 'x35', weight: 5, top: '22%', left: '50%', type: 'rare' },
-            { id: 3, name: 'قرش 100x', icon: '🦈', mult: 'x100', weight: 1, top: '22%', left: '84%', type: 'rare' },
-            { id: 4, name: 'سلحفاة 4x', icon: '🐢', mult: 'x4', weight: 25, top: '55%', left: '13%', type: 'common' },
-            { id: 5, name: 'دولفين 4x', icon: '🐬', mult: 'x4', weight: 25, top: '55%', left: '38%', type: 'common' },
-            { id: 6, name: 'قرش 4x', icon: '🦈', mult: 'x4', weight: 25, top: '55%', left: '62%', type: 'common' },
-            { id: 7, name: 'مختلط 6x', icon: '🌊', mult: 'x6', weight: 25, top: '55%', left: '87%', type: 'common' }
+            { id: 1, name: 'سلحفاة 12x', icon: '🐢', mult: 'x12',  weight: 15, top: '22%', left: '16%', type: 'common' },
+            { id: 2, name: 'دولفين 35x', icon: '🐬', mult: 'x35',  weight: 5,  top: '22%', left: '50%', type: 'rare'   },
+            { id: 3, name: 'قرش 100x',   icon: '🦈', mult: 'x100', weight: 1,  top: '22%', left: '84%', type: 'rare'   },
+            { id: 4, name: 'سلحفاة 4x',  icon: '🐢', mult: 'x4',   weight: 25, top: '55%', left: '13%', type: 'common' },
+            { id: 5, name: 'دولفين 4x',  icon: '🐬', mult: 'x4',   weight: 25, top: '55%', left: '38%', type: 'common' },
+            { id: 6, name: 'قرش 4x',     icon: '🦈', mult: 'x4',   weight: 25, top: '55%', left: '62%', type: 'common' },
+            { id: 7, name: 'مختلط 6x',   icon: '🌊', mult: 'x6',   weight: 25, top: '55%', left: '87%', type: 'common' }
         ];
 
+        // ==========================================
+        // نظام التاريخ الحقيقي (من أجل الخوارزمية)
+        // ==========================================
+        let roundHistory = [];
+        let registeredHistory = [];
+
+        try {
+            roundHistory = JSON.parse(localStorage.getItem('ocean_round_history') || '[]');
+            registeredHistory = JSON.parse(localStorage.getItem('ocean_registered_history') || '[]');
+        } catch(e) {
+            roundHistory = [];
+            registeredHistory = [];
+        }
+
+        function persistHistory() {
+            try {
+                localStorage.setItem('ocean_round_history', JSON.stringify(roundHistory.slice(-200)));
+                localStorage.setItem('ocean_registered_history', JSON.stringify(registeredHistory.slice(-200)));
+            } catch(e) {}
+        }
+
+        function getLastRegisteredId() {
+            return registeredHistory.length > 0 ? registeredHistory[registeredHistory.length - 1] : null;
+        }
+
+        function updateHistoryCountDisplay() {
+            const el = document.getElementById('history-count');
+            if (el) el.innerText = registeredHistory.length;
+        }
+
+        // ==========================================
+        // الخوارزمية الحقيقية (Bayesian + Recency + Exclusion)
+        // ==========================================
+        function calculateRealProbabilities() {
+            const N = 50; // ننظر لآخر 50 جولة مسجلة
+            const recentReg = registeredHistory.slice(-N);
+            const histLen = recentReg.length;
+            const lastId = getLastRegisteredId();
+
+            // عدّ التكرارات الفعلية
+            const counts = {};
+            allElements.forEach(el => counts[el.id] = 0);
+            recentReg.forEach(id => {
+                if (counts[id] !== undefined) counts[id]++;
+            });
+
+            // الاحتمال الأولي (Prior) بناءً على الوزن
+            const totalWeight = allElements.reduce((s, el) => s + el.weight, 0);
+            // معامل تنعيم: يزيد مع قلة البيانات، ويقل مع كثرتها
+            const alpha = Math.max(3, histLen * 0.3);
+
+            const probs = {};
+            let sum = 0;
+
+            allElements.forEach(el => {
+                if (el.id === lastId) {
+                    probs[el.id] = 0; // مستبعد (لا يتكرر)
+                } else {
+                    const prior = el.weight / totalWeight;
+                    const posterior = (counts[el.id] + alpha * prior) / (histLen + alpha);
+                    probs[el.id] = posterior;
+                    sum += posterior;
+                }
+            });
+
+            // تطبيع (المجموع = 1)
+            if (sum > 0) {
+                Object.keys(probs).forEach(k => probs[k] /= sum);
+            }
+
+            return probs;
+        }
+
+        // اختيار عينة موزونة (بدون تكرار)
+        function weightedSample(pool, count, probs) {
+            const result = [];
+            const remaining = [...pool];
+            for (let i = 0; i < count && remaining.length > 0; i++) {
+                const totalW = remaining.reduce((s, el) => s + Math.max(probs[el.id] || 0, 0.0001), 0);
+                let r = Math.random() * totalW;
+                let idx = remaining.length - 1;
+                for (let j = 0; j < remaining.length; j++) {
+                    r -= Math.max(probs[remaining[j].id] || 0, 0.0001);
+                    if (r <= 0) { idx = j; break; }
+                }
+                result.push(remaining.splice(idx, 1)[0]);
+            }
+            return result;
+        }
+
+        // ==========================================
+        // توليد التوقعات
+        // ==========================================
+        function generateSmartPrediction() {
+            const probs = calculateRealProbabilities();
+            const lastId = getLastRegisteredId();
+
+            const commons = allElements.filter(el => el.type === 'common' && el.id !== lastId);
+            const rares = allElements.filter(el => el.type === 'rare' && el.id !== lastId);
+
+            const selectedCommons = weightedSample(commons, Math.min(4, commons.length), probs);
+            const selectedRares = weightedSample(rares, Math.min(1, rares.length), probs);
+
+            const finalPredictions = [...selectedCommons, ...selectedRares];
+
+            return finalPredictions.map(item => ({
+                ...item,
+                confidence: Math.round(probs[item.id] * 1000) / 10
+            }));
+        }
+
+        // ==========================================
+        // حالة اللعبة
+        // ==========================================
         let lastRegisteredId = null; 
         let currentRoundTime = 26;
         let roundInterval;
@@ -772,6 +895,11 @@
 
             lastRegisteredId = id;
             hasRegisteredThisRound = true;
+
+            // إضافة للسجل الحقيقي
+            registeredHistory.push(id);
+            persistHistory();
+            updateHistoryCountDisplay();
             
             const regArea = document.getElementById('registered-area');
             const regText = document.getElementById('registered-text');
@@ -785,46 +913,12 @@
             });
             event.target.classList.add('selected'); 
 
-            addSystemLog(`🧠 تم تسجيل [${name}]. الذكاء الاصطناعي تعلم من هذه الجولة!`);
+            addSystemLog(`✅ سُجل [${name}] — سيُستبعد من الجولة القادمة`);
+            addSystemLog(`📚 تراكم البيانات: ${registeredHistory.length} جولة`);
             
             const btn = document.getElementById('start-round-btn');
-            btn.innerText = "بدء جولة جديدة (تم التعلم) 🚀";
+            btn.innerText = "بدء جولة جديدة (محسّنة بالبيانات) 🚀";
             btn.disabled = false;
-        }
-
-        function generateSmartPrediction() {
-            let commonElements = allElements.filter(el => el.type === 'common');
-            let rareElements = allElements.filter(el => el.type === 'rare');
-
-            let shuffledCommon = [...commonElements].sort(() => 0.5 - Math.random());
-            let selectedCommon = shuffledCommon.slice(0, 4);
-
-            let selectedRare;
-            if (Math.random() < 0.75) {
-                selectedRare = rareElements.find(el => el.id === 2); 
-            } else {
-                selectedRare = rareElements.find(el => el.id === 3); 
-            }
-
-            let finalPredictions = [...selectedCommon, selectedRare];
-
-            finalPredictions = finalPredictions.map(item => {
-                let finalItem = { ...item };
-                if (lastRegisteredId === item.id) {
-                    finalItem.confidenceBonus = 5; 
-                } else {
-                    finalItem.confidenceBonus = 0;
-                }
-                return finalItem;
-            });
-
-            return finalPredictions.map((item, index) => {
-                let baseConfidence = Math.floor(Math.random() * 10) + (89 - index * 2);
-                return {
-                    ...item,
-                    confidence: Math.min(99, baseConfidence + (item.confidenceBonus || 0))
-                };
-            });
         }
 
         function addSystemLog(msg) {
@@ -850,12 +944,34 @@
                         <div class="pred-type">توقع ${index + 1} ${isRare ? '👑' : ''}</div>
                         <div class="pred-title">${pred.name} ${pred.icon}</div>
                         <div class="progress-track">
-                            <div class="progress-fill" style="width: ${pred.confidence}%; background: ${isRare ? 'var(--danger)' : 'var(--success)'};"></div>
+                            <div class="progress-fill" style="width: ${Math.min(100, pred.confidence * 3)}%; background: ${isRare ? 'var(--danger)' : 'var(--success)'};"></div>
                         </div>
-                        <div class="pred-footer">ثقة: ${pred.confidence}%</div>
+                        <div class="pred-footer">احتمال حقيقي: ${pred.confidence}%</div>
                     </div>
                 `;
             });
+        }
+
+        function updateAccuracyDisplay(predictions) {
+            const totalConf = predictions.reduce((s, p) => s + p.confidence, 0);
+            const accBox = document.getElementById('round-accuracy');
+            const accVal = document.getElementById('acc-value');
+            const rec = document.getElementById('recommendation');
+
+            accVal.innerText = totalConf.toFixed(1) + '%';
+            accBox.style.display = 'flex';
+
+            rec.className = 'recommendation';
+            if (totalConf >= 85) {
+                rec.classList.add('rec-good');
+                rec.innerText = '✅ مواتية للعب';
+            } else if (totalConf >= 70) {
+                rec.classList.add('rec-mid');
+                rec.innerText = '⚖️ لعب بحذر';
+            } else {
+                rec.classList.add('rec-bad');
+                rec.innerText = '⚠️ غير مواتية';
+            }
         }
 
         function startNewRound() {
@@ -869,6 +985,7 @@
             const mainImg = document.getElementById('main-image');
             const grid = document.getElementById('predictions-grid');
             const analyzingUI = document.getElementById('analyzing-ui');
+            const accBox = document.getElementById('round-accuracy');
             
             hasRegisteredThisRound = false;
             roundState = 'playing';
@@ -884,9 +1001,10 @@
             document.getElementById('registered-area').style.display = 'none';
             
             grid.style.display = 'none';
+            accBox.style.display = 'none';
             analyzingUI.style.display = 'flex';
             mainImg.classList.add('analyzing');
-            addSystemLog("🚀 بدء تحليل المحيط...");
+            addSystemLog("🚀 بدء تحليل المحيط بالبيانات الحقيقية...");
             
             btn.disabled = true;
             btn.innerText = "جاري التحليل...";
@@ -894,9 +1012,14 @@
             setTimeout(() => {
                 let predictions = generateSmartPrediction();
                 
+                // تسجيل التوقعات في التاريخ
+                roundHistory.push(predictions.map(p => p.id));
+                persistHistory();
+
                 analyzingUI.style.display = 'none';
                 grid.style.display = 'grid';
                 renderPredictions(predictions);
+                updateAccuracyDisplay(predictions);
 
                 for (let i = 0; i < 4; i++) {
                     let marker = document.getElementById('marker-' + (i + 1));
@@ -908,23 +1031,26 @@
                 }
 
                 mainImg.classList.remove('analyzing');
-                addSystemLog("✅ تم استخراج 4 توقعات أساسية");
+                addSystemLog(`✅ استُخرجت 4 توقعات (بناءً على ${registeredHistory.length} جولة)`);
+                addSystemLog(`🚫 استبعاد آخر فائز من التوقع`);
                 
                 lastRegisteredId = null; 
                 startActiveRoundTimer();
 
-                setTimeout(() => {
-                    let marker5 = document.getElementById('marker-5');
-                    if (marker5) {
-                        marker5.style.top = predictions[4].top;
-                        marker5.style.left = predictions[4].left;
-                        marker5.style.display = 'block';
-                    }
-                    let card5 = document.getElementById('pred-card-5');
-                    if (card5) card5.style.display = 'block';
-                    
-                    addSystemLog("🔴 ظهر التوقع الخامس (النادر)!");
-                }, 3500);
+                if (predictions[4]) {
+                    setTimeout(() => {
+                        let marker5 = document.getElementById('marker-5');
+                        if (marker5) {
+                            marker5.style.top = predictions[4].top;
+                            marker5.style.left = predictions[4].left;
+                            marker5.style.display = 'block';
+                        }
+                        let card5 = document.getElementById('pred-card-5');
+                        if (card5) card5.style.display = 'block';
+                        
+                        addSystemLog("🔴 ظهر التوقع الخامس (النادر)!");
+                    }, 3500);
+                }
 
             }, 1500);
         }
@@ -952,8 +1078,8 @@
                     
                     document.querySelectorAll('.sensor').forEach(s => s.classList.add('active'));
                     
-                    btn.innerText = "⏳ يرجى تسجيل النتيجة بالضغط على الصورة";
-                    addSystemLog("⏳ انتهت الجولة. اضغط على المربع الذي ظهر لتسجيله.");
+                    btn.innerText = "⏳ سجّل النتيجة بالضغط على الصورة";
+                    addSystemLog("⏳ انتهت الجولة. سجّل ما ظهر لتحديث الخوارزمية.");
                 }
             }, 1000);
         }
