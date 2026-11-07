@@ -104,6 +104,124 @@
         .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
         .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
 
+        /* ==========================================
+           شاشة القائمة الرئيسية (Main Menu)
+           ========================================== */
+        #menu-screen {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            max-width: 480px;
+            gap: 20px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .menu-title {
+            font-size: 28px;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(248, 192, 0, 0.5);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .menu-card {
+            position: relative;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: var(--bg-card);
+        }
+        
+        .menu-card:active {
+            transform: scale(0.97);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.85;
+            transition: opacity 0.3s;
+        }
+
+        .menu-card:hover img {
+            opacity: 1;
+        }
+
+        .menu-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+
+        .menu-card-title {
+            color: #FFF;
+            font-size: 22px;
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--neon-blue);
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 900;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .back-to-menu-btn {
+            background: rgba(157, 78, 221, 0.2);
+            border: 2px solid var(--primary);
+            color: #FFF;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .back-to-menu-btn:active {
+            background: var(--primary);
+            transform: scale(0.95);
+        }
+
+        /* ==========================================
+           الشاشات الأخرى
+           ========================================== */
         #login-screen, #waiting-screen {
             display: none;
             flex-direction: column;
@@ -240,9 +358,6 @@
             border-radius: 10px;
         }
 
-        /* ============================================================
-           🎨 أزرار التواصل والدعم الفني الجديدة
-           ============================================================ */
         .action-buttons-row {
             display: flex;
             gap: 10px;
@@ -286,7 +401,6 @@
             transform: scale(1.15);
         }
 
-        /* زر الواتساب (أزرق كما طُلب) */
         .whatsapp-btn {
             background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
             color: #FFFFFF;
@@ -303,7 +417,6 @@
             box-shadow: 0 2px 8px rgba(21, 101, 192, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.25);
         }
 
-        /* زر الدعم الفني (بنفسجي متوهج) */
         .support-btn {
             background: linear-gradient(135deg, #9D4EDD 0%, #5A189A 100%);
             color: #FFFFFF;
@@ -320,9 +433,6 @@
             box-shadow: 0 2px 8px rgba(157, 78, 221, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.25);
         }
 
-        /* ============================================================
-           🎬 الفيديو الترويجي (بدلاً من الصور الإعلانية)
-           ============================================================ */
         .login-promo-video-wrapper {
             position: relative;
             width: 100%;
@@ -346,56 +456,6 @@
             border-radius: 16px;
         }
 
-        /* زر الشراء القديم (محتفظ به للتوافق) */
-        .buy-subscription-btn {
-            margin-top: 20px;
-            border-radius: 16px;
-            padding: 16px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #F8C000 0%, #FFD54F 50%, #F8C000 100%);
-            color: #1a0b2e;
-            font-weight: 900;
-            font-size: 15px;
-            text-decoration: none;
-            border: 2px solid rgba(255, 215, 0, 0.6);
-            box-shadow: 0 6px 20px rgba(248, 192, 0, 0.4);
-            transition: transform 0.25s ease;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-        }
-
-        .buy-subscription-btn:active { transform: scale(0.97); }
-
-        .buy-subscription-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: #1a0b2e;
-            flex-shrink: 0;
-        }
-
-        .buy-text-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: right;
-            line-height: 1.2;
-        }
-        .buy-title {
-            font-size: 15px;
-            font-weight: 900;
-        }
-        .buy-sub {
-            font-size: 10px;
-            font-weight: 700;
-            opacity: 0.75;
-            margin-top: 2px;
-        }
-
         #game-screen {
             display: none;
             flex-direction: column;
@@ -407,7 +467,7 @@
         .app-header {
             text-align: center;
             margin-bottom: 5px;
-            margin-top: 40px;
+            margin-top: 10px; /* تم تقليلها لأن زر العودة تمت إضافته فوقها */
             position: relative;
         }
         .app-header h1 {
@@ -1200,7 +1260,39 @@
         <div class="dev-sub">nbras</div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- شاشة القائمة الرئيسية (Main Menu) -->
+    <!-- ========================================== -->
+    <div id="menu-screen">
+        <h1 class="menu-title">🎮 اختر اللعبة</h1>
+        
+        <div class="menu-grid">
+            <!-- زر لعبة حفلة المحيط -->
+            <div class="menu-card" onclick="window.location.href='hamzagg.html'">
+                <img src="hamzacc.jpg" alt="حفلة المحيط">
+                <div class="menu-card-badge">جديد</div>
+                <div class="menu-card-overlay">
+                    <div class="menu-card-title">
+                        🌊 حفلة المحيط
+                    </div>
+                </div>
+            </div>
+
+            <!-- زر لعبة يلا لايف -->
+            <div class="menu-card" onclick="startYallaLiveGame()">
+                <img src="hamzadd.jpg" alt="يلا لايف">
+                <div class="menu-card-overlay">
+                    <div class="menu-card-title">
+                        🍒 يلا لايف
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- شاشة تسجيل الدخول VIP -->
+    <!-- ========================================== -->
     <div id="login-screen">
         <svg class="shield-header-art" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -1243,7 +1335,7 @@
 
         <p id="login-msg" class="login-msg"></p>
 
-        <!-- ✅ أزرار التواصل والدعم الفني (واتساب أزرق + الدعم بجانبه) -->
+        <!-- ✅ أزرار التواصل والدعم الفني -->
         <div class="action-buttons-row">
             <a href="https://wa.me/+905424678123?text=مرحباً، أرغب في شراء اشتراك FawakihAI VIP 🚀" target="_blank" class="action-btn whatsapp-btn">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1259,7 +1351,7 @@
             </a>
         </div>
 
-        <!-- 🎬 فيديو ترويجي (بدلاً من الصور الإعلانية) -->
+        <!-- 🎬 فيديو ترويجي -->
         <div class="login-promo-video-wrapper">
             <video 
                 id="login-promo-video"
@@ -1275,16 +1367,25 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
     <!-- شاشة الانتظار -->
+    <!-- ========================================== -->
     <div id="waiting-screen">
         <div class="loader-spinner" id="waiting-spinner"></div>
         <h3 id="waiting-msg" style="color: var(--gold); margin-top: 10px; font-size: 18px;">تنتظر الموافقة على الاشتراك...</h3>
         <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;" id="waiting-submsg">سيتم إدخالك تلقائياً فور قبول طلبك</p>
     </div>
 
-    <!-- شاشة النظام الرئيسية -->
+    <!-- ========================================== -->
+    <!-- شاشة اللعبة (يلا لايف) -->
+    <!-- ========================================== -->
     <div id="game-screen">
         
+        <!-- زر العودة للقائمة الرئيسية -->
+        <button class="back-to-menu-btn" onclick="goToMenu()">
+            🔙 العودة للقائمة الرئيسية
+        </button>
+
         <div class="app-header">
             <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
         </div>
@@ -1401,7 +1502,9 @@
 
     </div>
 
-    <!-- 🚫 نافذة الفاكهة الخاطئة (مخفية افتراضياً) -->
+    <!-- ========================================== -->
+    <!-- نافذة الفاكهة الخاطئة -->
+    <!-- ========================================== -->
     <div id="wrong-fruit-overlay" class="wrong-fruit-overlay" onclick="closeWrongFruitModal(event)">
         <div class="wrong-fruit-modal" onclick="event.stopPropagation()">
 
@@ -1555,7 +1658,9 @@
         </div>
     </div>
 
-    <!-- ⚙️ نافذة معلومات الحساب (الترس) -->
+    <!-- ========================================== -->
+    <!-- نافذة معلومات الحساب -->
+    <!-- ========================================== -->
     <div id="account-overlay" class="account-overlay" onclick="closeAccountPanel(event)">
         <div class="account-modal" onclick="event.stopPropagation()">
 
@@ -1642,7 +1747,6 @@
                 const p = promoVideo.play();
                 if (p && typeof p.catch === 'function') {
                     p.catch(function() {
-                        // المتصفح منع التشغيل التلقائي بالصوت - نشغّل بدون صوت
                         promoVideo.muted = true;
                         promoVideo.play().catch(function() {});
                     });
@@ -1652,7 +1756,6 @@
             }
         }
 
-        // محاولة تشغيل الفيديو عند أي تفاعل من المستخدم (لفتح الصوت)
         document.addEventListener('click', function oncePlayWithSound() {
             const promoVideo = document.getElementById('login-promo-video');
             if (promoVideo && promoVideo.paused) {
@@ -1866,7 +1969,7 @@
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
                     showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد للتجديد.");
                 } else {
-                    showGame();
+                    showMenu(); // تغيير: عرض القائمة بدلاً من اللعبة مباشرة
                     startSubscriptionMonitor(data.expiryTimestamp);
                 }
             } else if (data.status === 'rejected') {
@@ -2011,8 +2114,8 @@
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('waiting-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'none';
             
-            // تشغيل الفيديو الترويجي عند ظهور شاشة الدخول
             playPromoVideo();
             
             const msgBox = document.getElementById('login-msg');
@@ -2028,6 +2131,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('waiting-screen').style.display = 'flex';
             document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'none';
             
             document.getElementById('waiting-spinner').style.display = 'block';
             document.getElementById('waiting-msg').innerText = "تنتظر الموافقة على الاشتراك...";
@@ -2039,6 +2143,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('waiting-screen').style.display = 'flex';
             document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'none';
 
             document.getElementById('waiting-spinner').style.display = 'none';
             document.getElementById('waiting-msg').innerText = "تم رفض الطلب";
@@ -2046,12 +2151,26 @@
             document.getElementById('waiting-submsg').innerText = "تم رفض طلب اشتراكك من قبل الإدارة.";
         }
 
-        function showGame() {
+        // دالة عرض القائمة الرئيسية
+        function showMenu() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('waiting-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+        }
+
+        // دالة بدء لعبة يلا لايف
+        function startYallaLiveGame() {
+            document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             updateLiveStats(true);
             updateTrainedCount();
+        }
+
+        // دالة العودة للقائمة
+        function goToMenu() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
         }
 
         function addSystemLog(msg, isHighlight = false) {
