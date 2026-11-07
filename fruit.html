@@ -130,24 +130,59 @@
         .menu-grid {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             width: 100%;
         }
 
+        /* تعديل البطاقة لدعم النيون الدوار */
         .menu-card {
             position: relative;
             width: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 2px solid var(--primary);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            border-radius: 22px;
+            padding: 4px; /* سمك شريط النيون */
+            background: rgba(0, 0, 0, 0.5);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background: var(--bg-card);
+            overflow: hidden; /* لقص الحواف */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(157, 78, 221, 0.2);
         }
         
+        /* الشريط النيون الدوار */
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(
+                transparent 0%,
+                transparent 20%,
+                var(--neon-pink) 40%,
+                var(--primary) 50%,
+                var(--neon-pink) 60%,
+                transparent 80%,
+                transparent 100%
+            );
+            animation: spinNeon 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes spinNeon {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .menu-card:active {
             transform: scale(0.97);
+        }
+
+        /* الحاوية الداخلية للبطاقة */
+        .menu-card-inner {
+            position: relative;
+            width: 100%;
+            border-radius: 18px; /* متوافق مع الحواف */
+            overflow: hidden;
+            background: var(--bg-card);
+            z-index: 1;
         }
 
         .menu-card img {
@@ -179,7 +214,34 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        /* الأنميشن للدولفين */
+        .animated-svg-dolphin {
+            width: 45px;
+            height: 45px;
+            animation: bobDolphin 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.8));
+        }
+
+        @keyframes bobDolphin {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        /* الأنميشن للكرز */
+        .animated-svg-cherry {
+            width: 45px;
+            height: 45px;
+            animation: shakeCherry 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 229, 0.8));
+        }
+
+        @keyframes shakeCherry {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(10deg) scale(1.05); }
+            75% { transform: rotate(-10deg) scale(1.05); }
         }
 
         .menu-card-badge {
@@ -193,6 +255,7 @@
             font-size: 12px;
             font-weight: 900;
             box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+            z-index: 2;
         }
 
         .back-to-menu-btn {
@@ -467,7 +530,7 @@
         .app-header {
             text-align: center;
             margin-bottom: 5px;
-            margin-top: 10px; /* تم تقليلها لأن زر العودة تمت إضافته فوقها */
+            margin-top: 10px;
             position: relative;
         }
         .app-header h1 {
@@ -1269,21 +1332,60 @@
         <div class="menu-grid">
             <!-- زر لعبة حفلة المحيط -->
             <div class="menu-card" onclick="window.location.href='hamzagg.html'">
-                <img src="hamzacc.jpg" alt="حفلة المحيط">
-                <div class="menu-card-badge">جديد</div>
-                <div class="menu-card-overlay">
-                    <div class="menu-card-title">
-                        🌊 حفلة المحيط
+                <div class="menu-card-inner">
+                    <img src="hamzacc.jpg" alt="حفلة المحيط">
+                    <div class="menu-card-badge">جديد</div>
+                    <div class="menu-card-overlay">
+                        <div class="menu-card-title">
+                            <svg class="animated-svg-dolphin" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="dolphinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00E5FF" />
+                                        <stop offset="100%" stop-color="#0077B6" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 25 50 C 30 30, 60 20, 80 40 C 90 50, 85 70, 60 75 C 40 80, 20 65, 25 50 Z" fill="url(#dolphinGrad)"/>
+                                <path d="M 50 28 C 55 15, 65 15, 70 25 C 65 28, 60 30, 50 28 Z" fill="#00E5FF"/>
+                                <path d="M 45 60 C 50 70, 60 75, 65 70 C 60 60, 50 55, 45 60 Z" fill="#0077B6"/>
+                                <path d="M 25 50 C 15 40, 5 30, 10 25 C 15 35, 20 40, 25 50 Z" fill="#00E5FF"/>
+                                <path d="M 25 50 C 15 60, 5 70, 10 75 C 15 65, 20 60, 25 50 Z" fill="#00E5FF"/>
+                                <circle cx="72" cy="45" r="3" fill="#FFF"/>
+                                <circle cx="73" cy="45" r="1.5" fill="#000"/>
+                                <path d="M 82 52 Q 78 58 70 58" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>حفلة المحيط</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- زر لعبة يلا لايف -->
             <div class="menu-card" onclick="startYallaLiveGame()">
-                <img src="hamzadd.jpg" alt="يلا لايف">
-                <div class="menu-card-overlay">
-                    <div class="menu-card-title">
-                        🍒 يلا لايف
+                <div class="menu-card-inner">
+                    <img src="hamzadd.jpg" alt="يلا لايف">
+                    <div class="menu-card-overlay">
+                        <div class="menu-card-title">
+                            <svg class="animated-svg-cherry" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <radialGradient id="cherryGrad1" cx="30%" cy="30%" r="70%">
+                                        <stop offset="0%" stop-color="#FF6B81"/>
+                                        <stop offset="100%" stop-color="#8E0000"/>
+                                    </radialGradient>
+                                    <radialGradient id="cherryGrad2" cx="30%" cy="30%" r="70%">
+                                        <stop offset="0%" stop-color="#FF4757"/>
+                                        <stop offset="100%" stop-color="#B71C1C"/>
+                                    </radialGradient>
+                                </defs>
+                                <path d="M 40 50 Q 50 20 70 15" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round"/>
+                                <path d="M 65 60 Q 55 30 70 15" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round"/>
+                                <path d="M 70 15 Q 85 10 80 25 Q 65 25 70 15 Z" fill="#4CAF50"/>
+                                <circle cx="40" cy="65" r="18" fill="url(#cherryGrad1)"/>
+                                <circle cx="65" cy="75" r="18" fill="url(#cherryGrad2)"/>
+                                <circle cx="35" cy="60" r="5" fill="#FFF" opacity="0.4"/>
+                                <circle cx="60" cy="70" r="5" fill="#FFF" opacity="0.4"/>
+                            </svg>
+                            <span>يلا لايف</span>
+                        </div>
                     </div>
                 </div>
             </div>
