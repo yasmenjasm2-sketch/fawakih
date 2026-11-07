@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#02121a">
     <title>FawakihAI - Ocean Party</title>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
             /* ألوان المحيط العميق الجديدة */
@@ -94,6 +97,42 @@
         @keyframes pulseText {
             from { opacity: 0.6; }
             to { opacity: 1; }
+        }
+
+        /* =========================================
+           شاشة الحجب (Subscription Blocker)
+           ========================================= */
+        #auth-blocker {
+            position: fixed;
+            inset: 0;
+            background: #02121a;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        #auth-blocker h2 {
+            color: var(--danger);
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
+        }
+        #auth-blocker p {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .blocker-icon {
+            width: 80px;
+            height: 80px;
+            fill: var(--danger);
+            margin-bottom: 20px;
+            animation: pulseText 1s infinite alternate;
         }
 
         /* =========================================
@@ -431,6 +470,18 @@
 </head>
 <body>
 
+    <!-- شاشة الحجب -->
+    <div id="auth-blocker">
+        <svg class="blocker-icon" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+        </svg>
+        <h2>⚠️ تنبيه الاشتراك</h2>
+        <p id="auth-msg">جاري التحقق من حالة الاشتراك...</p>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">
+            للمساعدة يرجى التواصل مع الدعم الفني
+        </div>
+    </div>
+
     <!-- شاشة التحميل -->
     <div id="splash-screen">
         <div class="dolphin-svg">
@@ -576,18 +627,111 @@
     </div>
 
     <script>
-        // إخفاء شاشة التحميل بعد 3 ثواني
+        // ==========================================
+        // إعدادات Firebase
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDr0kbQDE90hhEMohV6X1b4ndu4L7uZz24",
+            databaseURL: "https://mehamzaalanat-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mehamzaalanat",
+            storageBucket: "mehamzaalanat.firebasestorage.app",
+            appId: "1:10248497310:android:bc2b88983738827f15338f"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        function getDeviceId() {
+            let id = localStorage.getItem('nexus_device_id');
+            if (!id) {
+                id = 'DEV-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString().slice(-4);
+                localStorage.setItem('nexus_device_id', id);
+            }
+            return id;
+        }
+
+        const deviceId = getDeviceId();
+        let currentDeviceData = null;
+        let subscriptionCheckInterval = null;
+
+        // ==========================================
+        // نظام فحص الاشتراك بالخلفية
+        // ==========================================
+        function checkSubscriptionStatus() {
+            db.ref('requests/' + deviceId).on('value', (snapshot) => {
+                const data = snapshot.val();
+                currentDeviceData = data;
+                
+                const authBlocker = document.getElementById('auth-blocker');
+                const authMsg = document.getElementById('auth-msg');
+                const gameScreen = document.getElementById('game-screen');
+                const splash = document.getElementById('splash-screen');
+
+                if (!data) {
+                    authBlocker.style.display = 'flex';
+                    authMsg.innerText = "جهازك غير مسجل في النظام. يرجى طلب كود تفعيل من الدعم الفني.";
+                    gameScreen.style.display = 'none';
+                    return;
+                }
+
+                if (data.status === 'approved') {
+                    if (data.expiryTimestamp && Date.now() >= data.expiryTimestamp) {
+                        authBlocker.style.display = 'flex';
+                        authMsg.innerText = "انتهت مدة اشتراكك. يرجى التجديد عبر التواصل مع الدعم.";
+                        gameScreen.style.display = 'none';
+                    } else {
+                        authBlocker.style.display = 'none';
+                        gameScreen.style.display = 'flex';
+                        // إخفاء شاشة التحميل ودخول اللعبة
+                        if (splash && splash.style.display !== 'none') {
+                            splash.style.opacity = '0';
+                            setTimeout(() => {
+                                splash.style.display = 'none';
+                                gameScreen.classList.add('visible');
+                            }, 500);
+                        }
+                    }
+                } else if (data.status === 'expired') {
+                    authBlocker.style.display = 'flex';
+                    authMsg.innerText = "انتهت مدة اشتراكك. يرجى التجديد.";
+                    gameScreen.style.display = 'none';
+                } else {
+                    authBlocker.style.display = 'flex';
+                    authMsg.innerText = "اشتراكك قيد المراجعة أو مرفوض. يرجى التواصل مع الدعم الفني.";
+                    gameScreen.style.display = 'none';
+                }
+            });
+        }
+
+        // فحص دوري للتأكد من أن الاشتراك لم ينته أثناء اللعب
+        setInterval(() => {
+            if (currentDeviceData && currentDeviceData.expiryTimestamp) {
+                if (Date.now() >= currentDeviceData.expiryTimestamp) {
+                    document.getElementById('auth-blocker').style.display = 'flex';
+                    document.getElementById('auth-msg').innerText = "انتهت مدة اشتراكك أثناء اللعب. يرجى التجديد.";
+                    document.getElementById('game-screen').style.display = 'none';
+                }
+            }
+        }, 10000); // كل 10 ثواني
+
+        // بدء التطبيق
         window.addEventListener('DOMContentLoaded', () => {
+            checkSubscriptionStatus();
+
+            // إخفاء شاشة التحميل كحد أقصى بعد 3.5 ثواني حتى لو كان الاتصال بالسيرفر بطيئاً
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
-                const gameScreen = document.getElementById('game-screen');
-                
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    gameScreen.classList.add('visible');
-                }, 500);
-            }, 3000);
+                if (splash && splash.style.display !== 'none') {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }
+            }, 3500);
+
+            document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
         });
 
         function showDevInfo() {
@@ -596,7 +740,9 @@
             setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
         }
 
-        // بيانات جميع العناصر السبعة في الصورة
+        // ==========================================
+        // منطق اللعبة الأساسي (كما هو دون تغيير)
+        // ==========================================
         const allElements = [
             { id: 1, name: 'سلحفاة 12x', icon: '🐢', mult: 'x12', weight: 15, top: '22%', left: '16%', type: 'common' },
             { id: 2, name: 'دولفين 35x', icon: '🐬', mult: 'x35', weight: 5, top: '22%', left: '50%', type: 'rare' },
@@ -613,10 +759,6 @@
         
         let roundState = 'idle'; 
         let hasRegisteredThisRound = false;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('online-count').innerText = Math.floor(Math.random() * 500) + 100;
-        });
 
         function registerItem(name, id) {
             if (roundState !== 'ended') {
@@ -650,32 +792,25 @@
             btn.disabled = false;
         }
 
-        // خوارزمية التخمين (4 عادية + 1 نادرة)
         function generateSmartPrediction() {
-            // 1. فصل العناصر
             let commonElements = allElements.filter(el => el.type === 'common');
             let rareElements = allElements.filter(el => el.type === 'rare');
 
-            // 2. اختيار 4 عناصر عشوائية من العادية (بدون تكرار)
             let shuffledCommon = [...commonElements].sort(() => 0.5 - Math.random());
             let selectedCommon = shuffledCommon.slice(0, 4);
 
-            // 3. اختيار عنصر واحد من النادرة (ترجيح 35x أكثر من 100x)
             let selectedRare;
             if (Math.random() < 0.75) {
-                selectedRare = rareElements.find(el => el.id === 2); // 35x
+                selectedRare = rareElements.find(el => el.id === 2); 
             } else {
-                selectedRare = rareElements.find(el => el.id === 3); // 100x
+                selectedRare = rareElements.find(el => el.id === 3); 
             }
 
-            // دمجهم
             let finalPredictions = [...selectedCommon, selectedRare];
 
-            // 4. إضافة تأثير تعلم الذكاء الاصطناعي (إذا سجل المستخدم سابقاً)
             finalPredictions = finalPredictions.map(item => {
                 let finalItem = { ...item };
                 if (lastRegisteredId === item.id) {
-                    // زيادة بسيطة في الثقة إذا كان هذا ما اختاره المستخدم سابقاً
                     finalItem.confidenceBonus = 5; 
                 } else {
                     finalItem.confidenceBonus = 0;
@@ -683,7 +818,6 @@
                 return finalItem;
             });
 
-            // 5. حساب الثقة النهائية
             return finalPredictions.map((item, index) => {
                 let baseConfidence = Math.floor(Math.random() * 10) + (89 - index * 2);
                 return {
@@ -708,7 +842,6 @@
                 const isRare = pred.type === 'rare'; 
                 const specialClass = isRare ? 'special-red' : '';
                 
-                // البطاقة الخامسة (النادرة) تكون مخفية في البداية
                 const isHidden = index === 4 ? 'style="display: none;"' : '';
                 const cardId = index === 4 ? 'id="pred-card-5"' : '';
 
@@ -740,7 +873,6 @@
             hasRegisteredThisRound = false;
             roundState = 'playing';
             
-            // إخفاء المؤشرات الخمسة
             for(let i=1; i<=5; i++) {
                 const m = document.getElementById('marker-'+i);
                 if (m) m.style.display = 'none';
@@ -766,7 +898,6 @@
                 grid.style.display = 'grid';
                 renderPredictions(predictions);
 
-                // عرض المؤشرات الأربعة الأساسية فوراً
                 for (let i = 0; i < 4; i++) {
                     let marker = document.getElementById('marker-' + (i + 1));
                     if (marker) {
@@ -779,10 +910,9 @@
                 mainImg.classList.remove('analyzing');
                 addSystemLog("✅ تم استخراج 4 توقعات أساسية");
                 
-                lastRegisteredId = null; // تصفير التعلم بعد استخدامه
+                lastRegisteredId = null; 
                 startActiveRoundTimer();
 
-                // جدولة ظهور المؤشر الخامس والبطاقة الخامسة بعد 3.5 ثواني
                 setTimeout(() => {
                     let marker5 = document.getElementById('marker-5');
                     if (marker5) {
