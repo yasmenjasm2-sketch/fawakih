@@ -117,14 +117,90 @@
             align-items: center;
         }
 
-        .menu-title {
-            font-size: 28px;
-            color: var(--gold);
-            text-shadow: 0 0 15px rgba(248, 192, 0, 0.5);
-            margin-bottom: 20px;
-            text-align: center;
+        /* 🎨 عنوان FawakihAI المتحرك */
+        .fawakih-title {
+            position: relative;
+            font-size: 46px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 10px 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(
+                90deg,
+                #00E5FF 0%,
+                #9D4EDD 20%,
+                #FF00E5 40%,
+                #F8C000 60%,
+                #9D4EDD 80%,
+                #00E5FF 100%
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fawakihShift 4s linear infinite, fawakihBreathe 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.6)) drop-shadow(0 0 40px rgba(0, 229, 255, 0.3));
+        }
+
+        .fawakih-title::before {
+            content: 'FawakihAI';
+            position: absolute;
+            inset: 0;
+            padding: 10px 0;
+            background: linear-gradient(
+                90deg,
+                #00E5FF 0%,
+                #9D4EDD 20%,
+                #FF00E5 40%,
+                #F8C000 60%,
+                #9D4EDD 80%,
+                #00E5FF 100%
+            );
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: blur(18px);
+            opacity: 0.75;
+            z-index: -1;
+            animation: fawakihShift 4s linear infinite;
+        }
+
+        .fawakih-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-pink), var(--gold), transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-pink);
+            animation: fawakihUnderline 3s ease-in-out infinite;
+        }
+
+        @keyframes fawakihShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 300% center; }
+        }
+
+        @keyframes fawakihBreathe {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.6)) drop-shadow(0 0 40px rgba(0, 229, 255, 0.3));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(248, 192, 0, 0.85)) drop-shadow(0 0 60px rgba(255, 0, 229, 0.55));
+                transform: scale(1.04);
+            }
+        }
+
+        @keyframes fawakihUnderline {
+            0%, 100% { width: 40%; opacity: 0.6; }
+            50% { width: 85%; opacity: 1; }
         }
 
         .menu-grid {
@@ -1327,7 +1403,7 @@
     <!-- شاشة القائمة الرئيسية (Main Menu) -->
     <!-- ========================================== -->
     <div id="menu-screen">
-        <h1 class="menu-title">🎮 اختر اللعبة</h1>
+        <h1 class="fawakih-title">FawakihAI</h1>
         
         <div class="menu-grid">
             <!-- زر لعبة حفلة المحيط -->
@@ -1482,11 +1558,6 @@
     <!-- شاشة اللعبة (يلا لايف) -->
     <!-- ========================================== -->
     <div id="game-screen">
-        
-        <!-- زر العودة للقائمة الرئيسية -->
-        <button class="back-to-menu-btn" onclick="goToMenu()">
-            🔙 العودة للقائمة الرئيسية
-        </button>
 
         <div class="app-header">
             <h1>🍒 YALLA FRUIT <span>v7.0</span></h1>
@@ -2071,7 +2142,7 @@
                     db.ref('requests/' + deviceId).update({ status: 'expired' });
                     showLoginScreen("⚠️ انتهت مدة اشتراكك. يرجى طلب كود جديد للتجديد.");
                 } else {
-                    showMenu(); // تغيير: عرض القائمة بدلاً من اللعبة مباشرة
+                    showMenu();
                     startSubscriptionMonitor(data.expiryTimestamp);
                 }
             } else if (data.status === 'rejected') {
