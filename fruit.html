@@ -64,327 +64,472 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        #dev-logo {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid var(--neon-blue);
-            cursor: pointer;
-            z-index: 1000;
-            object-fit: cover;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
-            transition: transform 0.2s ease;
-        }
-        #dev-logo:active { transform: scale(1.15); }
-
-        #dev-info {
-            position: absolute;
-            top: 68px;
-            right: 15px;
-            background: var(--glass-bg);
-            border: 1px solid var(--neon-blue);
-            padding: 12px 18px;
-            border-radius: 14px;
-            text-align: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-        }
-        #dev-info.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .dev-name { color: var(--gold); font-size: 14px; font-weight: bold; }
-        .dev-sub { color: var(--neon-blue); font-size: 12px; margin-top: 3px; }
-
         /* ==========================================
-           شاشة القائمة الرئيسية (Main Menu)
+           شاشة القائمة الرئيسية (Main Menu) الجديدة
            ========================================== */
         #menu-screen {
             display: none;
             flex-direction: column;
             width: 100%;
             max-width: 480px;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 10px;
             align-items: center;
-        }
-
-        /* 🎨 عنوان FawakihAI المتحرك */
-        .fawakih-title {
             position: relative;
-            font-size: 46px;
-            font-weight: 900;
-            letter-spacing: 4px;
+        }
+
+        /* زر القائمة العلوي */
+        .top-menu-container {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .top-menu-btn {
+            background: rgba(30, 15, 50, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .top-menu-btn:active {
+            transform: scale(0.95);
+            border-color: var(--primary);
+        }
+        .top-menu-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-main);
+        }
+
+        /* الشعار الجديد */
+        .new-brand-header {
             text-align: center;
-            margin-bottom: 25px;
-            padding: 10px 0;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: linear-gradient(
-                90deg,
-                #00E5FF 0%,
-                #9D4EDD 20%,
-                #FF00E5 40%,
-                #F8C000 60%,
-                #9D4EDD 80%,
-                #00E5FF 100%
-            );
-            background-size: 300% auto;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        
+        .brand-logo-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .brand-crown {
+            font-size: 28px;
+            filter: drop-shadow(0 0 10px rgba(157, 78, 221, 0.8));
+        }
+
+        .brand-title-main {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #9D4EDD, #00E5FF);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: fawakihShift 4s linear infinite, fawakihBreathe 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.6)) drop-shadow(0 0 40px rgba(0, 229, 255, 0.3));
+            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.5));
         }
 
-        .fawakih-title::before {
-            content: 'FawakihAI';
-            position: absolute;
-            inset: 0;
-            padding: 10px 0;
-            background: linear-gradient(
-                90deg,
-                #00E5FF 0%,
-                #9D4EDD 20%,
-                #FF00E5 40%,
-                #F8C000 60%,
-                #9D4EDD 80%,
-                #00E5FF 100%
-            );
-            background-size: 300% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: blur(18px);
-            opacity: 0.75;
-            z-index: -1;
-            animation: fawakihShift 4s linear infinite;
+        .brand-subtitle {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-top: 5px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
         }
 
-        .fawakih-title::after {
+        .section-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin: 15px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .section-divider::before, .section-divider::after {
             content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-pink), var(--gold), transparent);
-            border-radius: 2px;
-            box-shadow: 0 0 12px var(--neon-blue), 0 0 20px var(--neon-pink);
-            animation: fawakihUnderline 3s ease-in-out infinite;
-        }
-
-        @keyframes fawakihShift {
-            0% { background-position: 0% center; }
-            100% { background-position: 300% center; }
-        }
-
-        @keyframes fawakihBreathe {
-            0%, 100% {
-                filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.6)) drop-shadow(0 0 40px rgba(0, 229, 255, 0.3));
-                transform: scale(1);
-            }
-            50% {
-                filter: drop-shadow(0 0 30px rgba(248, 192, 0, 0.85)) drop-shadow(0 0 60px rgba(255, 0, 229, 0.55));
-                transform: scale(1.04);
-            }
-        }
-
-        @keyframes fawakihUnderline {
-            0%, 100% { width: 40%; opacity: 0.6; }
-            50% { width: 85%; opacity: 1; }
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .menu-grid {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 18px;
             width: 100%;
         }
 
-        /* تعديل البطاقة لدعم النيون الدوار */
-        .menu-card {
+        /* تصميم كروت الألعاب المطابق للصورة */
+        .game-card {
             position: relative;
             width: 100%;
-            border-radius: 22px;
-            padding: 4px; /* سمك شريط النيون */
-            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden; /* لقص الحواف */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(157, 78, 221, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            background: #0f051a;
         }
-        
-        /* الشريط النيون الدوار */
-        .menu-card::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: conic-gradient(
-                transparent 0%,
-                transparent 20%,
-                var(--neon-pink) 40%,
-                var(--primary) 50%,
-                var(--neon-pink) 60%,
-                transparent 80%,
-                transparent 100%
-            );
-            animation: spinNeon 4s linear infinite;
-            z-index: 0;
-        }
-
-        @keyframes spinNeon {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .menu-card:active {
+        .game-card:active {
             transform: scale(0.97);
         }
 
-        /* الحاوية الداخلية للبطاقة */
-        .menu-card-inner {
+        /* بطاقة Yalla Fruit */
+        .card-yalla {
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 30px rgba(0, 229, 255, 0.05);
+            background: linear-gradient(135deg, #0a1128, #1a0b2e);
+            padding: 15px 10px;
+        }
+        .yalla-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            width: 65%;
+        }
+        .yalla-item {
+            background: rgba(0, 150, 255, 0.15);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 8px;
+            padding: 4px;
+            text-align: center;
             position: relative;
-            width: 100%;
-            border-radius: 18px; /* متوافق مع الحواف */
-            overflow: hidden;
-            background: var(--bg-card);
-            z-index: 1;
         }
-
-        .menu-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            display: block;
-            opacity: 0.85;
-            transition: opacity 0.3s;
-        }
-
-        .menu-card:hover img {
-            opacity: 1;
-        }
-
-        .menu-card-overlay {
+        .yalla-mult {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 100%);
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-        }
-
-        .menu-card-title {
+            top: 2px;
+            right: 4px;
+            font-size: 8px;
             color: #FFF;
+            font-weight: bold;
+            background: rgba(0,0,0,0.6);
+            padding: 1px 3px;
+            border-radius: 4px;
+        }
+        .yalla-icon {
+            font-size: 20px;
+            margin-top: 5px;
+        }
+        .yalla-info {
+            width: 35%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 5px;
+        }
+        .yalla-title {
             font-size: 22px;
             font-weight: 900;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* الأنميشن للدولفين */
-        .animated-svg-dolphin {
-            width: 45px;
-            height: 45px;
-            animation: bobDolphin 2.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.8));
-        }
-
-        @keyframes bobDolphin {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
-        }
-
-        /* الأنميشن للكرز */
-        .animated-svg-cherry {
-            width: 45px;
-            height: 45px;
-            animation: shakeCherry 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 0, 229, 0.8));
-        }
-
-        @keyframes shakeCherry {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            25% { transform: rotate(10deg) scale(1.05); }
-            75% { transform: rotate(-10deg) scale(1.05); }
-        }
-
-        /* 🍍 الأنميشن للأناناس (ماسا) */
-        .animated-emoji-pineapple {
-            font-size: 42px;
-            line-height: 1;
-            display: inline-block;
-            animation: bouncePineapple 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 12px rgba(248, 192, 0, 0.9)) drop-shadow(0 0 22px rgba(255, 152, 0, 0.6));
-            transform-origin: center bottom;
-        }
-
-        @keyframes bouncePineapple {
-            0%, 100% { 
-                transform: translateY(0) rotate(-10deg) scale(1); 
-            }
-            25% { 
-                transform: translateY(-6px) rotate(0deg) scale(1.08); 
-            }
-            50% { 
-                transform: translateY(-12px) rotate(10deg) scale(1.12); 
-            }
-            75% { 
-                transform: translateY(-6px) rotate(0deg) scale(1.08); 
-            }
-        }
-
-        .menu-card-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--neon-blue);
-            color: #000;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 900;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-            z-index: 2;
-        }
-
-        .back-to-menu-btn {
-            background: rgba(157, 78, 221, 0.2);
-            border: 2px solid var(--primary);
             color: #FFF;
-            padding: 12px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
+        }
+        .yalla-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .badge-new {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #00E5FF;
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+        }
+        .play-btn {
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.8);
+            margin-top: 5px;
         }
-        .back-to-menu-btn:active {
-            background: var(--primary);
-            transform: scale(0.95);
+        .play-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #FFF;
+            margin-right: -2px;
+        }
+
+        /* بطاقة Yooy */
+        .card-yooy {
+            border: 2px solid var(--success);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.3), inset 0 0 30px rgba(0, 230, 118, 0.05);
+            background: linear-gradient(135deg, #051a10, #0d2b1b);
+            padding: 10px 20px;
+        }
+        .yooy-graphic {
+            font-size: 60px;
+            font-weight: 900;
+            color: #FFF;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 20px rgba(0, 230, 118, 0.5);
+            line-height: 1;
+            letter-spacing: -2px;
+            transform: skewX(-10deg);
+        }
+        .yooy-info {
+            text-align: center;
+        }
+        .yooy-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #FFF;
+        }
+        .yooy-sub {
+            font-size: 11px;
+            color: #A5D6A7;
+            margin-top: 3px;
+        }
+
+        /* بطاقة Masa */
+        .card-masa {
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 20px rgba(248, 192, 0, 0.3), inset 0 0 30px rgba(248, 192, 0, 0.05);
+            background: linear-gradient(135deg, #2b1b05, #1a0f02);
+            padding: 10px 20px;
+        }
+        .masa-graphic {
+            font-size: 55px;
+            font-weight: 900;
+            color: #FFF;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 20px rgba(248, 192, 0, 0.5);
+            line-height: 1;
+            font-family: 'Arial Black', sans-serif;
+            transform: skewX(-5deg);
+        }
+        .masa-info {
+            text-align: center;
+        }
+        .masa-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #FFF;
+        }
+        .masa-sub {
+            font-size: 11px;
+            color: #FFE082;
+            margin-top: 3px;
+        }
+        .badge-popular {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: var(--gold);
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(248, 192, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-popular svg {
+            width: 12px;
+            height: 12px;
+            fill: #000;
         }
 
         /* ==========================================
-           الشاشات الأخرى
+           نافذة القائمة (الترس / الهامبرغر)
+           ========================================== */
+        #menu-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        #menu-modal-overlay.show {
+            display: flex;
+            animation: overlayFade 0.25s ease;
+        }
+        @keyframes overlayFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .menu-modal {
+            background: linear-gradient(145deg, #1a0b2e, #0d0616);
+            border: 2px solid var(--primary);
+            border-radius: 24px;
+            padding: 0;
+            max-width: 440px;
+            width: 100%;
+            position: relative;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.9),
+                0 0 40px rgba(157, 78, 221, 0.35);
+            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.85) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .menu-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(157, 78, 221, 0.1);
+            border-radius: 22px 22px 0 0;
+        }
+        .menu-modal-header h2 {
+            font-size: 18px;
+            color: var(--gold);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-modal-header h2 svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--gold);
+        }
+        .close-modal-btn {
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            color: var(--danger);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .info-box.highlight {
+            border-color: var(--gold);
+            background: rgba(248, 192, 0, 0.05);
+        }
+        .info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-label svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--neon-blue);
+        }
+        .info-value {
+            font-size: 14px;
+            color: #FFF;
+            font-weight: bold;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: ltr;
+        }
+        .copy-btn {
+            background: rgba(0, 229, 255, 0.2);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:active {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        .support-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-support {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: none;
+            color: #FFF;
+            transition: transform 0.2s;
+        }
+        .btn-support:active {
+            transform: scale(0.97);
+        }
+        .btn-support.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+        }
+        .btn-support.tech {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4);
+        }
+        .btn-support svg {
+            width: 22px;
+            height: 22px;
+            fill: #FFF;
+        }
+
+        /* ==========================================
+           الشاشات الأخرى (تسجيل الدخول، الانتظار، اللعبة)
            ========================================== */
         #login-screen, #waiting-screen {
             display: none;
@@ -1067,10 +1212,6 @@
             display: flex;
             animation: overlayFade 0.25s ease;
         }
-        @keyframes overlayFade {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         .wrong-fruit-modal {
             background: linear-gradient(145deg, #1a0b2e, #0d0616);
@@ -1086,10 +1227,6 @@
                 0 20px 60px rgba(0, 0, 0, 0.9),
                 0 0 40px rgba(255, 71, 87, 0.4);
             animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes modalPop {
-            from { transform: scale(0.85) translateY(20px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
         }
 
         .wrong-fruit-modal::before {
@@ -1222,289 +1359,151 @@
         .wrong-fruit-close-btn:active {
             transform: scale(0.96);
         }
-
-        .account-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.88);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-        .account-overlay.show {
-            display: flex;
-            animation: overlayFade 0.25s ease;
-        }
-
-        .account-modal {
-            background: linear-gradient(145deg, #1a0b2e, #0d0616);
-            border: 2px solid var(--neon-blue);
-            border-radius: 24px;
-            padding: 0;
-            max-width: 440px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.9),
-                0 0 40px rgba(0, 229, 255, 0.35);
-            animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .account-modal::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 24px;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--neon-blue), var(--gold), var(--primary), var(--neon-blue));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        .account-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 20px 22px;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(0, 229, 255, 0.05);
-            border-radius: 22px 22px 0 0;
-        }
-
-        .account-gear-icon {
-            width: 40px;
-            height: 40px;
-            fill: var(--gold);
-            animation: gearSpin 12s linear infinite;
-            filter: drop-shadow(0 0 8px rgba(248, 192, 0, 0.55));
-            flex-shrink: 0;
-        }
-
-        @keyframes gearSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .account-header h2 {
-            font-size: 18px;
-            color: var(--gold);
-            font-weight: 900;
-            margin: 0;
-            text-shadow: 0 0 10px rgba(248, 192, 0, 0.35);
-        }
-
-        .account-close-btn {
-            margin-right: auto;
-            background: rgba(255, 71, 87, 0.15);
-            border: 1px solid rgba(255, 71, 87, 0.4);
-            color: var(--danger);
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            padding: 0;
-            line-height: 1;
-        }
-        .account-close-btn:active {
-            transform: scale(0.9);
-            background: rgba(255, 71, 87, 0.3);
-        }
-
-        .account-body {
-            padding: 20px 22px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .account-field {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            transition: border-color 0.2s;
-        }
-
-        .account-field.highlight {
-            border-color: var(--gold);
-            background: rgba(248, 192, 0, 0.08);
-            box-shadow: 0 0 12px rgba(248, 192, 0, 0.15);
-        }
-
-        .account-field.danger {
-            border-color: var(--danger);
-            background: rgba(255, 71, 87, 0.08);
-            box-shadow: 0 0 12px rgba(255, 71, 87, 0.15);
-        }
-
-        .account-field-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .account-field-label svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--neon-blue);
-            flex-shrink: 0;
-        }
-
-        .account-field.highlight .account-field-label svg { fill: var(--gold); }
-        .account-field.danger .account-field-label svg { fill: var(--danger); }
-
-        .account-field-value {
-            font-size: 14px;
-            color: var(--text-main);
-            font-weight: 800;
-            font-family: 'Courier New', monospace;
-            word-break: break-all;
-            letter-spacing: 0.3px;
-            direction: ltr;
-            text-align: right;
-        }
-
-        .account-field.highlight .account-field-value { color: var(--gold); }
-        .account-field.danger .account-field-value { color: var(--danger); }
-
-        .account-footer {
-            padding: 0 22px 20px 22px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .account-footer-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            background: rgba(0, 230, 118, 0.1);
-            border: 1px solid rgba(0, 230, 118, 0.4);
-            border-radius: 20px;
-            font-size: 11px;
-            color: var(--success);
-            font-weight: 800;
-        }
-
-        .account-footer-badge svg {
-            width: 14px;
-            height: 14px;
-            fill: var(--success);
-        }
     </style>
 </head>
 <body>
 
     <iframe id="hidden-webview-receiver" style="display:none; width:0; height:0;" src="about:blank"></iframe>
 
-    <img src="hamza.jpg" id="dev-logo" alt="Developer" onclick="showDevInfo()">
-    <div id="dev-info">
-        <div class="dev-name">hamza elhumada</div>
-        <div class="dev-sub">nbras</div>
-    </div>
-
     <!-- ========================================== -->
     <!-- شاشة القائمة الرئيسية (Main Menu) -->
     <!-- ========================================== -->
     <div id="menu-screen">
-        <h1 class="fawakih-title">FawakihAI</h1>
+        
+        <!-- زر القائمة العلوي -->
+        <div class="top-menu-container">
+            <button class="top-menu-btn" onclick="toggleMenuModal()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+                القائمة
+            </button>
+        </div>
+
+        <!-- الشعار الجديد -->
+        <div class="new-brand-header">
+            <div class="brand-logo-top">
+                <span class="brand-crown">👑</span>
+                <h1 class="brand-title-main">fawakihAI</h1>
+            </div>
+            <p class="brand-subtitle">ذكاء اصطناعي لتخمين الفواكه</p>
+        </div>
+
+        <div class="section-divider">
+            <span>اختر لعبتك المفضلة الآن</span>
+        </div>
         
         <div class="menu-grid">
-            <!-- زر لعبة حفلة المحيط -->
-            <div class="menu-card" onclick="window.location.href='hamzagg.html'">
-                <div class="menu-card-inner">
-                    <img src="hamzacc.jpg" alt="حفلة المحيط">
-                    <div class="menu-card-badge">جديد</div>
-                    <div class="menu-card-overlay">
-                        <div class="menu-card-title">
-                            <svg class="animated-svg-dolphin" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="dolphinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#00E5FF" />
-                                        <stop offset="100%" stop-color="#0077B6" />
-                                    </linearGradient>
-                                </defs>
-                                <path d="M 25 50 C 30 30, 60 20, 80 40 C 90 50, 85 70, 60 75 C 40 80, 20 65, 25 50 Z" fill="url(#dolphinGrad)"/>
-                                <path d="M 50 28 C 55 15, 65 15, 70 25 C 65 28, 60 30, 50 28 Z" fill="#00E5FF"/>
-                                <path d="M 45 60 C 50 70, 60 75, 65 70 C 60 60, 50 55, 45 60 Z" fill="#0077B6"/>
-                                <path d="M 25 50 C 15 40, 5 30, 10 25 C 15 35, 20 40, 25 50 Z" fill="#00E5FF"/>
-                                <path d="M 25 50 C 15 60, 5 70, 10 75 C 15 65, 20 60, 25 50 Z" fill="#00E5FF"/>
-                                <circle cx="72" cy="45" r="3" fill="#FFF"/>
-                                <circle cx="73" cy="45" r="1.5" fill="#000"/>
-                                <path d="M 82 52 Q 78 58 70 58" fill="none" stroke="#FFF" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            <span>حفلة المحيط</span>
-                        </div>
+            
+            <!-- بطاقة Yalla Fruit -->
+            <div class="game-card card-yalla" onclick="startYallaLiveGame()">
+                <div class="badge-new">جديد</div>
+                
+                <div class="yalla-grid">
+                    <!-- صف 1 -->
+                    <div class="yalla-item"><span class="yalla-mult">12x</span><div class="yalla-icon">🍉</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">25x</span><div class="yalla-icon">🍇</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">10x</span><div class="yalla-icon">🍊</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">5x</span><div class="yalla-icon">🍋</div></div>
+                    <!-- صف 2 -->
+                    <div class="yalla-item"><span class="yalla-mult">12x</span><div class="yalla-icon">🍉</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">25x</span><div class="yalla-icon">🍇</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">10x</span><div class="yalla-icon">🍒</div></div>
+                    <div class="yalla-item"><span class="yalla-mult">5x</span><div class="yalla-icon">🍋</div></div>
+                </div>
+
+                <div class="yalla-info">
+                    <div class="yalla-title">Yalla<br>Fruit</div>
+                    <div class="yalla-sub">خمن الفاكهة واربح</div>
+                    <div class="play-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
             </div>
 
-            <!-- زر لعبة يلا لايف -->
-            <div class="menu-card" onclick="startYallaLiveGame()">
-                <div class="menu-card-inner">
-                    <img src="hamzadd.jpg" alt="يلا لايف">
-                    <div class="menu-card-overlay">
-                        <div class="menu-card-title">
-                            <svg class="animated-svg-cherry" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <radialGradient id="cherryGrad1" cx="30%" cy="30%" r="70%">
-                                        <stop offset="0%" stop-color="#FF6B81"/>
-                                        <stop offset="100%" stop-color="#8E0000"/>
-                                    </radialGradient>
-                                    <radialGradient id="cherryGrad2" cx="30%" cy="30%" r="70%">
-                                        <stop offset="0%" stop-color="#FF4757"/>
-                                        <stop offset="100%" stop-color="#B71C1C"/>
-                                    </radialGradient>
-                                </defs>
-                                <path d="M 40 50 Q 50 20 70 15" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round"/>
-                                <path d="M 65 60 Q 55 30 70 15" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round"/>
-                                <path d="M 70 15 Q 85 10 80 25 Q 65 25 70 15 Z" fill="#4CAF50"/>
-                                <circle cx="40" cy="65" r="18" fill="url(#cherryGrad1)"/>
-                                <circle cx="65" cy="75" r="18" fill="url(#cherryGrad2)"/>
-                                <circle cx="35" cy="60" r="5" fill="#FFF" opacity="0.4"/>
-                                <circle cx="60" cy="70" r="5" fill="#FFF" opacity="0.4"/>
-                            </svg>
-                            <span>يلا لايف</span>
-                        </div>
+            <!-- بطاقة Yooy -->
+            <div class="game-card card-yooy" onclick="alert('لعبة Yooy قيد التطوير!')">
+                <div class="yooy-graphic">Yo</div>
+                <div class="yooy-info">
+                    <div class="yooy-title">Yooy</div>
+                    <div class="yooy-sub">لعبة التخمين الممتعة</div>
+                    <div class="play-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
             </div>
 
-            <!-- 🍍 زر لعبة ماسا (جديد) -->
-            <div class="menu-card" onclick="window.location.href='https://yasmenjasm2-sketch.github.io/totoman/fruit.html'">
-                <div class="menu-card-inner">
-                    <img src="masa.jpg" alt="ماسا">
-                    <div class="menu-card-badge">جديد</div>
-                    <div class="menu-card-overlay">
-                        <div class="menu-card-title">
-                            <span class="animated-emoji-pineapple">🍍</span>
-                            <span>ماسا</span>
-                        </div>
+            <!-- بطاقة Masa -->
+            <div class="game-card card-masa" onclick="window.location.href='https://yasmenjasm2-sketch.github.io/totoman/fruit.html'">
+                <div class="badge-popular">
+                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    الأكثر شعبية
+                </div>
+                <div class="masa-graphic">Masa</div>
+                <div class="masa-info">
+                    <div class="masa-title">Masa</div>
+                    <div class="masa-sub">استمتع باللعبة الآن</div>
+                    <div class="play-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- نافذة القائمة (Menu Modal) -->
+    <!-- ========================================== -->
+    <div id="menu-modal-overlay" class="menu-modal-overlay" onclick="closeMenuModal(event)">
+        <div class="menu-modal" onclick="event.stopPropagation()">
+            <div class="menu-modal-header">
+                <h2>
+                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    إعدادات الحساب
+                </h2>
+                <button class="close-modal-btn" onclick="toggleMenuModal()">✕</button>
+            </div>
+            <div class="menu-modal-body">
+                
+                <div class="info-box highlight">
+                    <div class="info-label">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        معرف الجهاز (ID)
+                    </div>
+                    <div class="info-value">
+                        <span id="modal-device-id">--</span>
+                        <button class="copy-btn" onclick="copyDeviceId()">نسخ</button>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+                        تاريخ بدء الاشتراك
+                    </div>
+                    <div class="info-value" id="modal-start-date">--</div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-label">
+                        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-9-2l4-4-1.41-1.41L9 15.17l-2.59-2.58L5 14l4 4z"/></svg>
+                        تاريخ انتهاء الاشتراك
+                    </div>
+                    <div class="info-value" id="modal-end-date">--</div>
+                </div>
+
+                <div class="support-buttons">
+                    <a href="https://wa.me/+905424678123?text=مرحباً، أحتاج مساعدة بخصوص FawakihAI" target="_blank" class="btn-support whatsapp">
+                        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                        الدعم الفني (واتساب)
+                    </a>
+                    <a href="https://yasmenjasm2-sketch.github.io/fawakihAI2/jmal.html" target="_blank" class="btn-support tech">
+                        <svg viewBox="0 0 24 24"><path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg>
+                        الدعم الفني (الموقع)
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1673,11 +1672,11 @@
 
         <div class="stats-bar">
             <span><span class="stat-icon">📊</span> جولة: <span class="stat-value" id="round-timer">0</span></span>
-            <button class="gear-stat-btn" onclick="toggleAccountPanel()" title="معلومات الحساب">
+            <button class="gear-stat-btn" onclick="goToMenu()" title="القائمة الرئيسية">
                 <svg viewBox="0 0 24 24">
-                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
-                <span>الحساب: <span class="stat-value" id="sub-remaining">--</span></span>
+                <span>الرئيسية</span>
             </button>
             <span><span class="stat-icon">👤</span> <span class="stat-value" id="online-count">0</span></span>
         </div>
@@ -1871,83 +1870,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- نافذة معلومات الحساب -->
-    <!-- ========================================== -->
-    <div id="account-overlay" class="account-overlay" onclick="closeAccountPanel(event)">
-        <div class="account-modal" onclick="event.stopPropagation()">
-
-            <div class="account-header">
-                <svg class="account-gear-icon" viewBox="0 0 24 24">
-                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                </svg>
-                <h2>معلومات الحساب</h2>
-                <button class="account-close-btn" onclick="toggleAccountPanel()">✕</button>
-            </div>
-
-            <div class="account-body">
-
-                <div class="account-field">
-                    <div class="account-field-label">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                        <span>المعرف الفريد (اسم الحساب)</span>
-                    </div>
-                    <div class="account-field-value" id="acct-id">--</div>
-                </div>
-
-                <div class="account-field">
-                    <div class="account-field-label">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-                        </svg>
-                        <span>تاريخ بدء الاشتراك</span>
-                    </div>
-                    <div class="account-field-value" id="acct-start">--</div>
-                </div>
-
-                <div class="account-field">
-                    <div class="account-field-label">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zm-9-2l4-4-1.41-1.41L9 15.17l-2.59-2.58L5 14l4 4z"/>
-                        </svg>
-                        <span>تاريخ انتهاء الاشتراك</span>
-                    </div>
-                    <div class="account-field-value" id="acct-expiry">--</div>
-                </div>
-
-                <div class="account-field highlight" id="acct-remaining-field">
-                    <div class="account-field-label">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
-                        </svg>
-                        <span>الوقت المتبقي</span>
-                    </div>
-                    <div class="account-field-value" id="acct-remaining">--</div>
-                </div>
-
-            </div>
-
-            <div class="account-footer">
-                <div class="account-footer-badge">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                    </svg>
-                    <span>حساب موثق - VIP</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <script>
-        function showDevInfo() {
-            const infoBox = document.getElementById('dev-info');
-            infoBox.classList.add('show');
-            setTimeout(() => { infoBox.classList.remove('show'); }, 3000); 
-        }
-
         // ============================================================
         // 🎬 إدارة الفيديو الترويجي (تشغيل تلقائي + صوت)
         // ============================================================
@@ -2006,6 +1929,75 @@
         let codeRequestCount = 0; 
         let codeTimerInterval = null;
         let currentDeviceData = null;
+
+        // ============================================================
+        // منطق القائمة الجديد
+        // ============================================================
+        
+        function toggleMenuModal() {
+            const overlay = document.getElementById('menu-modal-overlay');
+            if (overlay.classList.contains('show')) {
+                overlay.classList.remove('show');
+            } else {
+                updateMenuModalData();
+                overlay.classList.add('show');
+            }
+        }
+
+        function closeMenuModal(event) {
+            if (event && event.target.id !== 'menu-modal-overlay') return;
+            document.getElementById('menu-modal-overlay').classList.remove('show');
+        }
+
+        function updateMenuModalData() {
+            document.getElementById('modal-device-id').innerText = deviceId;
+            
+            if (currentDeviceData) {
+                const startTs = currentDeviceData.startTimestamp || currentDeviceData.timestamp || null;
+                document.getElementById('modal-start-date').innerText = formatArabicDate(startTs);
+                document.getElementById('modal-end-date').innerText = formatArabicDate(currentDeviceData.expiryTimestamp);
+            } else {
+                document.getElementById('modal-start-date').innerText = 'غير متوفر';
+                document.getElementById('modal-end-date').innerText = 'غير متوفر';
+            }
+        }
+
+        function copyDeviceId() {
+            const idText = document.getElementById('modal-device-id').innerText;
+            if(idText && idText !== '--') {
+                navigator.clipboard.writeText(idText).then(() => {
+                    const btn = document.querySelector('.copy-btn');
+                    const originalText = btn.innerText;
+                    btn.innerText = 'تم النسخ!';
+                    btn.style.background = 'var(--success)';
+                    btn.style.color = '#000';
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    }, 2000);
+                });
+            }
+        }
+
+        function formatArabicDate(ts) {
+            if (!ts) return 'غير محدد';
+            try {
+                const d = new Date(ts);
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mi = String(d.getMinutes()).padStart(2, '0');
+                return `${yyyy}/${mm}/${dd} - ${hh}:${mi}`;
+            } catch (e) {
+                return 'غير محدد';
+            }
+        }
+
+        // ============================================================
+        // منطق اللعبة وتسجيل الدخول
+        // ============================================================
 
         const slots = [
             { id: 1, top: '17%', left: '17%' },
@@ -2091,36 +2083,6 @@
             setTimeout(() => startNewRound(), 120);
         }
 
-        function toggleAccountPanel() {
-            const overlay = document.getElementById('account-overlay');
-            if (overlay.classList.contains('show')) {
-                overlay.classList.remove('show');
-            } else {
-                updateAccountPanel();
-                overlay.classList.add('show');
-            }
-        }
-
-        function closeAccountPanel(event) {
-            if (event && event.target.id !== 'account-overlay') return;
-            document.getElementById('account-overlay').classList.remove('show');
-        }
-
-        function formatArabicDate(ts) {
-            if (!ts) return 'غير محدد';
-            try {
-                const d = new Date(ts);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mi = String(d.getMinutes()).padStart(2, '0');
-                return `${yyyy}/${mm}/${dd} - ${hh}:${mi}`;
-            } catch (e) {
-                return 'غير محدد';
-            }
-        }
-
         function formatRemaining(ms) {
             if (ms <= 0) return 'منتهي ❌';
             const days = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -2131,32 +2093,6 @@
             if (hours > 0) parts.push(`${hours} ساعة`);
             if (minutes > 0 && days === 0) parts.push(`${minutes} دقيقة`);
             return parts.length ? parts.join(' و ') : 'أقل من دقيقة';
-        }
-
-        function updateAccountPanel() {
-            const data = currentDeviceData || {};
-            document.getElementById('acct-id').textContent = deviceId;
-            
-            const startTs = data.startTimestamp || data.timestamp || null;
-            document.getElementById('acct-start').textContent = formatArabicDate(startTs);
-            document.getElementById('acct-expiry').textContent = formatArabicDate(data.expiryTimestamp);
-            
-            const remainingEl = document.getElementById('acct-remaining');
-            const remainingField = document.getElementById('acct-remaining-field');
-            
-            if (data.expiryTimestamp) {
-                const diff = data.expiryTimestamp - Date.now();
-                remainingEl.textContent = formatRemaining(diff);
-                if (diff <= 0) {
-                    remainingField.classList.remove('highlight');
-                    remainingField.classList.add('danger');
-                } else {
-                    remainingField.classList.add('highlight');
-                    remainingField.classList.remove('danger');
-                }
-            } else {
-                remainingEl.textContent = 'غير محدد';
-            }
         }
 
         function listenToCurrentDeviceStatus() {
@@ -2225,9 +2161,10 @@
                 const subElem = document.getElementById('sub-remaining');
                 if (subElem) subElem.innerText = remainingStr;
 
-                const accOverlay = document.getElementById('account-overlay');
-                if (accOverlay && accOverlay.classList.contains('show')) {
-                    updateAccountPanel();
+                // تحديث النافذة المنبثقة إذا كانت مفتوحة
+                const menuOverlay = document.getElementById('menu-modal-overlay');
+                if (menuOverlay && menuOverlay.classList.contains('show')) {
+                    updateMenuModalData();
                 }
             }
 
@@ -2384,6 +2321,11 @@
         function goToMenu() {
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('menu-screen').style.display = 'flex';
+            // إعادة تعيين المؤقت للخلفية
+            if(roundInterval) {
+                clearInterval(roundInterval);
+                resetEngineUI();
+            }
         }
 
         function addSystemLog(msg, isHighlight = false) {
