@@ -1724,6 +1724,91 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* ==========================================
+           🔄 زر نقل الاشتراك (جديد - إضافة فقط)
+           ========================================== */
+        .transfer-sub-btn {
+            position: relative;
+            width: 100%;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(157, 78, 221, 0.18) 100%);
+            color: var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.25s ease;
+            box-shadow: 0 4px 16px rgba(0, 229, 255, 0.25), inset 0 0 12px rgba(0, 229, 255, 0.05);
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            font-family: inherit;
+        }
+
+        .transfer-sub-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.35), transparent);
+            animation: transferShine 2.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes transferShine {
+            0% { left: -100%; }
+            60%, 100% { left: 100%; }
+        }
+
+        .transfer-sub-btn:active {
+            transform: scale(0.97);
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.3) 0%, rgba(157, 78, 221, 0.3) 100%);
+            box-shadow: 0 4px 22px rgba(0, 229, 255, 0.55), inset 0 0 18px rgba(0, 229, 255, 0.2);
+        }
+
+        .transfer-sub-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.8));
+            flex-shrink: 0;
+            animation: transferIconBob 2.5s ease-in-out infinite;
+        }
+
+        @keyframes transferIconBob {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-3px); }
+        }
+
+        .transfer-sub-btn .transfer-text-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            line-height: 1.25;
+            text-align: right;
+        }
+
+        .transfer-sub-btn .transfer-main-label {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--neon-blue);
+            letter-spacing: 0.3px;
+        }
+
+        .transfer-sub-btn .transfer-sub-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(0, 229, 255, 0.7);
+            margin-top: 2px;
+            letter-spacing: 0.2px;
+        }
     </style>
 </head>
 <body>
@@ -1899,6 +1984,18 @@
         <p class="login-subtitle">🔐 اضغط على <b style="color:#00E5FF">طلب رمز التحقق</b> لاستلام كود الاشتراك الخاص بك من الأدمن</p>
         
         <div class="login-btn-container">
+
+            <!-- 🔄 زر نقل الاشتراك (جديد) - فوق أزرار الدخول -->
+            <button class="transfer-sub-btn" onclick="window.location.href='hamzavip.html'">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>
+                </svg>
+                <div class="transfer-text-block">
+                    <span class="transfer-main-label">🔄 نقل الاشتراك لجهاز آخر</span>
+                    <span class="transfer-sub-label">انقل اشتراكك من جهاز قديم إلى جديد</span>
+                </div>
+            </button>
+
             <input type="text" id="sub-code" class="login-input" placeholder="أدخل كود التحقق هنا" inputmode="numeric">
 
             <div class="login-buttons-row">
@@ -2327,6 +2424,17 @@
                     </svg>
                     <span>حساب موثق - VIP</span>
                 </div>
+
+                <!-- 🔄 زر نقل الاشتراك (جديد) - داخل إعدادات الترس -->
+                <button class="transfer-sub-btn" onclick="window.location.href='hamzavip.html'" style="margin-bottom: 4px;">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>
+                    </svg>
+                    <div class="transfer-text-block">
+                        <span class="transfer-main-label">🔄 نقل الاشتراك لجهاز آخر</span>
+                        <span class="transfer-sub-label">من جهاز قديم إلى جهاز جديد</span>
+                    </div>
+                </button>
 
                 <div class="account-support-buttons">
                     <a href="https://yasmenjasm2-sketch.github.io/fawakihAI2/jmal.html" target="_blank" class="support-action-btn support-tech">
