@@ -14,6 +14,8 @@ YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1)
 
 - رفع مستوى العشوائية (خلط أقوى + ضجيج أعلى + Entropy Injection)
 
+- 🆕 إضافة طبقة Pre-Send Swap: تدقيق وتبديل التوقع قبل إرساله للواجهة
+
 ============================================================================
 
 */
@@ -29,9 +31,17 @@ const fruitNameToIdMap = {
 };
 
 // 2. ثوابت الخوارزمية (قابلة للتعديل من مكان واحد)
-const AI1_MEMORY_SIZE = 10;     // ← كان 7 (تم رفعه إلى 10)
-const AI1_SHUFFLE_PASSES = 5;    // ← كان 3 (خلط أقوى)
-const AI1_NOISE_FACTOR = 12;     // ← كان 7 (ضجيج عشوائي أعلى)
+const AI1_MEMORY_SIZE = 10;         // ← كان 7 (تم رفعه إلى 10)
+const AI1_SHUFFLE_PASSES = 5;        // ← كان 3 (خلط أقوى)
+const AI1_NOISE_FACTOR = 12;         // ← كان 7 (ضجيج عشوائي أعلى)
+
+// 🆕 ثوابت طبقة Pre-Send Swap
+const AI1_PRESEND_ENABLED = true;         // تفعيل/تعطيل الطبقة كلياً
+const AI1_PRESEND_PASSES = 2;             // عدد دورات التدقيق (passes)
+const AI1_PRESEND_SWAP_CHANCE = 0.35;     // فرصة الاستبدال عند وجود بديل أفضل (35%)
+const AI1_PRESEND_WEIGHT_THRESHOLD = 1.05;// البديل يجب أن يكون أعلى بوزن 5% على الأقل
+const AI1_PRESEND_MAX_SWAPS = 3;          // حد أقصى للاستبدالات في الجلسة الواحدة
+const AI1_DEBUG_SWAP = false;             // طباعة تفاصيل الاستبدال في الكونسول
 
 // 3. متغيرات الذاكرة ونظام التعلم
 let ai1History = []; // الذاكرة قصيرة المدى (تتسع لآخر 10 عناصر)
@@ -220,8 +230,9 @@ return lotteryPool[Math.min(randomOffset, lotteryPool.length - 1)];
 
 // ============================================================
 // 10. بناء كائن التوقع النهائي (مع بيانات مرتبطة بالخوارزمية)
+// swappedFrom: اختياري — يُملأ عند حدوث تبديل في طبقة Pre-Send
 // ============================================================
-function buildPrediction(pick, category) {
+function buildPrediction(pick, category, swappedFrom) {
 let w = (pick && pick.weight) ? pick.weight : 1;
 let slot = pick.slot;
 
@@ -240,14 +251,113 @@ weight: w,
 confidence: confidence,
 score: score,
 minority: minority,
-category: category // 'SMALL' أو 'BIG'
+category: category,              // 'SMALL' أو 'BIG'
+swappedFrom: swappedFrom || null // 🆕 معرف الفاكهة التي تم استبدالها (إن وجد)
 };
 }
 
 // ============================================================
-// 11. توليد 5 توقعات:
+// 11. 🆕 طبقة Pre-Send Swap
+// تدقيق النتيجة قبل إرسالها للواجهة ومحاولة تبديل أي فاكهة
+// ببديل أفضل وزناً من نفس فئتها (SMALL / BIG).
+// - لا تكسر العدد النهائي (5 فواكه دائماً).
+// - تحترم حد أقصى للاستبدالات (AI1_PRESEND_MAX_SWAPS).
+// - تحتفظ بأثر التبديل في swappedFrom.
+// ============================================================
+function preSendSwap(predictions, slots, previousSelection) {
+if (!AI1_PRESEND_ENABLED) return predictions;
+if (!Array.isArray(predictions) || predictions.length === 0) return predictions;
+if (!Array.isArray(slots) || slots.length === 0) return predictions;
+
+// نسخة عمل مستقلة (حتى لا نلمس الأصل قبل القرار النهائي)
+let working = predictions.map(p => ({ ...p }));
+let totalSwaps = 0;
+let swapLog = [];
+
+for (let pass = 0; pass < AI1_PRESEND_PASSES; pass++) {
+if (totalSwaps >= AI1_PRESEND_MAX_SWAPS) break;
+
+for (let i = 0; i < working.length; i++) {
+if (totalSwaps >= AI1_PRESEND_MAX_SWAPS) break;
+
+let current = working[i];
+let isSmall = SMALL_FRUIT_IDS.includes(current.id);
+let poolIds = isSmall ? SMALL_FRUIT_IDS : BIG_FRUIT_IDS;
+
+// مرشحو البديل: من نفس الفئة + غير مستخدمين حالياً في التوقع
+let usedIds = new Set(working.map(p => p.id));
+let candidates = slots.filter(s =>
+poolIds.includes(s.id) && !usedIds.has(s.id) && s.id !== current.id
+);
+
+if (candidates.length === 0) continue;
+
+// حساب أوزان البدائل واختيار الأفضل
+let scored = candidates.map(s => ({
+slot: s,
+weight: calculateFruitWeight(s, previousSelection)
+})).sort((a, b) => b.weight - a.weight);
+
+let best = scored[0];
+let currentWeight = current.weight || 1;
+
+// شرط الاستبدال: البديل أعلى بوزن كافٍ + فرصة عشوائية
+let isBetter = best.weight >= currentWeight * AI1_PRESEND_WEIGHT_THRESHOLD;
+let roll = Math.random() < AI1_PRESEND_SWAP_CHANCE;
+
+if (isBetter && roll) {
+let replacedId = current.id;
+let newPred = buildPrediction(
+{ slot: best.slot, weight: best.weight },
+current.category,
+replacedId // 🆕 نسجل من تم استبداله
+);
+working[i] = newPred;
+totalSwaps++;
+swapLog.push({
+pass: pass + 1,
+from: replacedId,
+to: best.slot.id,
+oldWeight: currentWeight,
+newWeight: best.weight
+});
+}
+}
+}
+
+if (AI1_DEBUG_SWAP && swapLog.length > 0) {
+console.group("🔁 AI1 Pre-Send Swap Log");
+swapLog.forEach(s => {
+console.log(`Pass ${s.pass}: ${s.from} ➜ ${s.to} (${s.oldWeight} ➜ ${s.newWeight})`);
+});
+console.log(`Total swaps: ${totalSwaps}`);
+console.groupEnd();
+}
+
+// نُرفق سجل التبديل على المصفوفة كخاصية غير قابلة للتعداد (لا تكسر JSON.stringify)
+try {
+Object.defineProperty(working, "_swapLog", {
+value: swapLog,
+enumerable: false,
+configurable: true,
+writable: false
+});
+Object.defineProperty(working, "_totalSwaps", {
+value: totalSwaps,
+enumerable: false,
+configurable: true,
+writable: false
+});
+} catch (e) { /* بيئات لا تدعم defineProperty — تجاهل بهدوء */ }
+
+return working;
+}
+
+// ============================================================
+// 12. توليد 5 توقعات:
 // 3 خانات لفواكه صغيرة (مواقع 1,2,3)
 // 2 خانات لفواكه كبيرة (مواقع 4,5) — الخامسة هي المميزة بالأحمر
+// + استدعاء preSendSwap قبل الإرجاع النهائي
 // ============================================================
 function generatePrediction(slots, previousSelection) {
 try {
@@ -314,20 +424,95 @@ if (result.length !== 5) {
 throw new Error("فشل استخراج 5 توقعات.");
 }
 
+// 🆕 طبقة التدقيق قبل التسليم للواجهة
+let finalResult = preSendSwap(result, slots, previousSelection);
+
+// تحقق أمان: العدد يجب أن يبقى 5 وبدون تكرار
+if (finalResult.length !== 5 || new Set(finalResult.map(p => p.id)).size !== 5) {
+// في حال حدوث خلل نظري، نرجع الخام
 return result;
+}
+
+return finalResult;
+
 } catch (error) {
 console.error("خطأ في الخوارزمية الأولى:", error.message);
 return null;
 }
 }
 
-// 12. وظائف إضافية لإدارة السجل والإحصائيات
+// ============================================================
+// 12.1 🆕 نسخة خام (بدون Pre-Send Swap) — للمقارنة/الاختبار
+// ============================================================
+function generatePredictionRaw(slots, previousSelection) {
+try {
+if (!slots || slots.length === 0) {
+throw new Error("بيانات الفواكه مفقودة.");
+}
+
+if (previousSelection && previousSelection.length > 0) {
+updateAIMemory(previousSelection);
+}
+
+let smallPool = slots.filter(s => SMALL_FRUIT_IDS.includes(s.id));
+let bigPool = slots.filter(s => BIG_FRUIT_IDS.includes(s.id));
+
+if (smallPool.length < 3) throw new Error("عدد الفواكه الصغيرة غير كافٍ.");
+if (bigPool.length < 2) throw new Error("عدد الفواكه الكبيرة غير كافٍ.");
+
+let result = [];
+let usedIds = new Set();
+let smallRemaining = [...smallPool];
+let bigRemaining = [...bigPool];
+
+for (let i = 0; i < 3; i++) {
+let pick = pickWeightedFromPool(smallRemaining, previousSelection);
+if (pick && !usedIds.has(pick.slot.id)) {
+result.push(buildPrediction(pick, 'SMALL'));
+usedIds.add(pick.slot.id);
+smallRemaining = smallRemaining.filter(s => s.id !== pick.slot.id);
+} else {
+let avail = smallRemaining.filter(s => !usedIds.has(s.id));
+if (avail.length === 0) break;
+let s = avail[Math.floor(Math.random() * avail.length)];
+result.push(buildPrediction({ slot: s, weight: 1 }, 'SMALL'));
+usedIds.add(s.id);
+smallRemaining = smallRemaining.filter(x => x.id !== s.id);
+}
+}
+
+for (let i = 0; i < 2; i++) {
+let pick = pickWeightedFromPool(bigRemaining, previousSelection);
+if (pick && !usedIds.has(pick.slot.id)) {
+result.push(buildPrediction(pick, 'BIG'));
+usedIds.add(pick.slot.id);
+bigRemaining = bigRemaining.filter(s => s.id !== pick.slot.id);
+} else {
+let avail = bigRemaining.filter(s => !usedIds.has(s.id));
+if (avail.length === 0) break;
+let s = avail[Math.floor(Math.random() * avail.length)];
+result.push(buildPrediction({ slot: s, weight: 1 }, 'BIG'));
+usedIds.add(s.id);
+bigRemaining = bigRemaining.filter(x => x.id !== s.id);
+}
+}
+
+if (result.length !== 5) throw new Error("فشل استخراج 5 توقعات.");
+return result;
+
+} catch (error) {
+console.error("خطأ في الخوارزمية الأولى (Raw):", error.message);
+return null;
+}
+}
+
+// 13. وظائف إضافية لإدارة السجل والإحصائيات
 function getLearningStats() {
 return {
 totalTrained: totalTrained,
 perFruit: { ...learningBoost },
 memorySize: ai1History.length,
-memoryCapacity: AI1_MEMORY_SIZE, // ← جديد: توضيح السعة
+memoryCapacity: AI1_MEMORY_SIZE,
 logSize: trainedFruitsLog.length
 };
 }
