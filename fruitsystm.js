@@ -104,62 +104,62 @@ totalTrained: totalTrained
 }; 
 }
 
-// 7. حساب الأوزان لكل فاكهة بناءً على المعايير الخوارزمية (مع رفع مستوى العشوائية باحترافية)
+// 7. حساب الأوزان لكل فاكهة بتفكير تحليلي وتوزيع عشوائي ذكي ومتوازن (Smart Distributed Weighting)
 function calculateFruitWeight(slot, previousSelection) {
 let slotId = slot.id;
 
-// الوزن الأساسي العشوائي البسيط (تم رفعه لمدى أوسع بين 1 و 10 لزيادة الديناميكية)
-let weight = Math.floor(Math.random() * 10) + 1; 
+// الأساس التحليلي الثابت لبدء تقييم الوزن بدقة
+let baseScore = 10; 
 
-// إضافة وزن خاصية التعلم 
+// إضافة وزن خاصية التعلم (تعزيز تحليلي قوي)
 let trainBoost = learningBoost[slotId] || 0; 
-weight += trainBoost * 5; 
+baseScore += trainBoost * 8; 
 
 // إضافة وزن التكرار داخل الذاكرة قصيرة المدى 
 let count = ai1Occurrences[slotId] || 0; 
-weight += count * 3; 
+baseScore += count * 4; 
 
-// تسلسل انتقال ماركوف 
+// تسلسل انتقال ماركوف التحليلي
+let markovMatch = 0;
 if (ai1History.length >= 2) { 
 let lastWinner = ai1History[ai1History.length - 1]; 
 for (let i = 0; i < ai1History.length - 1; i++) { 
 if (ai1History[i] === lastWinner && ai1History[i + 1] === slotId) { 
-weight += 4; 
+markovMatch += 6; 
 break; 
 } 
 } 
 } 
+baseScore += markovMatch;
 
-// مكافأة التنوع 
+// مكافأة التنوع الديناميكي 
 let lastThree = ai1History.slice(-3); 
 if (!lastThree.includes(slotId)) { 
-weight += 3; 
+baseScore += 5; 
 } 
 
 // ============================================================ 
-// 🔻 تقليل ظهور الكرز(4) والبطيخ(6) — تخفيض قوي 70% (حد أدنى 1) 
+// 🔻 تقليل ظهور الكرز(4) والبطيخ(6) — تخفيض قوي 70% 
 // ============================================================ 
 if (slotId === 4 || slotId === 6) { 
-weight = Math.max(1, Math.floor(weight * 0.3)); 
+baseScore = Math.floor(baseScore * 0.3); 
 } 
 
 // ============================================================ 
-// ⚠️ إصلاح مشكلة "الجمود": بدل تصفير أوزان 7 و8 عند ظهورها، 
-// نقوم فقط بتخفيضها 50% (حد أدنى 1) — يمنع إجبار الخوارزمية 
-// على اختيار الكرز/البطيخ لتجنب التكرار. 
+// ⚠️ تجنب الجمود للمانجو(7) والفراولة(8) عند التكرار الفوري (تخفيض 50%)
 // ============================================================ 
 let prevIds = previousSelection || []; 
 if ((slotId === 7 || slotId === 8) && prevIds.includes(slotId)) { 
-weight = Math.max(1, Math.floor(weight * 0.5)); 
+baseScore = Math.floor(baseScore * 0.5); 
 } 
 
-// 🎲 تقوية العشوائية: رفع معامل الضجيج العشوائي بشكل احترافي (من 7 إلى 16) لإعطاء تنوع ومرونة أكبر للتخمين
-weight += Math.random() * 16; 
+// 🎲 توزيع عشوائي ذكي (Smart Stochastic Distribution Factor)
+// معامل تشتت عشوائي نسبي يتراوح بين 0.75 و 1.25 (تذبذب ذكي يحافظ على منطق الأوزان ولا يلغيها)
+let stochasticMultiplier = 0.75 + (Math.random() * 0.5); 
+let finalWeight = Math.round(baseScore * stochasticMultiplier);
 
-// سقف وحد أدنى جديد ومناسب للمدى المحسن (تم رفع السقف إلى 60 لتناسب زيادة العشوائية والذاكرة)
-weight = Math.min(weight, 60); 
-
-return Math.max(1, Math.round(weight)); 
+// سقف وحد أدنى للوزن النهائي لضمان الاستقرار والتوزيع العادل
+return Math.min(65, Math.max(1, finalWeight)); 
 }
 
 // ============================================================
