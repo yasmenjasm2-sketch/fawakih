@@ -1,22 +1,14 @@
 /**
  * ============================================================================
- * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - JAVA AI1 EXACT MIRROR
+ * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - JAVA AI1 MIRROR [FIXED+STRONG]
  * ============================================================================
- * الخوارزمية الأولى (AI1) مطابقة حرفياً لـ Java:
- *  - الوزن الابتدائي العشوائي لكل فاكهة: rand.nextInt(8) + 1  (1-8)
- *  - استثناء الكرز(4) والبطيخ(6): الوزن ÷ 2 عند التكرار
- *  - معادلة الوزن لكل فاكهة في التاريخ:
- *      newWeight = currentWeight
- *                + pureRandomFactor      (rand.nextInt(12) + 2)
- *                + smartBoost            (count × (rand.nextInt(5) + 2))
- *                + sequenceBoost         (+ (rand.nextInt(6) + 2) لكل تطابق ماركوف)
- *                + shuffleDistributionBonus (في الجولة: -(rand.nextInt(4)+1) | خارجها: +(rand.nextInt(10)+4))
- *  - الحد الأدنى: rand.nextInt(3) + 1 إذا نزل تحت 1
- *  - عقوبة الفراولة(8)/المانجو(7) عند التكرار الفوري: rand.nextInt(2) = 0 أو 1
- *  - السقف الأقصى: 45
- *  - كسر النمط: وزن آخر فاكهة × 0.7 (بحد أدنى 1) إذا التاريخ ≥ 3
- *  - ذاكرة قصيرة المدى: 7 سجلات (مطابقة لجافا)
- *  - السحب المرجّح: strongShuffle + اختيار أول فريد
+ * الإصلاح الجذري لمشكلة "التوقع المعاكس" (نفس مشكلة ملف الجافا):
+ *  - حُذف smartBoost نهائياً (كان يرفع وزن الفواكه المتكررة — سبب المشكلة)
+ *  - أُضيفت عقوبة حداثة قوية للفاكهة الأخيرة وقبل الأخيرة وما قبل ذلك
+ *  - أُضيفت مكافأة قوية للفواكه غير الموجودة في الجولة السابقة
+ *  - أُضيفت مكافأة للفواكه التي لم تظهر أبداً (كانت مهملة تماماً سابقاً)
+ *  - تم إبقاء sequenceBoost لأنه يكشف أنماطاً حقيقية (Markov)
+ *  - تم تقليل الفوضى العشوائية لصالح المنطق الذكي
  * ============================================================================
  * المخرجات: 5 توقعات (3 فواكه صغيرة + 2 فواكه كبيرة) - الخامسة مميزة بالأحمر
  * ============================================================================
@@ -32,17 +24,15 @@ const fruitNameToIdMap = {
     'تفاحة': 5, 'بطيخة': 6, 'مانجة': 7, 'فراوله': 8
 };
 
-// 2. متغيرات الذاكرة ونظام التعلم (حجم الذاكرة = 7 سجلات كما في Java AI1)
+// 2. متغيرات الذاكرة ونظام التعلم (حجم الذاكرة = 7 سجلات)
 let ai1History = [];              // الذاكرة قصيرة المدى (آخر 7 عناصر)
 let ai1Occurrences = {};          // تكرارات الفواكه داخل الذاكرة
-let learningBoost = {};           // يُتتبَّع للـ API (لا يدخل في حساب الوزن - مطابقة جافا)
+let learningBoost = {};           // يُتتبَّع للـ API (لا يدخل في حساب الوزن)
 let totalTrained = 0;             // عداد عمليات التدريب
 let trainedFruitsLog = [];        // سجل التدريب
 
 // ============================================================
 // 3. تصنيف الفواكه: صغيرة (SMALL) وكبيرة (BIG)
-//    الصغيرة: برتقال(1), ليمون(2), عنب(3), تفاح(5)
-//    الكبيرة: كرز(4), بطيخ(6), مانجو(7), فراولة(8)
 // ============================================================
 const SMALL_FRUIT_IDS = [1, 2, 3, 5];
 const BIG_FRUIT_IDS = [4, 6, 7, 8];
@@ -77,7 +67,7 @@ function normalizeSelection(sel) {
     return sel.map(x => Number(x)).filter(x => !isNaN(x));
 }
 
-// 5. تحديث الذاكرة قصيرة المدى (7 سجلات - مطابقة لجافا)
+// 5. تحديث الذاكرة قصيرة المدى (7 سجلات)
 function updateAIMemory(winningIds) {
     if (!winningIds || winningIds.length === 0) return;
     winningIds.forEach(id => {
@@ -96,7 +86,7 @@ function updateAIMemory(winningIds) {
     });
 }
 
-// 6. خاصية التعلم (Train Algorithm) - تحدّث الذاكرة كما في جافا
+// 6. خاصية التعلم (Train Algorithm)
 function trainAlgorithm(fruitName) {
     if (!fruitName || typeof fruitName !== 'string') return false;
 
@@ -131,13 +121,13 @@ function trainAlgorithm(fruitName) {
 }
 
 // ============================================================
-// 7. حساب أوزان كل الفواكه — مطابقة حرفية لـ Java AI1
+// 7. حساب أوزان كل الفواكه — الخوارزمية المُصلحة والأقوى
 // ============================================================
 function calculateAllFruitWeights(slots, previousSelection) {
     let predictionWeights = {};
     let prevSel = normalizeSelection(previousSelection);
 
-    // الخطوة 1: وزن ابتدائي عشوائي 1-8 لكل الفواكه (Java AI1)
+    // الخطوة 1: وزن ابتدائي عشوائي 1-8 لكل الفواكه
     slots.forEach(slot => {
         predictionWeights[slot.id] = nextInt(8) + 1;
     });
@@ -150,7 +140,7 @@ function calculateAllFruitWeights(slots, previousSelection) {
         predictionWeights[6] = Math.max(1, Math.floor(predictionWeights[6] / 2));
     }
 
-    // الخطوة 3: تطبيق معادلة Java AI1 على كل فاكهة موجودة في التاريخ
+    // الخطوة 3: معادلة AI1 المُصلحة والأقوى على كل فاكهة في التاريخ
     for (let fruitIdStr in ai1Occurrences) {
         let fruitId = Number(fruitIdStr);
         let count = ai1Occurrences[fruitIdStr];
@@ -159,33 +149,50 @@ function calculateAllFruitWeights(slots, previousSelection) {
 
         let currentWeight = predictionWeights[fruitId];
 
-        // 1. عامل عشوائي بحت: 2 إلى 13
-        let pureRandomFactor = nextInt(12) + 2;
+        // 1. عامل عشوائي بحت: 3 إلى 11 (فوضى أقل = منطق أقوى)
+        let pureRandomFactor = nextInt(9) + 3;
 
-        // 2. تعزيز ذكي: count × (2 إلى 6)
-        let smartBoost = count * (nextInt(5) + 2);
+        // 2. [أُلغي] smartBoost — كان يرفع وزن الفواكه المتكررة (سبب التوقع المعاكس)
 
-        // 3. تعزيز التسلسل الانتقالي (Markov)
+        // 3. تعزيز التسلسل الانتقالي (Markov) — يكشف أنماطاً حقيقية فقط
         let sequenceBoost = 0;
         if (ai1History.length > 0) {
             let lastFruitInHistory = ai1History[ai1History.length - 1];
             for (let i = 0; i < ai1History.length - 1; i++) {
                 if (ai1History[i] === lastFruitInHistory && ai1History[i + 1] === fruitId) {
-                    sequenceBoost += nextInt(6) + 2;
+                    sequenceBoost += nextInt(4) + 2;
                 }
             }
         }
 
-        // 4. مكافأة/عقوبة توزيع الخلط
+        // 4. توزيع المكافأة/العقوبة حسب "حداثة الظهور" (معززة بشكل كبير)
         let inPrev = prevSel.includes(fruitId);
         let shuffleDistributionBonus;
         if (!inPrev) {
-            shuffleDistributionBonus = nextInt(10) + 4;   // 4 إلى 13
+            shuffleDistributionBonus = nextInt(18) + 8;    // +8 إلى +25
         } else {
-            shuffleDistributionBonus = -(nextInt(4) + 1); // -4 إلى -1
+            shuffleDistributionBonus = -(nextInt(10) + 4); // -13 إلى -4
         }
 
-        let newWeight = currentWeight + pureRandomFactor + smartBoost + sequenceBoost + shuffleDistributionBonus;
+        // 5. عقوبة الحداثة (Recent Penalty) — قلب الإصلاح الجذري
+        let recentPenalty = 0;
+        let hs = ai1History.length;
+        if (hs >= 1 && ai1History[hs - 1] === fruitId) {
+            recentPenalty -= (nextInt(12) + 8);   // -19 إلى -8 للفاكهة الأخيرة (قوية جداً)
+        }
+        if (hs >= 2 && ai1History[hs - 2] === fruitId) {
+            recentPenalty -= (nextInt(8) + 4);    // -11 إلى -4 لما قبل الأخيرة
+        }
+        if (hs >= 3 && ai1History[hs - 3] === fruitId) {
+            recentPenalty -= (nextInt(5) + 2);    // -6 إلى -2 لما قبل ذلك
+        }
+
+        // 6. تلميح التكرار الكلي — الفواكه المكررة كثيراً تُخفَّض
+        let frequencyHint = 0;
+        if (count >= 5) frequencyHint = -3;
+        else if (count >= 3) frequencyHint = -1;
+
+        let newWeight = currentWeight + pureRandomFactor + sequenceBoost + shuffleDistributionBonus + recentPenalty + frequencyHint;
 
         // الحد الأدنى (إذا نزل تحت 1)
         if (newWeight < 1) {
@@ -203,7 +210,15 @@ function calculateAllFruitWeights(slots, previousSelection) {
         predictionWeights[fruitId] = newWeight;
     }
 
-    // الخطوة 4: كسر النمط — وزن آخر فاكهة مُدخلة × 0.7 (بحد أدنى 1)
+    // الخطوة 3.5: مكافأة الفواكه التي لم تظهر أبداً (كانت مهملة تماماً في النسخة القديمة)
+    // هذه الفواكه "مستحقة" للظهور لأن اللعبة تميل للتنويع
+    for (let slot of slots) {
+        if (ai1Occurrences[slot.id] === undefined && !prevSel.includes(slot.id)) {
+            predictionWeights[slot.id] = (predictionWeights[slot.id] || 1) + 5;
+        }
+    }
+
+    // الخطوة 4: كسر النمط — وزن آخر فاكهة × 0.7 (بحد أدنى 1)
     if (ai1History.length >= 3) {
         let lastInserted = ai1History[ai1History.length - 1];
         if (predictionWeights[lastInserted] !== undefined) {
@@ -215,7 +230,7 @@ function calculateAllFruitWeights(slots, previousSelection) {
     return predictionWeights;
 }
 
-// 8. السحب المرجّح — مطابق لـ Java AI1 (Collections.shuffle + اختيار أول فريد)
+// 8. السحب المرجّح — مطابق للنسخة الأصلية
 function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
     let available = pool.filter(s => !usedIds.has(s.id));
     if (available.length < count) {
@@ -236,7 +251,7 @@ function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
         return shuffled.slice(0, count);
     }
 
-    // خلط قوي ثم اختيار أول فريد (مطابق لجافا)
+    // خلط قوي ثم اختيار أول فريد
     lotteryPool = strongShuffle(lotteryPool, 3);
 
     let picked = [];
@@ -274,7 +289,7 @@ function buildPrediction(pick, category) {
 }
 
 // ============================================================
-// 10. توليد 5 توقعات (3 صغيرة + 2 كبيرة) بأوزان Java AI1
+// 10. توليد 5 توقعات (3 صغيرة + 2 كبيرة)
 // ============================================================
 function generatePrediction(slots, previousSelection) {
     try {
@@ -297,7 +312,7 @@ function generatePrediction(slots, previousSelection) {
             throw new Error("عدد الفواكه الكبيرة غير كافٍ (يجب 2 على الأقل).");
         }
 
-        // حساب الأوزان — مطابقة حرفية لـ Java AI1
+        // حساب الأوزان — الخوارزمية المُصلحة والأقوى
         let predictionWeights = calculateAllFruitWeights(slots, previousSelection);
 
         let result = [];
@@ -330,7 +345,7 @@ function generatePrediction(slots, previousSelection) {
     }
 }
 
-// 11. وظائف إضافية لإدارة السجل والإحصائيات (نفس الـ API الأصلي)
+// 11. وظائف إضافية لإدارة السجل والإحصائيات
 function getLearningStats() {
     return {
         totalTrained: totalTrained,
