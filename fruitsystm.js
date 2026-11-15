@@ -1,18 +1,32 @@
 /**
  * ============================================================================
- * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - JAVA AI1 MIRROR [FIXED+STRONG]
+ * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - [INVERSION MODE]
  * ============================================================================
- * الإصلاح الجذري لمشكلة "التوقع المعاكس" (نفس مشكلة ملف الجافا):
- *  - حُذف smartBoost نهائياً (كان يرفع وزن الفواكه المتكررة — سبب المشكلة)
- *  - أُضيفت عقوبة حداثة قوية للفاكهة الأخيرة وقبل الأخيرة وما قبل ذلك
- *  - أُضيفت مكافأة قوية للفواكه غير الموجودة في الجولة السابقة
- *  - أُضيفت مكافأة للفواكه التي لم تظهر أبداً (كانت مهملة تماماً سابقاً)
- *  - تم إبقاء sequenceBoost لأنه يكشف أنماطاً حقيقية (Markov)
- *  - تم تقليل الفوضى العشوائية لصالح المنطق الذكي
+ * 🔥 الفكرة البرمجية الجديدة: قلب التوقع (Prediction Inversion)
+ * 
+ * المشكلة التي كانت تحدث:
+ *  - الخوارزمية كانت تعطي "ما يبدو الأكثر احتمالاً" حسب نمط اللعبة
+ *  - لكن يلا لايف تعرض دائماً "العكس" — أي الفاكهة التي يتوقعها اللاعب الأقل
+ *  - النتيجة: توقع معاكس بشكل مزمن
+ *
+ * الحل الجذري:
+ *  - تُحسب الأوزان بالخوارزمية الأصلية (لا تغيير على المنطق الأساسي)
+ *  - ثم تُقلَب النسب: الوزن الأعلى يصبح الأدنى، والأدنى يصبح الأعلى
+ *  - فيصبح اختيارنا = "الفاكهة الأقل احتمالاً في نظر AI" 
+ *    = "الفاكهة الأكثر احتمالاً عند يلا لايف" ✅
+ *
+ * التحكم: يمكن تعطيل القلب من خلال تعيين INVERT_PREDICTION_MODE = false
  * ============================================================================
  * المخرجات: 5 توقعات (3 فواكه صغيرة + 2 فواكه كبيرة) - الخامسة مميزة بالأحمر
  * ============================================================================
  */
+
+// ============================================================
+// ⚙️ الإعدادات الرئيسية
+// ============================================================
+const INVERT_PREDICTION_MODE = true; // 🔥 مفتاح القلب — اجعله false للعودة للوضع الطبيعي
+const MAX_WEIGHT_CAP = 45;
+const MIN_WEIGHT_FLOOR = 1;
 
 // 1. قاموس ربط أسماء الفواكه بالأرقام التعريفية (عربي + إنجليزي + اختصارات)
 const fruitNameToIdMap = {
@@ -25,15 +39,13 @@ const fruitNameToIdMap = {
 };
 
 // 2. متغيرات الذاكرة ونظام التعلم (حجم الذاكرة = 7 سجلات)
-let ai1History = [];              // الذاكرة قصيرة المدى (آخر 7 عناصر)
-let ai1Occurrences = {};          // تكرارات الفواكه داخل الذاكرة
-let learningBoost = {};           // يُتتبَّع للـ API (لا يدخل في حساب الوزن)
-let totalTrained = 0;             // عداد عمليات التدريب
-let trainedFruitsLog = [];        // سجل التدريب
+let ai1History = [];
+let ai1Occurrences = {};
+let learningBoost = {};
+let totalTrained = 0;
+let trainedFruitsLog = [];
 
-// ============================================================
-// 3. تصنيف الفواكه: صغيرة (SMALL) وكبيرة (BIG)
-// ============================================================
+// 3. تصنيف الفواكه
 const SMALL_FRUIT_IDS = [1, 2, 3, 5];
 const BIG_FRUIT_IDS = [4, 6, 7, 8];
 
@@ -47,7 +59,6 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// خلط قوي متعدد المرات
 function strongShuffle(array, passes = 3) {
     let result = [...array];
     for (let p = 0; p < passes; p++) {
@@ -56,12 +67,10 @@ function strongShuffle(array, passes = 3) {
     return result;
 }
 
-// محاكاة rand.nextInt(max) من جافا
 function nextInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-// تطبيع previousSelection إلى أرقام
 function normalizeSelection(sel) {
     if (!sel || !Array.isArray(sel)) return [];
     return sel.map(x => Number(x)).filter(x => !isNaN(x));
@@ -86,7 +95,7 @@ function updateAIMemory(winningIds) {
     });
 }
 
-// 6. خاصية التعلم (Train Algorithm)
+// 6. خاصية التعلم
 function trainAlgorithm(fruitName) {
     if (!fruitName || typeof fruitName !== 'string') return false;
 
@@ -121,18 +130,18 @@ function trainAlgorithm(fruitName) {
 }
 
 // ============================================================
-// 7. حساب أوزان كل الفواكه — الخوارزمية المُصلحة والأقوى
+// 7. حساب أوزان كل الفواكه (المنطق الأصلي — لا تغيير)
 // ============================================================
 function calculateAllFruitWeights(slots, previousSelection) {
     let predictionWeights = {};
     let prevSel = normalizeSelection(previousSelection);
 
-    // الخطوة 1: وزن ابتدائي عشوائي 1-8 لكل الفواكه
+    // وزن ابتدائي عشوائي 1-8
     slots.forEach(slot => {
         predictionWeights[slot.id] = nextInt(8) + 1;
     });
 
-    // الخطوة 2: استثناء الكرز(4) والبطيخ(6) — الوزن ÷ 2 عند التكرار
+    // استثناء الكرز(4) والبطيخ(6)
     if (prevSel.includes(4) && predictionWeights[4] !== undefined) {
         predictionWeights[4] = Math.max(1, Math.floor(predictionWeights[4] / 2));
     }
@@ -140,7 +149,7 @@ function calculateAllFruitWeights(slots, previousSelection) {
         predictionWeights[6] = Math.max(1, Math.floor(predictionWeights[6] / 2));
     }
 
-    // الخطوة 3: معادلة AI1 المُصلحة والأقوى على كل فاكهة في التاريخ
+    // المعادلة الأساسية
     for (let fruitIdStr in ai1Occurrences) {
         let fruitId = Number(fruitIdStr);
         let count = ai1Occurrences[fruitIdStr];
@@ -149,12 +158,9 @@ function calculateAllFruitWeights(slots, previousSelection) {
 
         let currentWeight = predictionWeights[fruitId];
 
-        // 1. عامل عشوائي بحت: 3 إلى 11 (فوضى أقل = منطق أقوى)
         let pureRandomFactor = nextInt(9) + 3;
 
-        // 2. [أُلغي] smartBoost — كان يرفع وزن الفواكه المتكررة (سبب التوقع المعاكس)
-
-        // 3. تعزيز التسلسل الانتقالي (Markov) — يكشف أنماطاً حقيقية فقط
+        // sequenceBoost (Markov)
         let sequenceBoost = 0;
         if (ai1History.length > 0) {
             let lastFruitInHistory = ai1History[ai1History.length - 1];
@@ -165,60 +171,56 @@ function calculateAllFruitWeights(slots, previousSelection) {
             }
         }
 
-        // 4. توزيع المكافأة/العقوبة حسب "حداثة الظهور" (معززة بشكل كبير)
+        // shuffleDistributionBonus
         let inPrev = prevSel.includes(fruitId);
         let shuffleDistributionBonus;
         if (!inPrev) {
-            shuffleDistributionBonus = nextInt(18) + 8;    // +8 إلى +25
+            shuffleDistributionBonus = nextInt(18) + 8;
         } else {
-            shuffleDistributionBonus = -(nextInt(10) + 4); // -13 إلى -4
+            shuffleDistributionBonus = -(nextInt(10) + 4);
         }
 
-        // 5. عقوبة الحداثة (Recent Penalty) — قلب الإصلاح الجذري
+        // عقوبة الحداثة
         let recentPenalty = 0;
         let hs = ai1History.length;
         if (hs >= 1 && ai1History[hs - 1] === fruitId) {
-            recentPenalty -= (nextInt(12) + 8);   // -19 إلى -8 للفاكهة الأخيرة (قوية جداً)
+            recentPenalty -= (nextInt(12) + 8);
         }
         if (hs >= 2 && ai1History[hs - 2] === fruitId) {
-            recentPenalty -= (nextInt(8) + 4);    // -11 إلى -4 لما قبل الأخيرة
+            recentPenalty -= (nextInt(8) + 4);
         }
         if (hs >= 3 && ai1History[hs - 3] === fruitId) {
-            recentPenalty -= (nextInt(5) + 2);    // -6 إلى -2 لما قبل ذلك
+            recentPenalty -= (nextInt(5) + 2);
         }
 
-        // 6. تلميح التكرار الكلي — الفواكه المكررة كثيراً تُخفَّض
+        // frequencyHint
         let frequencyHint = 0;
         if (count >= 5) frequencyHint = -3;
         else if (count >= 3) frequencyHint = -1;
 
         let newWeight = currentWeight + pureRandomFactor + sequenceBoost + shuffleDistributionBonus + recentPenalty + frequencyHint;
 
-        // الحد الأدنى (إذا نزل تحت 1)
         if (newWeight < 1) {
             newWeight = nextInt(3) + 1;
         }
 
-        // عقوبة الفراولة(8)/المانجو(7) عند التكرار الفوري (0 أو 1)
         if ((fruitId === 8 || fruitId === 7) && inPrev) {
             newWeight = nextInt(2);
         }
 
-        // السقف الأقصى
-        newWeight = Math.min(newWeight, 45);
+        newWeight = Math.min(newWeight, MAX_WEIGHT_CAP);
 
         predictionWeights[fruitId] = newWeight;
     }
 
-    // الخطوة 3.5: مكافأة الفواكه التي لم تظهر أبداً (كانت مهملة تماماً في النسخة القديمة)
-    // هذه الفواكه "مستحقة" للظهور لأن اللعبة تميل للتنويع
+    // مكافأة الفواكه التي لم تظهر أبداً
     for (let slot of slots) {
         if (ai1Occurrences[slot.id] === undefined && !prevSel.includes(slot.id)) {
             predictionWeights[slot.id] = (predictionWeights[slot.id] || 1) + 5;
         }
     }
 
-    // الخطوة 4: كسر النمط — وزن آخر فاكهة × 0.7 (بحد أدنى 1)
+    // كسر النمط
     if (ai1History.length >= 3) {
         let lastInserted = ai1History[ai1History.length - 1];
         if (predictionWeights[lastInserted] !== undefined) {
@@ -230,14 +232,47 @@ function calculateAllFruitWeights(slots, previousSelection) {
     return predictionWeights;
 }
 
-// 8. السحب المرجّح — مطابق للنسخة الأصلية
+// ============================================================
+// 🔥 7.5. دالة القلب — الفكرة البرمجية الجديدة
+// ============================================================
+/**
+ * قلب خريطة الأوزان بالكامل.
+ * الوزن الأعلى (الذي تظنه AI الأكثر احتمالاً) يصبح الأدنى،
+ * والوزن الأدنى يصبح الأعلى.
+ * 
+ * المنطق: يلا لايف تعرض دائماً عكس ما يتوقعه اللاعب الذكي،
+ * لذلك "أسوأ توقع" عند AI = "أفضل توقع" عند اللعبة.
+ * 
+ * @param {Object} weightsMap - خريطة الأوزان الأصلية {id: weight}
+ * @param {number} maxW - السقف الأعلى (45)
+ * @param {number} minW - الحد الأدنى (1)
+ * @returns {Object} - خريطة أوزان مقلوبة بنفس المفاتيح
+ */
+function invertWeightsMap(weightsMap, maxW = MAX_WEIGHT_CAP, minW = MIN_WEIGHT_FLOOR) {
+    let inverted = {};
+    for (let idStr in weightsMap) {
+        let originalWeight = weightsMap[idStr];
+
+        // تطبيق معادلة القلب: newW = (maxW + minW) - originalW
+        // مثال: 45 → 1،  1 → 45،  23 → 23
+        let flippedWeight = (maxW + minW) - originalWeight;
+
+        // ضمان البقاء ضمن الحدود
+        if (flippedWeight < minW) flippedWeight = minW;
+        if (flippedWeight > maxW) flippedWeight = maxW;
+
+        inverted[idStr] = flippedWeight;
+    }
+    return inverted;
+}
+
+// 8. السحب المرجّح
 function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
     let available = pool.filter(s => !usedIds.has(s.id));
     if (available.length < count) {
         return available;
     }
 
-    // بناء مجمع اليانصيب (تكرار كل فاكهة بعدد وزنها)
     let lotteryPool = [];
     available.forEach(slot => {
         let w = predictionWeights[slot.id] || 1;
@@ -251,7 +286,6 @@ function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
         return shuffled.slice(0, count);
     }
 
-    // خلط قوي ثم اختيار أول فريد
     lotteryPool = strongShuffle(lotteryPool, 3);
 
     let picked = [];
@@ -267,7 +301,7 @@ function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
     return picked;
 }
 
-// 9. بناء كائن التوقع النهائي
+// 9. بناء كائن التوقع
 function buildPrediction(pick, category) {
     let w = (pick && pick.weight) ? pick.weight : 1;
     let slot = pick.slot;
@@ -284,12 +318,13 @@ function buildPrediction(pick, category) {
         confidence: confidence,
         score: score,
         minority: minority,
-        category: category // 'SMALL' أو 'BIG'
+        category: category,
+        inverted: INVERT_PREDICTION_MODE // 🌟 علامة توضيحية
     };
 }
 
 // ============================================================
-// 10. توليد 5 توقعات (3 صغيرة + 2 كبيرة)
+// 10. توليد 5 توقعات (مع تطبيق القلب)
 // ============================================================
 function generatePrediction(slots, previousSelection) {
     try {
@@ -301,24 +336,29 @@ function generatePrediction(slots, previousSelection) {
             updateAIMemory(previousSelection);
         }
 
-        // فصل المجموعات
         let smallPool = slots.filter(s => SMALL_FRUIT_IDS.includes(s.id));
         let bigPool = slots.filter(s => BIG_FRUIT_IDS.includes(s.id));
 
         if (smallPool.length < 3) {
-            throw new Error("عدد الفواكه الصغيرة غير كافٍ (يجب 3 على الأقل).");
+            throw new Error("عدد الفواكه الصغيرة غير كافٍ.");
         }
         if (bigPool.length < 2) {
-            throw new Error("عدد الفواكه الكبيرة غير كافٍ (يجب 2 على الأقل).");
+            throw new Error("عدد الفواكه الكبيرة غير كافٍ.");
         }
 
-        // حساب الأوزان — الخوارزمية المُصلحة والأقوى
+        // 1. حساب الأوزان الأصلية (منطق AI الكامل)
         let predictionWeights = calculateAllFruitWeights(slots, previousSelection);
+
+        // 2. 🔥 تطبيق القلب إن كان مفعّلاً
+        //    نختار "الأقل احتمالاً عند AI" = "الأكثر احتمالاً عند يلا لايف"
+        if (INVERT_PREDICTION_MODE) {
+            predictionWeights = invertWeightsMap(predictionWeights);
+        }
 
         let result = [];
         let usedIds = new Set();
 
-        // ---------- 3 فواكه صغيرة ----------
+        // 3 فواكه صغيرة
         let smallPicked = pickMultipleFromPool(smallPool, predictionWeights, 3, usedIds);
         smallPicked.forEach(slot => {
             let w = predictionWeights[slot.id] || 1;
@@ -326,7 +366,7 @@ function generatePrediction(slots, previousSelection) {
             usedIds.add(slot.id);
         });
 
-        // ---------- 2 فواكه كبيرة ----------
+        // 2 فواكه كبيرة
         let bigPicked = pickMultipleFromPool(bigPool, predictionWeights, 2, usedIds);
         bigPicked.forEach(slot => {
             let w = predictionWeights[slot.id] || 1;
@@ -351,7 +391,8 @@ function getLearningStats() {
         totalTrained: totalTrained,
         perFruit: { ...learningBoost },
         memorySize: ai1History.length,
-        logSize: trainedFruitsLog.length
+        logSize: trainedFruitsLog.length,
+        inversionMode: INVERT_PREDICTION_MODE // 🌟 حالة القلب
     };
 }
 
@@ -370,3 +411,19 @@ function resetLearning() {
 
 function getSmallFruitIds() { return [...SMALL_FRUIT_IDS]; }
 function getBigFruitIds() { return [...BIG_FRUIT_IDS]; }
+
+// 12. 🌟 دوال مساعدة للتحكم بوضع القلب (للـ API)
+function setInversionMode(enabled) {
+    // ملاحظة: INVERT_PREDICTION_MODE ثابت. لتغييره فعلياً، استخدم:
+    // window.INVERT_PREDICTION_MODE = enabled  ← لا يعمل مع const
+    // لذلك نستخدم متغير بديل قابل للتغيير:
+    if (typeof enabled === 'boolean') {
+        // حل بديل: إعادة تحميل الملف بـ flag مختلف
+        return { currentMode: INVERT_PREDICTION_MODE, requestedMode: enabled, note: "لتغيير الوضع، عدّل قيمة INVERT_PREDICTION_MODE في أعلى الملف ثم أعد التحميل." };
+    }
+    return { currentMode: INVERT_PREDICTION_MODE };
+}
+
+function getInversionMode() {
+    return INVERT_PREDICTION_MODE;
+}
