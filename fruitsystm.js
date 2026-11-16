@@ -1,69 +1,139 @@
+
 /**
  * ============================================================================
- * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - [INVERSION MODE]
+ * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1) - SMART LEARNING EDITION
  * ============================================================================
- * 🔥 الفكرة البرمجية الجديدة: قلب التوقع (Prediction Inversion)
- * 
- * المشكلة التي كانت تحدث:
- *  - الخوارزمية كانت تعطي "ما يبدو الأكثر احتمالاً" حسب نمط اللعبة
- *  - لكن يلا لايف تعرض دائماً "العكس" — أي الفاكهة التي يتوقعها اللاعب الأقل
- *  - النتيجة: توقع معاكس بشكل مزمن
+ * نظام تعلم إحصائي وتحليل تسلسلات الفواكه
  *
- * الحل الجذري:
- *  - تُحسب الأوزان بالخوارزمية الأصلية (لا تغيير على المنطق الأساسي)
- *  - ثم تُقلَب النسب: الوزن الأعلى يصبح الأدنى، والأدنى يصبح الأعلى
- *  - فيصبح اختيارنا = "الفاكهة الأقل احتمالاً في نظر AI" 
- *    = "الفاكهة الأكثر احتمالاً عند يلا لايف" ✅
+ * المميزات:
+ * - إزالة العشوائية الكبيرة من حساب الأوزان.
+ * - التعلم من النتائج الفعلية التي يدخلها المستخدم.
+ * - ذاكرة طويلة تصل إلى 500 نتيجة.
+ * - تحليل تكرار الفواكه.
+ * - تحليل انتقالات الفواكه (Markov Chain).
+ * - إعطاء وزن أكبر للنتائج الحديثة.
+ * - عشوائية خفيفة جداً لكسر التعادل.
+ * - حساب احتمالات نسبية من البيانات.
+ * - الحفاظ على واجهة AI1 والدوال القديمة.
  *
- * التحكم: يمكن تعطيل القلب من خلال تعيين INVERT_PREDICTION_MODE = false
- * ============================================================================
- * المخرجات: 5 توقعات (3 فواكه صغيرة + 2 فواكه كبيرة) - الخامسة مميزة بالأحمر
+ * ملاحظة:
+ * الاحتمالات تقديرات إحصائية وليست ضماناً لنتائج اللعبة.
  * ============================================================================
  */
 
 // ============================================================
-// ⚙️ الإعدادات الرئيسية
+// 1. الإعدادات الرئيسية
 // ============================================================
-const INVERT_PREDICTION_MODE = true; // 🔥 مفتاح القلب — اجعله false للعودة للوضع الطبيعي
+
+const INVERT_PREDICTION_MODE = true;
+
 const MAX_WEIGHT_CAP = 45;
 const MIN_WEIGHT_FLOOR = 1;
 
-// 1. قاموس ربط أسماء الفواكه بالأرقام التعريفية (عربي + إنجليزي + اختصارات)
+const MAX_HISTORY_SIZE = 500;
+
+// وزن التكرار التاريخي
+const FREQUENCY_FACTOR = 0.65;
+
+// وزن تحليل التسلسل
+const SEQUENCE_FACTOR = 0.35;
+
+// قوة تأثير النتائج الحديثة
+const RECENCY_HALF_LIFE = 100;
+
+// الحد الأدنى لعينات التسلسل قبل الاعتماد عليه بقوة
+const MIN_SEQUENCE_SAMPLES = 3;
+
+// العشوائية الخفيفة جداً
+const RANDOM_VARIATION = 0.025;
+
+// التنعيم الإحصائي لمنع الاحتمال الصفري
+const BAYESIAN_SMOOTHING = 1.5;
+
+// ============================================================
+// 2. قاموس الفواكه
+// ============================================================
+
 const fruitNameToIdMap = {
-    'برتقال': 1, 'ليمون': 2, 'عنب': 3, 'كرز': 4,
-    'تفاح': 5, 'بطيخ': 6, 'مانجو': 7, 'فراولة': 8,
-    'orange': 1, 'lemon': 2, 'grape': 3, 'cherry': 4,
-    'apple': 5, 'watermelon': 6, 'mango': 7, 'strawberry': 8,
-    'برتق': 1, 'لمون': 2, 'عنبة': 3, 'كرزة': 4,
-    'تفاحة': 5, 'بطيخة': 6, 'مانجة': 7, 'فراوله': 8
+    'برتقال': 1,
+    'ليمون': 2,
+    'عنب': 3,
+    'كرز': 4,
+    'تفاح': 5,
+    'بطيخ': 6,
+    'مانجو': 7,
+    'فراولة': 8,
+
+    'orange': 1,
+    'lemon': 2,
+    'grape': 3,
+    'cherry': 4,
+    'apple': 5,
+    'watermelon': 6,
+    'mango': 7,
+    'strawberry': 8,
+
+    'برتق': 1,
+    'لمون': 2,
+    'عنبة': 3,
+    'كرزة': 4,
+    'تفاحة': 5,
+    'بطيخة': 6,
+    'مانجة': 7,
+    'فراوله': 8
 };
 
-// 2. متغيرات الذاكرة ونظام التعلم (حجم الذاكرة = 7 سجلات)
+// ============================================================
+// 3. الذاكرة ونظام التعلم
+// ============================================================
+
 let ai1History = [];
+
 let ai1Occurrences = {};
+
 let learningBoost = {};
+
 let totalTrained = 0;
+
 let trainedFruitsLog = [];
 
-// 3. تصنيف الفواكه
+// إحصائيات الانتقالات بين الفواكه
+let transitionCounts = {};
+
+let transitionTotals = {};
+
+// ============================================================
+// 4. تصنيف الفواكه
+// ============================================================
+
 const SMALL_FRUIT_IDS = [1, 2, 3, 5];
+
 const BIG_FRUIT_IDS = [4, 6, 7, 8];
 
-// 4. خوارزمية Fisher-Yates
+// ============================================================
+// 5. الدوال المساعدة
+// ============================================================
+
 function shuffleArray(array) {
     let newArray = [...array];
+
     for (let i = newArray.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+
+        [newArray[i], newArray[j]] =
+            [newArray[j], newArray[i]];
     }
+
     return newArray;
 }
 
-function strongShuffle(array, passes = 3) {
+function strongShuffle(array, passes = 1) {
     let result = [...array];
+
     for (let p = 0; p < passes; p++) {
         result = shuffleArray(result);
     }
+
     return result;
 }
 
@@ -73,357 +143,902 @@ function nextInt(max) {
 
 function normalizeSelection(sel) {
     if (!sel || !Array.isArray(sel)) return [];
-    return sel.map(x => Number(x)).filter(x => !isNaN(x));
+
+    return sel
+        .map(x => Number(x))
+        .filter(x => Number.isInteger(x) && x >= 1 && x <= 8);
 }
 
-// 5. تحديث الذاكرة قصيرة المدى (7 سجلات)
-function updateAIMemory(winningIds) {
-    if (!winningIds || winningIds.length === 0) return;
-    winningIds.forEach(id => {
-        let numericId = Number(id);
-        ai1History.push(numericId);
-        ai1Occurrences[numericId] = (ai1Occurrences[numericId] || 0) + 1;
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+}
 
-        if (ai1History.length > 7) {
-            let forgottenId = ai1History.shift();
-            if (ai1Occurrences[forgottenId] > 1) {
-                ai1Occurrences[forgottenId]--;
-            } else {
-                delete ai1Occurrences[forgottenId];
+function getFruitName(id) {
+    const names = {
+        1: 'برتقال',
+        2: 'ليمون',
+        3: 'عنب',
+        4: 'كرز',
+        5: 'تفاح',
+        6: 'بطيخ',
+        7: 'مانجو',
+        8: 'فراولة'
+    };
+
+    return names[id] || 'غير معروف';
+}
+
+// ============================================================
+// 6. بناء الإحصائيات من سجل التعلم
+// ============================================================
+
+function rebuildAIStatistics() {
+
+    ai1Occurrences = {};
+
+    transitionCounts = {};
+
+    transitionTotals = {};
+
+    for (let i = 0; i < ai1History.length; i++) {
+
+        const current = ai1History[i];
+
+        ai1Occurrences[current] =
+            (ai1Occurrences[current] || 0) + 1;
+
+        if (i > 0) {
+
+            const previous = ai1History[i - 1];
+
+            if (!transitionCounts[previous]) {
+                transitionCounts[previous] = {};
             }
+
+            transitionCounts[previous][current] =
+                (transitionCounts[previous][current] || 0) + 1;
+
+            transitionTotals[previous] =
+                (transitionTotals[previous] || 0) + 1;
+        }
+    }
+}
+
+// ============================================================
+// 7. تحديث الذاكرة
+// ============================================================
+
+function updateAIMemory(winningIds) {
+
+    if (!winningIds || !winningIds.length) return;
+
+    const validIds = normalizeSelection(winningIds);
+
+    validIds.forEach(id => {
+
+        ai1History.push(id);
+
+        if (ai1History.length > MAX_HISTORY_SIZE) {
+            ai1History.shift();
         }
     });
+
+    rebuildAIStatistics();
+
+    return true;
 }
 
-// 6. خاصية التعلم
-function trainAlgorithm(fruitName) {
-    if (!fruitName || typeof fruitName !== 'string') return false;
+// ============================================================
+// 8. نظام التعلم من المستخدم
+// ============================================================
 
-    const cleanName = fruitName.trim().toLowerCase().replace(/\s+/g, '');
-    if (cleanName === '') return false;
+function trainAlgorithm(fruitName) {
+
+    if (!fruitName || typeof fruitName !== 'string') {
+        return false;
+    }
+
+    const cleanName = fruitName
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '');
+
+    if (!cleanName) return false;
 
     let foundId = null;
+
     for (const key in fruitNameToIdMap) {
+
         if (key.toLowerCase() === cleanName) {
+
             foundId = fruitNameToIdMap[key];
+
             break;
         }
     }
+
     if (!foundId) return false;
 
     updateAIMemory([foundId]);
-    learningBoost[foundId] = (learningBoost[foundId] || 0) + 1;
+
+    learningBoost[foundId] =
+        (learningBoost[foundId] || 0) + 1;
+
     totalTrained++;
+
     trainedFruitsLog.push({
+
         name: fruitName.trim(),
+
         id: foundId,
+
         boost: learningBoost[foundId],
+
         time: new Date().toLocaleTimeString()
+
     });
 
     return {
+
         success: true,
+
         id: foundId,
+
+        name: getFruitName(foundId),
+
         boost: learningBoost[foundId],
-        totalTrained: totalTrained
+
+        totalTrained: totalTrained,
+
+        memorySize: ai1History.length
+
     };
 }
 
 // ============================================================
-// 7. حساب أوزان كل الفواكه (المنطق الأصلي — لا تغيير)
+// 9. حساب التكرار الموزون زمنياً
 // ============================================================
-function calculateAllFruitWeights(slots, previousSelection) {
-    let predictionWeights = {};
-    let prevSel = normalizeSelection(previousSelection);
 
-    // وزن ابتدائي عشوائي 1-8
+function calculateRecencyCounts(slots) {
+
+    const counts = {};
+
     slots.forEach(slot => {
-        predictionWeights[slot.id] = nextInt(8) + 1;
+        counts[slot.id] = 0;
     });
 
-    // استثناء الكرز(4) والبطيخ(6)
-    if (prevSel.includes(4) && predictionWeights[4] !== undefined) {
-        predictionWeights[4] = Math.max(1, Math.floor(predictionWeights[4] / 2));
-    }
-    if (prevSel.includes(6) && predictionWeights[6] !== undefined) {
-        predictionWeights[6] = Math.max(1, Math.floor(predictionWeights[6] / 2));
-    }
+    const historyLength = ai1History.length;
 
-    // المعادلة الأساسية
-    for (let fruitIdStr in ai1Occurrences) {
-        let fruitId = Number(fruitIdStr);
-        let count = ai1Occurrences[fruitIdStr];
+    for (let i = 0; i < historyLength; i++) {
 
-        if (predictionWeights[fruitId] === undefined) continue;
+        const fruitId = ai1History[i];
 
-        let currentWeight = predictionWeights[fruitId];
+        if (counts[fruitId] === undefined) continue;
 
-        let pureRandomFactor = nextInt(9) + 3;
+        const age = historyLength - 1 - i;
 
-        // sequenceBoost (Markov)
-        let sequenceBoost = 0;
-        if (ai1History.length > 0) {
-            let lastFruitInHistory = ai1History[ai1History.length - 1];
-            for (let i = 0; i < ai1History.length - 1; i++) {
-                if (ai1History[i] === lastFruitInHistory && ai1History[i + 1] === fruitId) {
-                    sequenceBoost += nextInt(4) + 2;
-                }
-            }
-        }
+        const decay = Math.pow(
+            0.5,
+            age / RECENCY_HALF_LIFE
+        );
 
-        // shuffleDistributionBonus
-        let inPrev = prevSel.includes(fruitId);
-        let shuffleDistributionBonus;
-        if (!inPrev) {
-            shuffleDistributionBonus = nextInt(18) + 8;
-        } else {
-            shuffleDistributionBonus = -(nextInt(10) + 4);
-        }
-
-        // عقوبة الحداثة
-        let recentPenalty = 0;
-        let hs = ai1History.length;
-        if (hs >= 1 && ai1History[hs - 1] === fruitId) {
-            recentPenalty -= (nextInt(12) + 8);
-        }
-        if (hs >= 2 && ai1History[hs - 2] === fruitId) {
-            recentPenalty -= (nextInt(8) + 4);
-        }
-        if (hs >= 3 && ai1History[hs - 3] === fruitId) {
-            recentPenalty -= (nextInt(5) + 2);
-        }
-
-        // frequencyHint
-        let frequencyHint = 0;
-        if (count >= 5) frequencyHint = -3;
-        else if (count >= 3) frequencyHint = -1;
-
-        let newWeight = currentWeight + pureRandomFactor + sequenceBoost + shuffleDistributionBonus + recentPenalty + frequencyHint;
-
-        if (newWeight < 1) {
-            newWeight = nextInt(3) + 1;
-        }
-
-        if ((fruitId === 8 || fruitId === 7) && inPrev) {
-            newWeight = nextInt(2);
-        }
-
-        newWeight = Math.min(newWeight, MAX_WEIGHT_CAP);
-
-        predictionWeights[fruitId] = newWeight;
+        counts[fruitId] += decay;
     }
 
-    // مكافأة الفواكه التي لم تظهر أبداً
-    for (let slot of slots) {
-        if (ai1Occurrences[slot.id] === undefined && !prevSel.includes(slot.id)) {
-            predictionWeights[slot.id] = (predictionWeights[slot.id] || 1) + 5;
-        }
+    return counts;
+}
+
+// ============================================================
+// 10. حساب احتمالات ظهور الفواكه
+// ============================================================
+
+function calculateAllFruitWeights(slots, previousSelection) {
+
+    const predictionWeights = {};
+
+    const prevSel = normalizeSelection(previousSelection);
+
+    if (!slots || !slots.length) {
+        return predictionWeights;
     }
 
-    // كسر النمط
-    if (ai1History.length >= 3) {
-        let lastInserted = ai1History[ai1History.length - 1];
-        if (predictionWeights[lastInserted] !== undefined) {
-            let diminishedWeight = Math.max(1, Math.floor(predictionWeights[lastInserted] * 0.7));
-            predictionWeights[lastInserted] = diminishedWeight;
+    const recencyCounts = calculateRecencyCounts(slots);
+
+    const totalRecent = Object.values(recencyCounts)
+        .reduce((sum, value) => sum + value, 0);
+
+    const totalHistorical = slots.reduce(
+        (sum, slot) => sum +
+            (ai1Occurrences[slot.id] || 0),
+        0
+    );
+
+    const lastFruit = ai1History.length
+        ? ai1History[ai1History.length - 1]
+        : null;
+
+    slots.forEach(slot => {
+
+        const fruitId = slot.id;
+
+        // ------------------------------------------
+        // أ. التكرار التاريخي
+        // ------------------------------------------
+
+        const historicalCount =
+            ai1Occurrences[fruitId] || 0;
+
+        const historicalProbability =
+            (historicalCount + BAYESIAN_SMOOTHING) /
+            (totalHistorical +
+                BAYESIAN_SMOOTHING * slots.length);
+
+        // ------------------------------------------
+        // ب. التكرار الحديث
+        // ------------------------------------------
+
+        const recentCount =
+            recencyCounts[fruitId] || 0;
+
+        const recentProbability =
+            (recentCount + BAYESIAN_SMOOTHING) /
+            (totalRecent +
+                BAYESIAN_SMOOTHING * slots.length);
+
+        // دمج التاريخ مع النتائج الحديثة
+        const frequencyProbability =
+            totalRecent > 0
+                ? (historicalProbability * 0.4) +
+                  (recentProbability * 0.6)
+                : historicalProbability;
+
+        // ------------------------------------------
+        // ج. تحليل انتقالات ماركوف
+        // ------------------------------------------
+
+        let transitionProbability = historicalProbability;
+
+        let sequenceSamples = 0;
+
+        if (
+            lastFruit !== null &&
+            transitionCounts[lastFruit]
+        ) {
+
+            sequenceSamples =
+                transitionTotals[lastFruit] || 0;
+
+            const transitionCount =
+                transitionCounts[lastFruit][fruitId] || 0;
+
+            transitionProbability =
+                (transitionCount + BAYESIAN_SMOOTHING) /
+                (sequenceSamples +
+                    BAYESIAN_SMOOTHING * slots.length);
         }
-    }
+
+        // ------------------------------------------
+        // د. دمج احتمالات التكرار والتسلسل
+        // ------------------------------------------
+
+        let sequenceStrength = SEQUENCE_FACTOR;
+
+        if (sequenceSamples < MIN_SEQUENCE_SAMPLES) {
+            sequenceStrength = 0;
+        }
+
+        let frequencyStrength = 1 - sequenceStrength;
+
+        let probability =
+            (frequencyProbability * frequencyStrength) +
+            (transitionProbability * sequenceStrength);
+
+        // ------------------------------------------
+        // هـ. تأثير الاختيار السابق
+        // ------------------------------------------
+
+        if (prevSel.includes(fruitId)) {
+            probability *= 0.97;
+        }
+
+        // ------------------------------------------
+        // و. منع الاحتمال الصفري
+        // ------------------------------------------
+
+        probability = Math.max(probability, 0.000001);
+
+        predictionWeights[fruitId] = probability;
+    });
+
+    // ------------------------------------------
+    // ز. تحويل الاحتمالات إلى أوزان مستقرة
+    // ------------------------------------------
+
+    let values = Object.values(predictionWeights);
+
+    const maxProbability = Math.max(...values);
+
+    const minProbability = Math.min(...values);
+
+    slots.forEach(slot => {
+
+        const p = predictionWeights[slot.id];
+
+        let normalized = maxProbability > 0
+            ? p / maxProbability
+            : 1;
+
+        let weight =
+            MIN_WEIGHT_FLOOR +
+            normalized * (MAX_WEIGHT_CAP - MIN_WEIGHT_FLOOR);
+
+        // عشوائية خفيفة جداً لا تتحكم بالنتيجة
+        const tinyVariation =
+            1 + ((Math.random() * 2 - 1) * RANDOM_VARIATION);
+
+        weight *= tinyVariation;
+
+        predictionWeights[slot.id] = clamp(
+            weight,
+            MIN_WEIGHT_FLOOR,
+            MAX_WEIGHT_CAP
+        );
+    });
 
     return predictionWeights;
 }
 
 // ============================================================
-// 🔥 7.5. دالة القلب — الفكرة البرمجية الجديدة
+// 11. قلب الأوزان
 // ============================================================
-/**
- * قلب خريطة الأوزان بالكامل.
- * الوزن الأعلى (الذي تظنه AI الأكثر احتمالاً) يصبح الأدنى،
- * والوزن الأدنى يصبح الأعلى.
- * 
- * المنطق: يلا لايف تعرض دائماً عكس ما يتوقعه اللاعب الذكي،
- * لذلك "أسوأ توقع" عند AI = "أفضل توقع" عند اللعبة.
- * 
- * @param {Object} weightsMap - خريطة الأوزان الأصلية {id: weight}
- * @param {number} maxW - السقف الأعلى (45)
- * @param {number} minW - الحد الأدنى (1)
- * @returns {Object} - خريطة أوزان مقلوبة بنفس المفاتيح
- */
-function invertWeightsMap(weightsMap, maxW = MAX_WEIGHT_CAP, minW = MIN_WEIGHT_FLOOR) {
-    let inverted = {};
-    for (let idStr in weightsMap) {
-        let originalWeight = weightsMap[idStr];
 
-        // تطبيق معادلة القلب: newW = (maxW + minW) - originalW
-        // مثال: 45 → 1،  1 → 45،  23 → 23
-        let flippedWeight = (maxW + minW) - originalWeight;
+function invertWeightsMap(
+    weightsMap,
+    maxW = MAX_WEIGHT_CAP,
+    minW = MIN_WEIGHT_FLOOR
+) {
 
-        // ضمان البقاء ضمن الحدود
-        if (flippedWeight < minW) flippedWeight = minW;
-        if (flippedWeight > maxW) flippedWeight = maxW;
+    const inverted = {};
 
-        inverted[idStr] = flippedWeight;
+    for (const idStr in weightsMap) {
+
+        const originalWeight = weightsMap[idStr];
+
+        // القلب النسبي يحافظ على حدود الأوزان
+        const flippedWeight =
+            (maxW + minW) - originalWeight;
+
+        inverted[idStr] = clamp(
+            flippedWeight,
+            minW,
+            maxW
+        );
     }
+
     return inverted;
 }
 
-// 8. السحب المرجّح
-function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
-    let available = pool.filter(s => !usedIds.has(s.id));
-    if (available.length < count) {
-        return available;
-    }
+// ============================================================
+// 12. تحويل الأوزان إلى احتمالات مئوية
+// ============================================================
 
-    let lotteryPool = [];
-    available.forEach(slot => {
-        let w = predictionWeights[slot.id] || 1;
-        for (let i = 0; i < w; i++) {
-            lotteryPool.push(slot);
-        }
+function calculateProbabilityPercentages(
+    pool,
+    predictionWeights
+) {
+
+    const result = {};
+
+    const totalWeight = pool.reduce(
+        (sum, slot) =>
+            sum + (predictionWeights[slot.id] || 0),
+        0
+    );
+
+    pool.forEach(slot => {
+
+        const weight =
+            predictionWeights[slot.id] || 0;
+
+        const percentage = totalWeight > 0
+            ? (weight / totalWeight) * 100
+            : 100 / pool.length;
+
+        result[slot.id] = Number(
+            percentage.toFixed(2)
+        );
     });
 
-    if (lotteryPool.length === 0) {
-        let shuffled = strongShuffle(available, 3);
-        return shuffled.slice(0, count);
-    }
+    return result;
+}
 
-    lotteryPool = strongShuffle(lotteryPool, 3);
+// ============================================================
+// 13. الاختيار المرجح مع عشوائية خفيفة
+// ============================================================
+
+function pickMultipleFromPool(
+    pool,
+    predictionWeights,
+    count,
+    usedIds
+) {
+
+    let available = pool.filter(
+        slot => !usedIds.has(slot.id)
+    );
 
     let picked = [];
-    let pickedIds = new Set();
-    for (let slot of lotteryPool) {
-        if (!pickedIds.has(slot.id)) {
-            picked.push(slot);
-            pickedIds.add(slot.id);
+
+    for (let n = 0; n < count && available.length; n++) {
+
+        let totalWeight = 0;
+
+        const weighted = available.map(slot => {
+
+            const baseWeight =
+                predictionWeights[slot.id] || 1;
+
+            const slightRandom =
+                1 + (
+                    (Math.random() * 2 - 1) *
+                    RANDOM_VARIATION
+                );
+
+            const weight = Math.max(
+                0.001,
+                baseWeight * slightRandom
+            );
+
+            totalWeight += weight;
+
+            return {
+                slot: slot,
+                weight: weight
+            };
+        });
+
+        let randomValue = Math.random() * totalWeight;
+
+        let selected = weighted[weighted.length - 1];
+
+        for (const item of weighted) {
+
+            randomValue -= item.weight;
+
+            if (randomValue <= 0) {
+                selected = item;
+                break;
+            }
         }
-        if (picked.length === count) break;
+
+        picked.push(selected.slot);
+
+        usedIds.add(selected.slot.id);
+
+        available = available.filter(
+            slot => slot.id !== selected.slot.id
+        );
     }
 
     return picked;
 }
 
-// 9. بناء كائن التوقع
-function buildPrediction(pick, category) {
-    let w = (pick && pick.weight) ? pick.weight : 1;
-    let slot = pick.slot;
+// ============================================================
+// 14. بناء بيانات التوقع
+// ============================================================
 
-    let confidence = Math.min(99, Math.max(92, Math.round(90 + w / 3)));
-    let score = (w * 50 + Math.random() * 100).toFixed(1);
-    let minority = (Math.random() * 4 + 0.3).toFixed(1);
+function buildPrediction(
+    pick,
+    category,
+    probabilityMap
+) {
+
+    const slot = pick.slot;
+
+    const weight = pick.weight || 1;
+
+    const probability =
+        probabilityMap &&
+        probabilityMap[slot.id] !== undefined
+            ? probabilityMap[slot.id]
+            : 0;
 
     return {
+
         id: slot.id,
+
         top: slot.top,
+
         left: slot.left,
-        weight: w,
-        confidence: confidence,
-        score: score,
-        minority: minority,
+
+        weight: Number(weight.toFixed(3)),
+
+        // النسبة المقدرة من بيانات الفئة
+        probability: probability,
+
+        probabilityPercent: probability,
+
+        // الحفاظ على اسم الحقل القديم
+        confidence: probability,
+
+        score: Number(weight.toFixed(2)),
+
+        minority: Number(
+            (100 - probability).toFixed(2)
+        ),
+
         category: category,
-        inverted: INVERT_PREDICTION_MODE // 🌟 علامة توضيحية
+
+        inverted: INVERT_PREDICTION_MODE
+
     };
 }
 
 // ============================================================
-// 10. توليد 5 توقعات (مع تطبيق القلب)
+// 15. توليد التوقعات الخمسة
 // ============================================================
+
 function generatePrediction(slots, previousSelection) {
+
     try {
-        if (!slots || slots.length === 0) {
+
+        if (!slots || !Array.isArray(slots) || !slots.length) {
+
             throw new Error("بيانات الفواكه مفقودة.");
         }
 
-        if (previousSelection && previousSelection.length > 0) {
+        const validSlots = slots.filter(
+            slot =>
+                slot &&
+                Number.isInteger(Number(slot.id)) &&
+                Number(slot.id) >= 1 &&
+                Number(slot.id) <= 8
+        );
+
+        if (validSlots.length !== 8) {
+
+            throw new Error("يجب توفير الفواكه الثمانية.");
+        }
+
+        // الحفاظ على السلوك السابق
+        if (
+            previousSelection &&
+            previousSelection.length > 0
+        ) {
+
             updateAIMemory(previousSelection);
         }
 
-        let smallPool = slots.filter(s => SMALL_FRUIT_IDS.includes(s.id));
-        let bigPool = slots.filter(s => BIG_FRUIT_IDS.includes(s.id));
+        const smallPool = validSlots.filter(
+            s => SMALL_FRUIT_IDS.includes(Number(s.id))
+        );
+
+        const bigPool = validSlots.filter(
+            s => BIG_FRUIT_IDS.includes(Number(s.id))
+        );
 
         if (smallPool.length < 3) {
+
             throw new Error("عدد الفواكه الصغيرة غير كافٍ.");
         }
+
         if (bigPool.length < 2) {
+
             throw new Error("عدد الفواكه الكبيرة غير كافٍ.");
         }
 
-        // 1. حساب الأوزان الأصلية (منطق AI الكامل)
-        let predictionWeights = calculateAllFruitWeights(slots, previousSelection);
+        // 1. حساب الأوزان من التعلم
+        let predictionWeights =
+            calculateAllFruitWeights(
+                validSlots,
+                previousSelection
+            );
 
-        // 2. 🔥 تطبيق القلب إن كان مفعّلاً
-        //    نختار "الأقل احتمالاً عند AI" = "الأكثر احتمالاً عند يلا لايف"
+        // 2. وضع القلب الأصلي
         if (INVERT_PREDICTION_MODE) {
-            predictionWeights = invertWeightsMap(predictionWeights);
+
+            predictionWeights =
+                invertWeightsMap(predictionWeights);
         }
 
-        let result = [];
-        let usedIds = new Set();
+        // 3. حساب النسب المئوية
+        const smallProbabilities =
+            calculateProbabilityPercentages(
+                smallPool,
+                predictionWeights
+            );
 
-        // 3 فواكه صغيرة
-        let smallPicked = pickMultipleFromPool(smallPool, predictionWeights, 3, usedIds);
+        const bigProbabilities =
+            calculateProbabilityPercentages(
+                bigPool,
+                predictionWeights
+            );
+
+        // 4. اختيار الفواكه
+        const result = [];
+
+        const usedIds = new Set();
+
+        const smallPicked = pickMultipleFromPool(
+            smallPool,
+            predictionWeights,
+            3,
+            usedIds
+        );
+
         smallPicked.forEach(slot => {
-            let w = predictionWeights[slot.id] || 1;
-            result.push(buildPrediction({ slot: slot, weight: w }, 'SMALL'));
-            usedIds.add(slot.id);
+
+            result.push(
+                buildPrediction(
+                    {
+                        slot: slot,
+                        weight: predictionWeights[slot.id]
+                    },
+                    'SMALL',
+                    smallProbabilities
+                )
+            );
         });
 
-        // 2 فواكه كبيرة
-        let bigPicked = pickMultipleFromPool(bigPool, predictionWeights, 2, usedIds);
+        const bigPicked = pickMultipleFromPool(
+            bigPool,
+            predictionWeights,
+            2,
+            usedIds
+        );
+
         bigPicked.forEach(slot => {
-            let w = predictionWeights[slot.id] || 1;
-            result.push(buildPrediction({ slot: slot, weight: w }, 'BIG'));
-            usedIds.add(slot.id);
+
+            result.push(
+                buildPrediction(
+                    {
+                        slot: slot,
+                        weight: predictionWeights[slot.id]
+                    },
+                    'BIG',
+                    bigProbabilities
+                )
+            );
         });
 
         if (result.length !== 5) {
+
             throw new Error("فشل استخراج 5 توقعات.");
         }
 
         return result;
+
     } catch (error) {
-        console.error("خطأ في الخوارزمية الأولى:", error.message);
+
+        console.error(
+            "خطأ في الخوارزمية الأولى:",
+            error.message
+        );
+
         return null;
     }
 }
 
-// 11. وظائف إضافية لإدارة السجل والإحصائيات
+// ============================================================
+// 16. إحصائيات التعلم
+// ============================================================
+
 function getLearningStats() {
+
+    const totalHistory =
+        ai1History.length;
+
+    const perFruit = {};
+
+    for (let id = 1; id <= 8; id++) {
+
+        perFruit[id] = {
+
+            name: getFruitName(id),
+
+            count: ai1Occurrences[id] || 0,
+
+            boost: learningBoost[id] || 0,
+
+            percentage: totalHistory > 0
+                ? Number(
+                    (
+                        ((ai1Occurrences[id] || 0) /
+                            totalHistory) * 100
+                    ).toFixed(2)
+                )
+                : 0
+        };
+    }
+
     return {
+
         totalTrained: totalTrained,
-        perFruit: { ...learningBoost },
+
+        perFruit: perFruit,
+
         memorySize: ai1History.length,
+
+        maxMemory: MAX_HISTORY_SIZE,
+
         logSize: trainedFruitsLog.length,
-        inversionMode: INVERT_PREDICTION_MODE // 🌟 حالة القلب
+
+        inversionMode: INVERT_PREDICTION_MODE,
+
+        transitionCount: Object.keys(
+            transitionTotals
+        ).length,
+
+        hasLearningData: totalHistory > 0
+
     };
 }
 
+// ============================================================
+// 17. إحصائيات الانتقالات
+// ============================================================
+
+function getTransitionStats() {
+
+    const result = {};
+
+    for (const fromId in transitionCounts) {
+
+        result[fromId] = {
+
+            fruit: getFruitName(Number(fromId)),
+
+            total: transitionTotals[fromId] || 0,
+
+            nextFruits: {}
+
+        };
+
+        for (const toId in transitionCounts[fromId]) {
+
+            const count =
+                transitionCounts[fromId][toId];
+
+            const total =
+                transitionTotals[fromId] || 1;
+
+            result[fromId].nextFruits[toId] = {
+
+                name: getFruitName(Number(toId)),
+
+                count: count,
+
+                probability: Number(
+                    ((count / total) * 100).toFixed(2)
+                )
+            };
+        }
+    }
+
+    return result;
+}
+
+// ============================================================
+// 18. سجل التدريب
+// ============================================================
+
 function getTrainedFruits() {
+
     return [...trainedFruitsLog];
 }
 
+// ============================================================
+// 19. سجل النتائج
+// ============================================================
+
+function getAIHistory() {
+
+    return [...ai1History];
+}
+
+// ============================================================
+// 20. إعادة ضبط التعلم
+// ============================================================
+
 function resetLearning() {
+
     ai1History = [];
+
     ai1Occurrences = {};
+
     learningBoost = {};
-    trainedFruitsLog = [];
+
     totalTrained = 0;
+
+    trainedFruitsLog = [];
+
+    transitionCounts = {};
+
+    transitionTotals = {};
+
     return true;
 }
 
-function getSmallFruitIds() { return [...SMALL_FRUIT_IDS]; }
-function getBigFruitIds() { return [...BIG_FRUIT_IDS]; }
+// ============================================================
+// 21. تصنيف الفواكه
+// ============================================================
 
-// 12. 🌟 دوال مساعدة للتحكم بوضع القلب (للـ API)
+function getSmallFruitIds() {
+
+    return [...SMALL_FRUIT_IDS];
+}
+
+function getBigFruitIds() {
+
+    return [...BIG_FRUIT_IDS];
+}
+
+// ============================================================
+// 22. التحكم بوضع القلب
+// ============================================================
+
 function setInversionMode(enabled) {
-    // ملاحظة: INVERT_PREDICTION_MODE ثابت. لتغييره فعلياً، استخدم:
-    // window.INVERT_PREDICTION_MODE = enabled  ← لا يعمل مع const
-    // لذلك نستخدم متغير بديل قابل للتغيير:
+
     if (typeof enabled === 'boolean') {
-        // حل بديل: إعادة تحميل الملف بـ flag مختلف
-        return { currentMode: INVERT_PREDICTION_MODE, requestedMode: enabled, note: "لتغيير الوضع، عدّل قيمة INVERT_PREDICTION_MODE في أعلى الملف ثم أعد التحميل." };
+
+        return {
+
+            currentMode: INVERT_PREDICTION_MODE,
+
+            requestedMode: enabled,
+
+            note:
+                "لتغيير الوضع فعلياً، عدّل قيمة INVERT_PREDICTION_MODE في أعلى الملف وأعد التحميل."
+        };
     }
-    return { currentMode: INVERT_PREDICTION_MODE };
+
+    return {
+
+        currentMode: INVERT_PREDICTION_MODE
+
+    };
 }
 
 function getInversionMode() {
+
     return INVERT_PREDICTION_MODE;
 }
+
+// ============================================================
+// 23. معلومات المحرك
+// ============================================================
+
+function getAI1Info() {
+
+    return {
+
+        engine: "NEXUS FIRST ALGORITHM ENGINE",
+
+        version: "AI1 SMART LEARNING",
+
+        algorithm: [
+            "Bayesian Smoothing",
+            "Weighted Frequency Analysis",
+            "Markov Chain",
+            "Recency Decay",
+            "Light Random Variation"
+        ],
+
+        memoryLimit: MAX_HISTORY_SIZE,
+
+        currentMemory: ai1History.length,
+
+        totalTrained: totalTrained,
+
+        inversionMode: INVERT_PREDICTION_MODE,
+
+        randomVariation: RANDOM_VARIATION,
+
+        status: "READY"
+
+    };
+}
+
+// ============================================================
+// END OF NEXUS AI1 SMART LEARNING ENGINE
+// ============================================================
