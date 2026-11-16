@@ -1,26 +1,30 @@
 /**
  * ============================================================================
  * YALLA FRUIT - NEXUS FIRST ALGORITHM ENGINE (AI1)
- * SMART PROBABILISTIC — 10-LAYER LEARNING ENGINE
+ * SMART PROBABILISTIC — 12-LAYER LEARNING ENGINE [REPEAT-AWARE]
  * ============================================================================
- * محرك احتمالي بـ 10 طبقات تعليمية حقيقية تعمل معاً:
+ * محرك احتمالي بـ 12 طبقة تعليمية حقيقية تعمل معاً — يعطي فرصة حقيقية للتكرار
  *
- *  L1: Frequency     — تحليل التكرار (قصير/متوسط/طويل)
- *  L2: Recency       — اضمحلال أسي من آخر ظهور
- *  L3: Markov 1      — P(next | last)
- *  L4: Markov 2      — P(next | last-1, last)
- *  L5: Coverage      — مكافأة الفواكه الغائبة
- *  L6: Gap           — كشف الفواكه "المستحقة" (Overdue)
- *  L7: Co-occurrence — أنماط الظهور المتزامن
- *  L8: Volatility    — موثوقية التنبؤ (انحراف معياري)
- *  L9: Streak        — كشف الدورات والتتابع
- *  L10: Bayesian     — تمهيد موحّد مضاد للتطرف
+ * 🆕 التعديلات الجذرية في هذه النسخة:
+ *  - layerRecency أعيد تصميمه: أرضية 0.35 للفاكهة الأخيرة (لا عقوبة كاملة)
+ *  - layerCoverage معكوس: التكرار يزيد القيمة، لا ينقصها
+ *  - prevPenalty أصبح +0.05 بدلاً من -0.15 (مكافأة خفيفة للفاكهة العائدة)
+ *  - 🆕 layerRepeatTendency: يحلل تاريخياً كم مرة تتكرر كل فاكهة
+ *  - 🆕 layerLoopCycle: يكشف الدورات القصيرة (فاكهة تظهر كل X جولات)
  *
- * المخرجات:
- *  - 5 توقعات (3 صغيرة + 2 كبيرة)
- *  - probability حقيقية لكل فاكهة (مجموع كل مجموعة = 100%)
- *  - confidence مبني على الاحتمال الحقيقي
- *  - breakdown تفصيلي لكل طبقة
+ * الطبقات الـ 12:
+ *  L1:  Frequency        — تحليل التكرار (قصير/متوسط/طويل)
+ *  L2:  Recency          — اضمحلال مع أرضية (لا عقوبة كاملة)
+ *  L3:  Markov 1         — P(next | last)
+ *  L4:  Markov 2         — P(next | last-1, last)
+ *  L5:  Coverage         — تشجيع التكرار المرن
+ *  L6:  Gap              — كشف الفواكه "المستحقة"
+ *  L7:  Co-occurrence    — أنماط الظهور المتزامن
+ *  L8:  Volatility       — موثوقية التنبؤ
+ *  L9:  Streak           — كشف السلاسل
+ *  L10: Bayesian         — تمهيد موحّد مضاد للتطرف
+ *  L11: RepeatTendency🆕 — ميل الفاكهة للتكرار
+ *  L12: LoopCycle     🆕 — كشف الدورات القصيرة
  * ============================================================================
  */
 
@@ -32,24 +36,33 @@ const LIGHT_JITTER_RANGE = 0.10;
 const MAX_WEIGHT_CAP = 45;
 const MIN_WEIGHT_FLOOR = 1;
 
+// 🆕 أرضية الحداثة: الفاكهة الأخيرة لا تنزل تحت هذه القيمة أبداً
+const RECENCY_FLOOR = 0.35;
+// 🆕 أرضية التغطية: الفاكهة الموجودة لا تنزل تحت هذه القيمة
+const COVERAGE_FLOOR = 0.40;
+
 // أوزان الدمج (Ensemble) — كل الطبقات تُجمع بهذه الأوزان
 const ENSEMBLE_WEIGHTS = {
-    frequency:    0.10,
-    recency:      0.18,
-    markov1:      0.14,
-    markov2:      0.08,
-    coverage:     0.10,
-    gap:          0.14,
-    cooccurrence: 0.06,
-    volatility:   0.06,
-    streak:       0.06,
-    bayesian:     0.08
+    frequency:      0.08,
+    recency:        0.12,
+    markov1:        0.10,
+    markov2:        0.06,
+    coverage:       0.08,
+    gap:            0.10,
+    cooccurrence:   0.05,
+    volatility:     0.05,
+    streak:         0.05,
+    bayesian:       0.06,
+    repeatTendency: 0.15,  // 🆕 وزن كبير
+    loopCycle:      0.10   // 🆕 وزن كبير
 };
 
 // نافذة الذاكرة قصيرة المدى
 const MEMORY_WINDOW = 7;
 // نافذة الفجوات
 const MAX_GAPS_PER_FRUIT = 20;
+// 🆕 نافذة تحليل التكرار (لطبقة RepeatTendency)
+const REPEAT_LOOKBACK = 10;
 
 // ============================================================
 // 🗂️ 2. قاموس الفواكه
@@ -81,14 +94,14 @@ let learningBoost = {};        // تعزيزات
 let totalTrained = 0;
 let trainedFruitsLog = [];
 
-// الذاكرة الطويلة (غير محدودة)
+// الذاكرة الطويلة
 let fullHistory = [];          // كل سجل منذ البداية
 let fullOccurrences = {};      // عدادات تراكمية كاملة
 let roundCounter = 0;          // عدّاد الجولات
 
 // ذاكرة ماركوف
 let markov1Matrix = {};        // {fromId: {toId: count}}
-let markov2Matrix = {};        // {fromKey: {toId: count}}   where fromKey="a_b"
+let markov2Matrix = {};        // {fromKey: {toId: count}}
 
 // ذاكرة التزامن
 let cooccurrenceMatrix = {};   // {idA: {idB: count}}
@@ -102,6 +115,10 @@ let streakHistory = {};        // {id: [streakLengths...]}
 
 // ذاكرة الوقت
 let hourDistribution = {};     // {hour: {id: count}}
+
+// 🆕 ذاكرة التكرار
+let repeatOutcomes = {};       // {id: {next: x, next2: y, next3: z, ...}}
+let roundSnapshots = [];       // [{round: N, ids: [...]}] — لقطة كل جولة
 
 // ============================================================
 // 🛠️ 4. أدوات مساعدة
@@ -177,6 +194,19 @@ function ensureNum(obj, key, def = 0) {
  */
 function updateAIMemory(winningIds) {
     if (!winningIds || winningIds.length === 0) return;
+
+    // 🆕 التقاط لقطة لهذه الجولة قبل تحديث البيانات
+    let roundIds = winningIds.map(Number).filter(x => !isNaN(x));
+    roundSnapshots.push({
+        round: roundCounter,
+        ids: [...roundIds]
+    });
+    // الاحتفاظ بآخر 20 لقطة فقط
+    if (roundSnapshots.length > 20) roundSnapshots.shift();
+
+    // 🆕 تحليل تكرار الفاكهة: متى ظهرت آخر مرة؟ وما الذي أعقبها؟
+    updateRepeatOutcomes(roundIds);
+
     for (let rawId of winningIds) {
         let id = Number(rawId);
         if (isNaN(id)) continue;
@@ -217,7 +247,7 @@ function updateAIMemory(winningIds) {
         hourDist[id] = (hourDist[id] || 0) + 1;
     }
 
-    // ماركوف — يُحدّث بعد إضافة كل السجلات
+    // ماركوف
     updateMarkovMatrices(winningIds);
 
     // التزامن
@@ -227,22 +257,46 @@ function updateAIMemory(winningIds) {
 }
 
 /**
+ * 🆕 تحديث ذاكرة التكرار: ماذا حدث للفاكهة بعد ظهورها؟
+ */
+function updateRepeatOutcomes(currentRoundIds) {
+    // لكل فاكهة ظهرت في اللقطة السابقة، سجّل ما ظهر بعدها الآن
+    if (roundSnapshots.length < 2) return;
+
+    let prevSnapshot = roundSnapshots[roundSnapshots.length - 2];
+    let currSnapshot = roundSnapshots[roundSnapshots.length - 1];
+
+    let currSet = new Set(currSnapshot.ids);
+    let prevSet = new Set(prevSnapshot.ids);
+
+    for (let id of prevSnapshot.ids) {
+        // هل تكررت في الجولة التالية؟
+        let repeated = currSet.has(id);
+
+        let rec = ensureObj(repeatOutcomes, id);
+        if (!rec.nextRepeats) rec.nextRepeats = 0;
+        if (!rec.nextTotal) rec.nextTotal = 0;
+
+        rec.nextTotal++;
+        if (repeated) rec.nextRepeats++;
+    }
+
+    // نفس الشيء للفاكهة الحالية — ماذا سيحدث لها في الجولة القادمة (سيُحدَّث لاحقاً)
+    for (let id of currSnapshot.ids) {
+        let rec = ensureObj(repeatOutcomes, id);
+        if (rec.appearances === undefined) rec.appearances = 0;
+        rec.appearances++;
+    }
+}
+
+/**
  * تحديث مصفوفتي ماركوف (الطلب 1 و 2)
  */
 function updateMarkovMatrices(winningIds) {
     let ids = winningIds.map(Number).filter(x => !isNaN(x));
     if (ids.length === 0) return;
 
-    // ماركوف 1: كل زوج (a→b) من تاريخ كامل
-    if (fullHistory.length >= 2) {
-        let prev = fullHistory[fullHistory.length - 2];
-        let curr = fullHistory[fullHistory.length - 1];
-        // تجاهل التحديث المكرر — يُعالج مرة واحدة فقط
-    }
-
-    // الأصح: تحديث بناءً على النافذة الكاملة بعد الإضافة
     let size = fullHistory.length;
-    // تحديث آخر 5 انتقالات
     let start = Math.max(0, size - 5);
     for (let i = Math.max(1, start); i < size; i++) {
         let from = fullHistory[i - 1];
@@ -314,11 +368,8 @@ function trainAlgorithm(fruitName) {
 // 🧩 7. الطبقة 1: تحليل التكرار (Frequency Layer)
 // ============================================================
 /**
- * يجمع ثلاث نوافذ زمنية:
- *  - النافذة القصيرة (7): أهم وزن، تكشف الحالة الآنية
- *  - النافذة المتوسطة (14): لرؤية سياق أوسع
- *  - الذاكرة الطويلة: لمعرفة الاتجاه العام
- * القيمة الناتجة: 0..1 (أعلى = الفاكهة شائعة أكثر)
+ * يجمع ثلاث نوافذ زمنية — التكرار في أي نافذة يزيد القيمة
+ * القيمة: 0..1
  */
 function layerFrequency(slots) {
     let result = {};
@@ -326,7 +377,6 @@ function layerFrequency(slots) {
     let midTotal = Math.min(14, fullHistory.length);
     let longTotal = fullHistory.length;
 
-    // النافذة المتوسطة
     let midCounts = {};
     let midSlice = fullHistory.slice(-14);
     for (let id of midSlice) midCounts[id] = (midCounts[id] || 0) + 1;
@@ -341,7 +391,7 @@ function layerFrequency(slots) {
         let midFreq   = safeDivide(midCount, midTotal, 0);
         let longFreq  = safeDivide(longCount, longTotal, 0);
 
-        // المزج الموزون — نافذة قصيرة لها وزن أكبر
+        // المزج الموزون — النافذة القصيرة تأخذ وزناً أكبر
         let score = (shortFreq * 0.5) + (midFreq * 0.3) + (longFreq * 0.2);
 
         result[id] = clamp(score, 0, 1);
@@ -351,18 +401,20 @@ function layerFrequency(slots) {
 }
 
 // ============================================================
-// 🌟 8. الطبقة 2: اضمحلال الحداثة (Recency Layer)
+// 🌟 8. الطبقة 2: اضمحلال الحداثة (Recency Layer) — مُعاد تصميمها
 // ============================================================
 /**
- * اضمحلال أسي:
- *  - إذا ظهرت الفاكهة في الجولة الأخيرة: score ≈ 0
- *  - إذا ظهرت منذ 7 جولات: score ≈ 0.7
- *  - إذا لم تظهر أبداً: score = 1
- * القيمة الناتجة: 0..1 (أعلى = الفاكهة "متأخرة" عن الظهور)
+ * 🆕 التعديل الجذري:
+ *  - في النسخة القديمة: الفاكهة الأخيرة تحصل على ≈ 0 (عقوبة كاملة)
+ *  - في النسخة الجديدة: الفاكهة الأخيرة تحصل على أرضية 0.35 (فرصة معقولة للتكرار)
+ *  - الفاكهة الغائبة تحصل على 1.0 (فرصة كاملة)
+ *
+ * المنطق: يلا لايف قد تعيد الفاكهة — لا يجب استبعادها تماماً
+ * القيمة: 0.35..1
  */
 function layerRecency(slots) {
     let result = {};
-    let halfLife = 4.0; // نصف العمر — كل 4 جولات تنخفض القيمة للنصف
+    let halfLife = 5.0;
     let currentRound = roundCounter;
 
     for (let slot of slots) {
@@ -370,7 +422,7 @@ function layerRecency(slots) {
         let lastRound = lastAppearanceRound[id];
 
         if (lastRound === undefined) {
-            // لم تظهر أبداً — أعلى أولوية
+            // لم تظهر أبداً — فرصة كاملة
             result[id] = 1.0;
             continue;
         }
@@ -378,9 +430,13 @@ function layerRecency(slots) {
         let roundsSince = currentRound - lastRound;
         if (roundsSince < 0) roundsSince = 0;
 
-        // اضمحلال أسي: score = 1 - exp(-roundsSince / halfLife)
+        // اضمحلال أسي
         let decay = 1 - Math.exp(-roundsSince / halfLife);
-        result[id] = clamp(decay, 0, 1);
+
+        // 🆕 تطبيق أرضية: لا تنزل أبداً تحت RECENCY_FLOOR
+        let finalScore = RECENCY_FLOOR + (1 - RECENCY_FLOOR) * decay;
+
+        result[id] = clamp(finalScore, RECENCY_FLOOR, 1);
     }
 
     return result;
@@ -389,13 +445,6 @@ function layerRecency(slots) {
 // ============================================================
 // 🔗 9. الطبقة 3: ماركوف من الدرجة الأولى (Markov1)
 // ============================================================
-/**
- * P(next | last):
- *  - يعتمد على آخر فاكهة ظهرت
- *  - يبحث في markov1Matrix عن الصف المطابق
- *  - يحسب الاحتمالية النسبية لكل فاكهة
- * القيمة الناتجة: 0..1
- */
 function layerMarkov1(slots) {
     let result = {};
     for (let slot of slots) result[slot.id] = 0;
@@ -406,7 +455,6 @@ function layerMarkov1(slots) {
     let row = markov1Matrix[lastFruit];
     if (!row) return result;
 
-    // مجموع الانتقالات من هذه الفاكهة
     let rowSum = 0;
     for (let k in row) rowSum += row[k];
     if (rowSum === 0) return result;
@@ -423,12 +471,6 @@ function layerMarkov1(slots) {
 // ============================================================
 // 🔗🔗 10. الطبقة 4: ماركوف من الدرجة الثانية (Markov2)
 // ============================================================
-/**
- * P(next | last-1, last):
- *  - يعتمد على آخر فاكهتين
- *  - أكثر تخصصاً من ماركوف 1
- * القيمة الناتجة: 0..1
- */
 function layerMarkov2(slots) {
     let result = {};
     for (let slot of slots) result[slot.id] = 0;
@@ -454,22 +496,33 @@ function layerMarkov2(slots) {
 }
 
 // ============================================================
-// 🎯 11. الطبقة 5: التغطية (Coverage)
+// 🎯 11. الطبقة 5: التغطية (Coverage Layer) — مُعاد تصميمها
 // ============================================================
 /**
- * مكافأة للفواكه الغائبة من النافذة الحالية
- *  - غائبة تماماً من النافذة (7) = 1.0
- *  - ظهرت مرة واحدة = 0.5
- *  - ظهرت مرتين = 0.25
- * القيمة الناتجة: 0..1
+ * 🆕 التعديل الجذري:
+ *  - في النسخة القديمة: 1/(count+1) → التكرار يعاقب بشدة
+ *  - في النسخة الجديدة: COVERAGE_FLOOR + bonus للتكرار
+ *    - موجودة مرة واحدة: 0.5 (قيمة معقولة، ليست عقوبة)
+ *    - موجودة مرتين: 0.55 (التكرار لا يضر)
+ *    - موجودة 3+ مرات: 0.6 (تأكيد على الحضور)
+ *    - غير موجودة: 1.0 (فرصة كاملة)
+ * القيمة: 0.4..1
  */
 function layerCoverage(slots) {
     let result = {};
     for (let slot of slots) {
         let id = slot.id;
         let count = ai1Occurrences[id] || 0;
-        if (count === 0) result[id] = 1.0;
-        else result[id] = 1.0 / (count + 1);
+
+        if (count === 0) {
+            // غير موجودة — أولوية عالية للظهور (لمستحقة)
+            result[id] = 1.0;
+        } else {
+            // 🆕 موجودة — لا تُعاقب، بل تُعطى قيمة معقولة تعترف بحضورها
+            // الصيغة: COVERAGE_FLOOR + 0.08 * count (بحد أقصى 0.75)
+            let score = COVERAGE_FLOOR + 0.08 * count;
+            result[id] = clamp(score, COVERAGE_FLOOR, 0.75);
+        }
     }
     return result;
 }
@@ -477,16 +530,9 @@ function layerCoverage(slots) {
 // ============================================================
 // 📏 12. الطبقة 6: تحليل الفجوات (Gap Layer)
 // ============================================================
-/**
- * لكل فاكهة، نحسب متوسط الفجوة التاريخية.
- * ثم نقارن الفجوة الحالية بالمتوسط:
- *  - إذا كانت الفجوة الحالية > المتوسط = "متأخرة" = مكافأة
- *  - إذا كانت أقل = "حديثة" = لا مكافأة
- * القيمة الناتجة: 0..1
- */
 function layerGap(slots) {
     let result = {};
-    for (let slot of slots) result[slot.id] = 0.5; // افتراضي محايد
+    for (let slot of slots) result[slot.id] = 0.5;
 
     let currentRound = roundCounter;
 
@@ -496,12 +542,9 @@ function layerGap(slots) {
         let lastRound = lastAppearanceRound[id];
 
         if (!gaps || gaps.length === 0) {
-            // لا توجد فجوات مسجلة
             if (lastRound === undefined) {
-                // لم تظهر أبداً = مستحقة
                 result[id] = 1.0;
             } else {
-                // ظهرت مرة واحدة فقط — نعطيها مكافأة متوسطة
                 let roundsSince = currentRound - lastRound;
                 result[id] = clamp(roundsSince / 10, 0, 1);
             }
@@ -514,10 +557,7 @@ function layerGap(slots) {
         let currentGap = lastRound !== undefined ? (currentRound - lastRound) : avgGap * 2;
         if (currentGap < 0) currentGap = 0;
 
-        // نسبة "التأخر"
         let overdueRatio = currentGap / avgGap;
-
-        // اقبض بين 0 و 2 ثم نورم إلى 0..1
         overdueRatio = clamp(overdueRatio, 0, 2);
         result[id] = overdueRatio / 2;
     }
@@ -528,22 +568,12 @@ function layerGap(slots) {
 // ============================================================
 // 👥 13. الطبقة 7: التزامن (Co-occurrence)
 // ============================================================
-/**
- * يعتمد على أي الفواكه ظهرت في الجولة السابقة
- * إذا كانت فاكهة ما ترافق بشدة فاكهة ظهرت للتو → مكافأة
- * القيمة الناتجة: 0..1
- */
 function layerCooccurrence(slots) {
     let result = {};
     for (let slot of slots) result[slot.id] = 0;
 
     if (fullHistory.length < 2) return result;
 
-    // الفواكه الأخيرة (آخر جولة)
-    let lastRoundFruits = [];
-    let lastRound = -1;
-    // نبني مجموعة الفواكه التي ظهرت في الجولة السابقة
-    // (نعتبرها آخر 5 عناصر كتقريب)
     let recent = fullHistory.slice(-5);
     let recentSet = new Set(recent);
 
@@ -556,7 +586,6 @@ function layerCooccurrence(slots) {
         for (let k in row) total += row[k];
         if (total === 0) continue;
 
-        // مجموع مرات التزامن مع الفواكه الأخيرة
         let coSum = 0;
         for (let otherId in row) {
             if (recentSet.has(Number(otherId))) {
@@ -570,15 +599,8 @@ function layerCooccurrence(slots) {
 }
 
 // ============================================================
-// 📊 14. الطبقة 8: التذبذب (Volatility Layer)
+// 📊 14. الطبقة 8: التذبذب (Volatility)
 // ============================================================
-/**
- * الانحراف المعياري للفجوات:
- *  - إذا كان منخفضاً = الفاكهة "منتظمة" = تنبؤ أكثر دقة
- *  - إذا كان مرتفعاً = عشوائية = تنبؤ أقل دقة
- * نُرجّح: الفاكهة المنتظمة إذا كانت متأخرة = مكافأة قوية
- * القيمة الناتجة: 0..1
- */
 function layerVolatility(slots) {
     let result = {};
     for (let slot of slots) result[slot.id] = 0.5;
@@ -593,19 +615,16 @@ function layerVolatility(slots) {
         if (avg <= 0) continue;
 
         let std = stdDev(gaps);
-        let cv = std / avg; // معامل الاختلاف
+        let cv = std / avg;
 
-        // cv منخفض = منتظم = موثوق
-        let reliability = 1 / (1 + cv); // 0..1
+        let reliability = 1 / (1 + cv);
 
-        // هل الفاكهة متأخرة؟
         let lastRound = lastAppearanceRound[id];
         let currentGap = lastRound !== undefined ? (roundCounter - lastRound) : avg;
 
         let overdue = currentGap / avg;
         overdue = clamp(overdue, 0, 1.5);
 
-        // الدمج: الموثوقية × درجة التأخر
         result[id] = clamp(reliability * (overdue / 1.5), 0, 1);
     }
 
@@ -613,13 +632,8 @@ function layerVolatility(slots) {
 }
 
 // ============================================================
-// 🔁 15. الطبقة 9: كشف السلاسل (Streak Layer)
+// 🔁 15. الطبقة 9: كشف السلاسل (Streak)
 // ============================================================
-/**
- * إذا كانت الفاكهة تظهر في سلاسل (تفاح تفاح تفاح)، والآن السلسلة مقطوعة
- * فهي "مستحقة" للعودة.
- * القيمة الناتجة: 0..1
- */
 function layerStreak(slots) {
     let result = {};
     for (let slot of slots) result[slot.id] = 0;
@@ -629,7 +643,6 @@ function layerStreak(slots) {
         let streaks = streakHistory[id];
 
         if (!streaks || streaks.length === 0) {
-            // لا سلاسل مسجلة = فرصة عادلة
             result[id] = 0.5;
             continue;
         }
@@ -637,15 +650,12 @@ function layerStreak(slots) {
         let avgStreak = mean(streaks.map(s => s.length));
         if (avgStreak <= 0) avgStreak = 1;
 
-        // السلسلة الحالية
         let currentStreak = streaks[streaks.length - 1];
         let currentLen = currentStreak.length;
 
         if (currentStreak.closed) {
-            // السلسلة مغلقة = مستحقة
             result[id] = clamp(avgStreak / 3, 0, 1);
         } else {
-            // السلسلة مفتوحة — إذا كانت قصيرة، مرشح للاستمرار؛ إذا طويلة، مرشح للإغلاق
             if (currentLen < avgStreak) {
                 result[id] = 0.3;
             } else {
@@ -658,13 +668,8 @@ function layerStreak(slots) {
 }
 
 // ============================================================
-// ⚖️ 16. الطبقة 10: التمهيد البايزي (Bayesian Prior)
+// ⚖️ 16. الطبقة 10: التمهيد البايزي (Bayesian)
 // ============================================================
-/**
- * يُضاف تمهيد موحّد صغير لكل فاكهة
- * الهدف: منع التطرف (احتمال 0% أو 100%)
- * القيمة الناتجة: 0..1 (شبه ثابت)
- */
 function layerBayesian(slots) {
     let result = {};
     let priorStrength = 0.15;
@@ -672,7 +677,6 @@ function layerBayesian(slots) {
     for (let slot of slots) {
         let id = slot.id;
         let count = fullOccurrences[id] || 0;
-        // التمهيد: (count + prior) / (total + prior * n)
         let total = fullHistory.length;
         let n = slots.length || 8;
         let score = safeDivide(count + priorStrength, total + priorStrength * n, 1 / n);
@@ -683,29 +687,150 @@ function layerBayesian(slots) {
 }
 
 // ============================================================
-// 🧬 17. مجمّع الطبقات (Ensemble Combiner)
+// 🆕 17. الطبقة 11: ميل التكرار (Repeat Tendency Layer)
 // ============================================================
 /**
- * يجمع كل الطبقات بأوزان محددة
- * المخرج: score خام لكل فاكهة (بلا تطبيع)
+ * 🆕 الفكرة الجذرية: لكل فاكهة، نحسب تاريخياً كم مرة تكررت في الجولة التالية.
+ *
+ * على سبيل المثال:
+ *  - إذا كانت "التفاح" عندما ظهرت في جولة، عادت في الجولة التالية 60% من الوقت
+ *  - فإن التفاح لديه "ميل تكرار" عالٍ
+ *
+ * ثم:
+ *  - الفاكهة التي ظهرت في الجولة الحالية ولها ميل تكرار عالٍ = مكافأة كبيرة
+ *  - الفاكهة التي لم تظهر مؤخراً = قيمة محايدة (0.5)
+ *
+ * القيمة: 0..1
  */
-function computeEnsembleScores(slots, prevSel) {
-    // تشغيل كل الطبقات
-    let L_freq   = layerFrequency(slots);
-    let L_rec    = layerRecency(slots);
-    let L_m1     = layerMarkov1(slots);
-    let L_m2     = layerMarkov2(slots);
-    let L_cov    = layerCoverage(slots);
-    let L_gap    = layerGap(slots);
-    let L_co     = layerCooccurrence(slots);
-    let L_vol    = layerVolatility(slots);
-    let L_streak = layerStreak(slots);
-    let L_bayes  = layerBayesian(slots);
+function layerRepeatTendency(slots) {
+    let result = {};
+    for (let slot of slots) result[slot.id] = 0.5;
 
-    // عقوبات/مكافآت إضافية
-    let prevPenalty = {};
+    if (fullHistory.length < 2) return result;
+
+    // آخر جولة ظهرت فيها الفواكه
+    let lastRound = roundSnapshots.length > 0
+        ? roundSnapshots[roundSnapshots.length - 1]
+        : null;
+
+    let recentIds = new Set(lastRound ? lastRound.ids : []);
+
     for (let slot of slots) {
-        prevPenalty[slot.id] = prevSel.includes(slot.id) ? -0.15 : 0;
+        let id = slot.id;
+        let rec = repeatOutcomes[id];
+
+        if (!rec || !rec.nextTotal || rec.nextTotal === 0) {
+            // لا يوجد تاريخ تكرار — قيمة محايدة
+            result[id] = 0.5;
+            continue;
+        }
+
+        // نسبة التكرار التاريخية
+        let repeatRate = safeDivide(rec.nextRepeats, rec.nextTotal, 0.5);
+
+        // إذا كانت الفاكهة ظهرت في الجولة السابقة (فرصة للتكرار الآن)
+        if (recentIds.has(id)) {
+            // مكافأة كبيرة إذا كان ميل التكرار عالياً
+            result[id] = clamp(0.5 + repeatRate * 0.5, 0, 1);
+        } else {
+            // غير موجودة في الجولة السابقة — احتمال عودتها الآن يعتمد على ميلها
+            // (أقل أهمية لكن لا يضر)
+            result[id] = clamp(0.3 + repeatRate * 0.3, 0, 1);
+        }
+    }
+
+    return result;
+}
+
+// ============================================================
+// 🆕 18. الطبقة 12: كشف الدورات القصيرة (Loop Cycle Layer)
+// ============================================================
+/**
+ * 🆕 الفكرة الجذرية: بعض الفواكه تظهر في دورات قصيرة منتظمة:
+ *  - "كل جولتين"
+ *  - "كل 3 جولات"
+ *  - "كل 4 جولات"
+ *
+ * إذا كانت الفاكهة في بداية/منتصف دورتها = مكافأة كبيرة
+ * إذا خرجت عن دورتها = عقوبة خفيفة
+ *
+ * القيمة: 0..1
+ */
+function layerLoopCycle(slots) {
+    let result = {};
+    for (let slot of slots) result[slot.id] = 0.5;
+
+    let currentRound = roundCounter;
+
+    for (let slot of slots) {
+        let id = slot.id;
+        let gaps = gapHistory[id];
+
+        if (!gaps || gaps.length < 3) {
+            // بيانات غير كافية
+            continue;
+        }
+
+        let avgGap = mean(gaps);
+        let stdGap = stdDev(gaps);
+
+        if (avgGap <= 0) continue;
+
+        // هل الفجوات منتظمة بدرجة عالية؟ (std منخفض مقارنة بالمتوسط)
+        let cv = stdGap / avgGap;
+
+        if (cv > 0.5) {
+            // فوضوية — لا دورة واضحة
+            result[id] = 0.3;
+            continue;
+        }
+
+        // هناك دورة!
+        let lastRound = lastAppearanceRound[id];
+        if (lastRound === undefined) {
+            result[id] = 0.5;
+            continue;
+        }
+
+        let roundsSince = currentRound - lastRound;
+        let expectedRounds = avgGap;
+
+        // كم نحن قريبون من الدورة المتوقعة؟
+        let distance = Math.abs(roundsSince - expectedRounds);
+        let proximity = 1 - clamp(distance / (expectedRounds + 1), 0, 1);
+
+        // مكافأة على الانتظام
+        let regularity = 1 - cv;
+
+        // الدمج: كلما كانت الدورة منتظمة واقتربنا منها، زادت القيمة
+        result[id] = clamp(proximity * regularity + 0.2, 0, 1);
+    }
+
+    return result;
+}
+
+// ============================================================
+// 🧬 19. مجمّع الطبقات (Ensemble Combiner)
+// ============================================================
+function computeEnsembleScores(slots, prevSel) {
+    // تشغيل كل الطبقات الـ 12
+    let L_freq    = layerFrequency(slots);
+    let L_rec     = layerRecency(slots);
+    let L_m1      = layerMarkov1(slots);
+    let L_m2      = layerMarkov2(slots);
+    let L_cov     = layerCoverage(slots);
+    let L_gap     = layerGap(slots);
+    let L_co      = layerCooccurrence(slots);
+    let L_vol     = layerVolatility(slots);
+    let L_streak  = layerStreak(slots);
+    let L_bayes   = layerBayesian(slots);
+    let L_repeat  = layerRepeatTendency(slots);
+    let L_loop    = layerLoopCycle(slots);
+
+    // 🆕 مكافأة خفيفة للفاكهة التي ظهرت في الجولة السابقة (بدلاً من عقوبة)
+    let prevBonus = {};
+    for (let slot of slots) {
+        prevBonus[slot.id] = prevSel.includes(slot.id) ? 0.05 : 0;
     }
 
     // الدمج
@@ -723,9 +848,10 @@ function computeEnsembleScores(slots, prevSel) {
             (L_vol[id]    || 0) * ENSEMBLE_WEIGHTS.volatility +
             (L_streak[id] || 0) * ENSEMBLE_WEIGHTS.streak +
             (L_bayes[id]  || 0) * ENSEMBLE_WEIGHTS.bayesian +
-            prevPenalty[id];
+            (L_repeat[id] || 0) * ENSEMBLE_WEIGHTS.repeatTendency +
+            (L_loop[id]   || 0) * ENSEMBLE_WEIGHTS.loopCycle +
+            prevBonus[id];
 
-        // ضمان عدم الوصول لصفر مطلق
         if (score < 0.001) score = 0.001;
         ensemble[id] = score;
     }
@@ -742,13 +868,15 @@ function computeEnsembleScores(slots, prevSel) {
             cooccurrence: L_co,
             volatility: L_vol,
             streak: L_streak,
-            bayesian: L_bayes
+            bayesian: L_bayes,
+            repeatTendency: L_repeat,
+            loopCycle: L_loop
         }
     };
 }
 
 // ============================================================
-// 📊 18. التطبيع إلى احتمالات
+// 📊 20. التطبيع إلى احتمالات
 // ============================================================
 function normalizeToProbabilities(scores) {
     let total = 0;
@@ -768,7 +896,7 @@ function normalizeToProbabilities(scores) {
 }
 
 // ============================================================
-// 🎲 19. عشوائية خفيفة (Jitter)
+// 🎲 21. عشوائية خفيفة (Jitter)
 // ============================================================
 function applyLightJitter(probs) {
     let jittered = {};
@@ -784,7 +912,7 @@ function applyLightJitter(probs) {
 }
 
 // ============================================================
-// 🔄 20. القلب (Inversion)
+// 🔄 22. القلب (Inversion)
 // ============================================================
 function invertProbabilities(probs) {
     let inverted = {};
@@ -797,21 +925,14 @@ function invertProbabilities(probs) {
 }
 
 // ============================================================
-// 🧮 21. حساب الاحتمالات النهائية (المدخل الرئيسي)
+// 🧮 23. حساب الاحتمالات النهائية (المدخل الرئيسي)
 // ============================================================
 function calculateAllProbabilities(slots, previousSelection) {
     let prevSel = normalizeSelection(previousSelection);
 
-    // 1. درجات خام من كل الطبقات
     let ensemble = computeEnsembleScores(slots, prevSel);
-
-    // 2. تطبيع لاحتمالات 0-100
     let probs = normalizeToProbabilities(ensemble.scores);
-
-    // 3. عشوائية خفيفة
     probs = applyLightJitter(probs);
-
-    // 4. قلب
     if (INVERT_PREDICTION_MODE) probs = invertProbabilities(probs);
 
     return {
@@ -821,7 +942,7 @@ function calculateAllProbabilities(slots, previousSelection) {
 }
 
 // ============================================================
-// 🏋️ 22. حساب الأوزان الصحيحة (Legacy Compatible)
+// 🏋️ 24. حساب الأوزان الصحيحة (Legacy Compatible)
 // ============================================================
 function calculateAllFruitWeights(slots, previousSelection) {
     let result = calculateAllProbabilities(slots, previousSelection);
@@ -833,7 +954,7 @@ function calculateAllFruitWeights(slots, previousSelection) {
 }
 
 // ============================================================
-// 🎰 23. السحب المرجّح
+// 🎰 25. السحب المرجّح
 // ============================================================
 function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
     let available = pool.filter(s => !usedIds.has(s.id));
@@ -865,29 +986,23 @@ function pickMultipleFromPool(pool, predictionWeights, count, usedIds) {
 }
 
 // ============================================================
-// 🏗️ 24. بناء كائن التوقع — احتمالات حقيقية
+// 🏗️ 26. بناء كائن التوقع — احتمالات حقيقية
 // ============================================================
 function buildPrediction(slot, category, allProbs, breakdown) {
     let groupIds = category === 'SMALL' ? SMALL_FRUIT_IDS : BIG_FRUIT_IDS;
 
-    // مجموع احتمالات المجموعة (يجب أن يكون ≈ 50% لأن هناك مجموعتان)
     let groupTotal = 0;
     for (let gid of groupIds) {
         if (allProbs[gid] !== undefined) groupTotal += allProbs[gid];
     }
 
-    // احتمالية داخل المجموعة (مجموعها 100%)
     let rawProb = groupTotal > 0
         ? (allProbs[slot.id] / groupTotal) * 100
         : 100 / groupIds.length;
 
-    // دقة عشرية واحدة
     let probability = Math.round(rawProb * 10) / 10;
-
-    // الثقة — مشتقة من الاحتمال (لكن تمنع الأرقام المتطرفة)
     let confidence = Math.round(clamp(probability + 25, 40, 99));
 
-    // تفكيك الطبقات — للشفافية
     let layerDetails = {};
     for (let layerName in breakdown) {
         let layerMap = breakdown[layerName];
@@ -902,8 +1017,8 @@ function buildPrediction(slot, category, allProbs, breakdown) {
         top: slot.top,
         left: slot.left,
         weight: Math.max(1, Math.round(allProbs[slot.id] || 1)),
-        probability: probability,       // 🌟 احتمال حقيقي 0-100%
-        confidence: confidence,          // ثقة 0-100%
+        probability: probability,
+        confidence: confidence,
         score: (probability * 10).toFixed(1),
         minority: (probability / 10).toFixed(1),
         category: category,
@@ -913,7 +1028,7 @@ function buildPrediction(slot, category, allProbs, breakdown) {
 }
 
 // ============================================================
-// 🎯 25. توليد 5 توقعات
+// 🎯 27. توليد 5 توقعات
 // ============================================================
 function generatePrediction(slots, previousSelection) {
     try {
@@ -935,26 +1050,22 @@ function generatePrediction(slots, previousSelection) {
             throw new Error("عدد الفواكه الكبيرة غير كافٍ.");
         }
 
-        // حساب الاحتمالات مع تفكيك الطبقات
         let calc = calculateAllProbabilities(slots, previousSelection);
         let probs = calc.probabilities;
         let breakdown = calc.breakdown;
 
-        // أوزان صحيحة للسحب
         let weights = {};
         for (let id in probs) weights[id] = Math.max(1, Math.round(probs[id]));
 
         let result = [];
         let usedIds = new Set();
 
-        // 3 صغيرة
         let smallPicked = pickMultipleFromPool(smallPool, weights, 3, usedIds);
         for (let slot of smallPicked) {
             result.push(buildPrediction(slot, 'SMALL', probs, breakdown));
             usedIds.add(slot.id);
         }
 
-        // 2 كبيرة
         let bigPicked = pickMultipleFromPool(bigPool, weights, 2, usedIds);
         for (let slot of bigPicked) {
             result.push(buildPrediction(slot, 'BIG', probs, breakdown));
@@ -973,13 +1084,14 @@ function generatePrediction(slots, previousSelection) {
 }
 
 // ============================================================
-// 📈 26. إحصائيات تفصيلية
+// 📈 28. إحصائيات تفصيلية
 // ============================================================
 function getDetailedStats() {
     let fruitStats = {};
     for (let id in FRUIT_NAMES_AR) {
         let numId = Number(id);
         let gaps = gapHistory[numId] || [];
+        let rec = repeatOutcomes[numId] || {};
         fruitStats[id] = {
             nameAr: FRUIT_NAMES_AR[id],
             fullCount: fullOccurrences[id] || 0,
@@ -990,7 +1102,10 @@ function getDetailedStats() {
                 : null,
             avgGap: gaps.length > 0 ? Math.round(mean(gaps) * 100) / 100 : null,
             gapStd: gaps.length > 1 ? Math.round(stdDev(gaps) * 100) / 100 : null,
-            totalStreaks: (streakHistory[numId] || []).length
+            totalStreaks: (streakHistory[numId] || []).length,
+            repeatRate: rec.nextTotal ? Math.round(safeDivide(rec.nextRepeats, rec.nextTotal) * 100) / 100 : null,
+            repeatTotal: rec.nextTotal || 0,
+            repeatCount: rec.nextRepeats || 0
         };
     }
 
@@ -1001,12 +1116,14 @@ function getDetailedStats() {
         fullHistorySize: fullHistory.length,
         logSize: trainedFruitsLog.length,
         inversionMode: INVERT_PREDICTION_MODE,
+        recencyFloor: RECENCY_FLOOR,
+        coverageFloor: COVERAGE_FLOOR,
         fruits: fruitStats
     };
 }
 
 // ============================================================
-// 🔧 27. إدارة الحالة (Compatibility API)
+// 🔧 29. إدارة الحالة (Compatibility API)
 // ============================================================
 function getLearningStats() {
     return {
@@ -1016,7 +1133,10 @@ function getLearningStats() {
         fullHistorySize: fullHistory.length,
         logSize: trainedFruitsLog.length,
         inversionMode: INVERT_PREDICTION_MODE,
-        roundCounter: roundCounter
+        roundCounter: roundCounter,
+        recencyFloor: RECENCY_FLOOR,
+        coverageFloor: COVERAGE_FLOOR,
+        repeatSnapshots: roundSnapshots.length
     };
 }
 
@@ -1043,6 +1163,10 @@ function resetLearning() {
     streakHistory = {};
     hourDistribution = {};
 
+    // 🆕 إعادة تعيين ذاكرة التكرار
+    repeatOutcomes = {};
+    roundSnapshots = [];
+
     return true;
 }
 
@@ -1065,7 +1189,7 @@ function setInversionMode(enabled) {
 }
 
 // ============================================================
-// 🔙 28. توافق عكسي (Legacy)
+// 🔙 30. توافق عكسي (Legacy)
 // ============================================================
 function invertWeightsMap(weightsMap, maxW = MAX_WEIGHT_CAP, minW = MIN_WEIGHT_FLOOR) {
     let inverted = {};
@@ -1080,7 +1204,7 @@ function invertWeightsMap(weightsMap, maxW = MAX_WEIGHT_CAP, minW = MIN_WEIGHT_F
 }
 
 // ============================================================
-// 🔬 29. أداة تشخيص — عرض احتمالات كل الفواكه (للتطوير)
+// 🔬 31. أداة تشخيص — عرض احتمالات كل الفواكه
 // ============================================================
 function debugPrintAllProbabilities(slots, previousSelection) {
     let calc = calculateAllProbabilities(slots, previousSelection);
@@ -1091,7 +1215,6 @@ function debugPrintAllProbabilities(slots, previousSelection) {
         big: {}
     };
 
-    // نطبع النسب داخل كل مجموعة
     let smallTotal = 0, bigTotal = 0;
     for (let gid of SMALL_FRUIT_IDS) smallTotal += (probs[gid] || 0);
     for (let gid of BIG_FRUIT_IDS) bigTotal += (probs[gid] || 0);
@@ -1118,7 +1241,7 @@ function debugPrintAllProbabilities(slots, previousSelection) {
 }
 
 // ============================================================
-// 🧪 30. اختبار سريع (يمكن استدعاؤه يدوياً)
+// 🧪 32. اختبار سريع
 // ============================================================
 function runSelfTest() {
     let slots = [
@@ -1132,14 +1255,19 @@ function runSelfTest() {
         { id: 8, top: '50%', left: '70%' }
     ];
 
+    // تدريب متنوع
     trainAlgorithm('تفاح');
     trainAlgorithm('برتقال');
     trainAlgorithm('كرز');
     trainAlgorithm('مانجو');
     trainAlgorithm('عنب');
+    trainAlgorithm('تفاح');
+    trainAlgorithm('ليمون');
+    trainAlgorithm('تفاح'); // التفاح يتكرر
 
     let preds = generatePrediction(slots, []);
     let debug = debugPrintAllProbabilities(slots, []);
+    let stats = getDetailedStats();
 
-    return { predictions: preds, probabilities: debug, stats: getDetailedStats() };
+    return { predictions: preds, probabilities: debug, stats: stats };
 }
